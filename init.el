@@ -6,7 +6,7 @@
  '(custom-safe-themes
    '("e410458d3e769c33e0865971deb6e8422457fad02bf51f7862fa180ccc42c032" "0f76f9e0af168197f4798aba5c5ef18e07c926f4e7676b95f2a13771355ce850" default))
  '(package-selected-packages
-   '(ace-window evil-collection evil magit vterm company ## rust-mode modus-themes)))
+   '(flycheck bm minimap rainbow-delimiters ace-window evil-collection evil magit vterm company ## rust-mode modus-themes)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -85,3 +85,52 @@
 
 ;; You can bind this function to a key for quick access
 (global-set-key (kbd "C-c I") 'open-init-file)
+
+
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+
+
+(require 'bm)
+
+;; Enable `bm` in all buffers
+(global-set-key (kbd "<f2>") 'bm-toggle)    ;; Toggle bookmark with F2
+(global-set-key (kbd "<f3>") 'bm-next)      ;; Go to next bookmark with F3
+(global-set-key (kbd "<f4>") 'bm-previous)  ;; Go to previous bookmark with F4
+
+;; Persistent bookmarks between sessions
+(setq bm-repository-file "~/.emacs.d/bm-repository")
+(setq bm-restore-repository-on-load t)
+
+;; Save bookmarks on killing the buffer or exiting Emacs
+(add-hook 'kill-buffer-hook #'bm-buffer-save)
+(add-hook 'kill-emacs-hook #'bm-repository-save)
+
+;; Load bookmarks when opening a file
+(add-hook 'find-file-hook #'bm-buffer-restore)
+(add-hook 'after-revert-hook #'bm-buffer-restore)
+
+;; Fringes are supported for graphical display of bookmarks
+(setq bm-highlight-style 'bm-highlight-only-fringe)
+
+;; Make sure the repository is loaded when Emacs starts
+(bm-repository-load)
+
+;; Bind C-c b to set a bookmark
+(global-set-key (kbd "C-c b") 'bm-toggle)
+
+;; Bind C-c m to go to the next bookmark
+(global-set-key (kbd "C-c m") 'bm-next)
+
+;; Bind C-c n to go to the previous bookmark
+(global-set-key (kbd "C-c n") 'bm-previous)
+
+
+;; Enable Flycheck in programming modes
+(add-hook 'prog-mode-hook #'flycheck-mode)
+
+(require 'flycheck)
+(require 'flycheck-rust)
+
+(add-hook 'rust-mode-hook #'flycheck-mode)
+(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
