@@ -60,28 +60,52 @@
 (require 'evil-collection)
 (evil-mode 1)
 (evil-collection-init)
+
 (add-hook 'prog-mode-hook 'display-line-numbers-mode) ;; Enable line numbers
 (setq display-line-numbers-type 'relative) ;; Set relative line numbers
+
 (with-eval-after-load 'evil
-  (define-key evil-motion-state-map (kbd ")") 'evil-end-of-line))
+  (define-key evil-motion-state-map (kbd ")") 'evil-end-of-line)
+  ;; Bind occur to Space-f in normal and visual states
+  (define-key evil-normal-state-map (kbd "SPC f") 'occur)
+  (define-key evil-visual-state-map (kbd "SPC f") 'occur))
+
+
 
 (unless (package-installed-p 'ace-window)
   (package-refresh-contents)
   (package-install 'ace-window))
+
 (global-set-key (kbd "M-o") 'ace-window)
+
+;; Set ace-window to use home row keys
+(setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+
+
+
 
 (require 'evil-snipe)
 (evil-snipe-mode 1)
-(evil-snipe-override-mode 1
-			  )
+(evil-snipe-override-mode 1)
+
+;; Use Space-s
 (with-eval-after-load 'evil-snipe
-  (define-key evil-normal-state-map (kbd "M-g") 'evil-snipe-s)
-  (define-key evil-visual-state-map (kbd "M-g") 'evil-snipe-s))
-(setq evil-snipe-scope 'buffer) ;; Search within the entire buffer, no wrap.
+  (define-key evil-normal-state-map (kbd "SPC s") 'evil-snipe-s)
+  (define-key evil-visual-state-map (kbd "SPC s") 'evil-snipe-s))
+
+;; Enable wrapping
+(setq evil-snipe-scope 'whole-buffer) ;; Search the entire buffer and wrap around
+(setq evil-snipe-repeat-scope 'whole-buffer) ;; Wrapping for repeated searches
+
+
+
+
+
 (defun open-init-file ()
   "Open the Emacs init file."
   (interactive)
   (find-file "~/.config/emacs/init.el"))
+
 
 ;; You can bind this function to a key for quick access
 (global-set-key (kbd "C-c I") 'open-init-file)
