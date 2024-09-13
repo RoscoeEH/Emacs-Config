@@ -6,7 +6,7 @@
  '(custom-safe-themes
    '("e410458d3e769c33e0865971deb6e8422457fad02bf51f7862fa180ccc42c032" "0f76f9e0af168197f4798aba5c5ef18e07c926f4e7676b95f2a13771355ce850" default))
  '(package-selected-packages
-   '(flycheck bm minimap rainbow-delimiters ace-window evil-collection evil magit vterm company ## rust-mode modus-themes)))
+   '(aggressive-indent goto-last-change flycheck bm minimap rainbow-delimiters ace-window evil-collection evil magit vterm company ## rust-mode modus-themes)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -134,3 +134,17 @@
 
 (add-hook 'rust-mode-hook #'flycheck-mode)
 (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+
+
+;; Load goto-last-change package
+(use-package goto-last-change
+  :ensure t
+  :bind (("C-c z" . goto-last-change)))
+
+
+;; Load and enable aggressive-indent-mode globally
+(use-package aggressive-indent
+  :ensure t
+  :config
+  (global-aggressive-indent-mode 1))
+

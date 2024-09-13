@@ -12,3 +12,5 @@ I use the following packages:
 - rainbow delimiters
 - bm
 - flycheck
+- goto last change
+- aggressive indent
