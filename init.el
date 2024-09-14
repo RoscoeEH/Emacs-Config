@@ -182,3 +182,15 @@
 (global-set-key (kbd "M-M") 'recompile)
 
 
+
+(defun toggle-fullscreen ()
+  "Toggle fullscreen mode on macOS."
+  (interactive)
+  (set-frame-parameter nil 'fullscreen
+                       (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
+
+;; Bind Command-Control-f to toggle fullscreen
+(global-set-key (kbd "s-C-f") 'toggle-fullscreen)
+
+
+
