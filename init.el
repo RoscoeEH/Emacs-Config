@@ -172,3 +172,8 @@
   :config
   (global-aggressive-indent-mode 1))
 
+
+(global-set-key (kbd "M-<up>") 'scroll-down-line)
+(global-set-key (kbd "M-<down>") 'scroll-up-line)
+
+
