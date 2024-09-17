@@ -178,8 +178,8 @@
 
 
 
-(global-set-key (kbd "M-C") 'compile)
-(global-set-key (kbd "M-M") 'recompile)
+(global-set-key (kbd "M-n c") 'compile)
+(global-set-key (kbd "M-n m") 'recompile)
 
 
 
