@@ -14,3 +14,4 @@ I use the following packages:
 - flycheck
 - goto last change
 - aggressive indent
+- key chord
