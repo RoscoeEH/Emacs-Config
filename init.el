@@ -144,10 +144,10 @@
 (global-set-key (kbd "C-c b") 'bm-toggle)
 
 ;; Bind C-c m to go to the next bookmark
-(global-set-key (kbd "C-c m") 'bm-next)
+(global-set-key (kbd "C-c .") 'bm-next)
 
 ;; Bind C-c n to go to the previous bookmark
-(global-set-key (kbd "C-c n") 'bm-previous)
+(global-set-key (kbd "C-c ,") 'bm-previous)
 
 
 ;; Enable Flycheck in programming modes
