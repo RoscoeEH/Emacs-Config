@@ -6,7 +6,7 @@
  '(custom-safe-themes
    '("e410458d3e769c33e0865971deb6e8422457fad02bf51f7862fa180ccc42c032" "0f76f9e0af168197f4798aba5c5ef18e07c926f4e7676b95f2a13771355ce850" default))
  '(package-selected-packages
-   '(free-keys aggressive-indent goto-last-change flycheck bm minimap rainbow-delimiters ace-window evil-collection evil magit vterm company ## rust-mode modus-themes)))
+   '(key-chord free-keys aggressive-indent goto-last-change flycheck bm minimap rainbow-delimiters ace-window evil-collection evil magit vterm company ## rust-mode modus-themes)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -201,4 +201,15 @@
 
 (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
 
+
+;; xref find def
+(define-key evil-normal-state-map (kbd "M-.") 'xref-find-definitions)
+(define-key evil-motion-state-map (kbd "M-.") 'xref-find-definitions)
+
+
+(electric-pair-mode 1)
+
+(global-set-key (kbd "C-c o") 'balance-windows)
+
+;; init.el ends here
 
