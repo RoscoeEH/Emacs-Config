@@ -6,7 +6,7 @@
  '(custom-safe-themes
    '("e410458d3e769c33e0865971deb6e8422457fad02bf51f7862fa180ccc42c032" "0f76f9e0af168197f4798aba5c5ef18e07c926f4e7676b95f2a13771355ce850" default))
  '(package-selected-packages
-   '(key-chord free-keys aggressive-indent goto-last-change flycheck bm minimap rainbow-delimiters ace-window evil-collection evil magit vterm company ## rust-mode modus-themes)))
+   '(lsp-mode key-chord free-keys aggressive-indent goto-last-change flycheck bm minimap rainbow-delimiters ace-window evil-collection evil magit vterm company ## rust-mode modus-themes)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -210,6 +210,16 @@
 (electric-pair-mode 1)
 
 (global-set-key (kbd "C-c o") 'balance-windows)
+
+
+
+
+
+(global-set-key (kbd "C-x <left>") 'delete-other-windows)
+(global-set-key (kbd "C-x <right>") 'split-window-right)
+(global-set-key (kbd "C-x <up>") 'delete-window)
+(global-set-key (kbd "C-x <down>") 'split-window-below)
+
 
 ;; init.el ends here
 
