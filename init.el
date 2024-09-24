@@ -221,5 +221,22 @@
 (global-set-key (kbd "C-x <down>") 'split-window-below)
 
 
+
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-mode))
+
+
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Set different colors for different Evil states
+  (setq evil-normal-state-cursor '("hot pink" box))      ;; Normal mode
+  (setq evil-insert-state-cursor '("green" bar))        ;; Insert mode
+  (setq evil-visual-state-cursor '("red" box))     ;; Visual mode
+  ;; You can also change the modeline color based on the state
+  (doom-themes-visual-bell-config))
+
+
 ;; init.el ends here
 
