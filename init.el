@@ -237,6 +237,20 @@
   ;; You can also change the modeline color based on the state
   (doom-themes-visual-bell-config))
 
+(defun convert-tabs-to-spaces ()
+  "Convert all tabs to spaces."
+  (untabify (point-min) (point-max)))
+
+(add-hook 'before-save-hook 'convert-tabs-to-spaces)
+
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)  ;; Set the number of spaces for a tab, change 4 to your preference
+
+
+(add-hook 'makefile-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode t)))
+
+
 
 ;; init.el ends here
-
