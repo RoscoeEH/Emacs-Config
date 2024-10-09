@@ -177,9 +177,13 @@
 (global-set-key (kbd "M-<down>") 'scroll-up-line)
 
 
+;; Define M-c as a prefix key
+(define-prefix-command 'my-prefix-map)
+(global-set-key (kbd "M-c") 'my-prefix-map)
 
-(global-set-key (kbd "M-n c") 'compile)
-(global-set-key (kbd "M-n m") 'recompile)
+;; new commands for compile and recompile
+(global-set-key (kbd "M-c c") 'compile)
+(global-set-key (kbd "M-c m") 'recompile)
 
 
 
