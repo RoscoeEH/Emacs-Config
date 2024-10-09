@@ -258,5 +258,17 @@
             (setq indent-tabs-mode t)))
 
 
+;; Define M-b as a prefix key
+(define-prefix-command 'my-prefix-map)
+(global-set-key (kbd "M-b") 'my-prefix-map)
+
+
+(global-set-key (kbd "M-b m") 'bookmark-set)
+(global-set-key (kbd "M-b j") 'bookmark-jump)
+(global-set-key (kbd "M-b l") 'bookmark-bmenu-list)
+(global-set-key (kbd "M-b d") 'bookmark-delete)
+
+
+
 
 ;; init.el ends here
