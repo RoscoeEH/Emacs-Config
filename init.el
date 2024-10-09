@@ -185,6 +185,8 @@
 (global-set-key (kbd "M-c c") 'compile)
 (global-set-key (kbd "M-c m") 'recompile)
 
+(global-set-key (kbd "M-c n") 'next-error)
+(global-set-key (kbd "M-c b") 'previous-error)
 
 
 (defun toggle-fullscreen ()
