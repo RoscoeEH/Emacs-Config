@@ -177,13 +177,19 @@
 (global-set-key (kbd "M-<down>") 'scroll-up-line)
 
 
+
+;; Unbind M-c from capitalize-word
+(global-unset-key (kbd "M-c"))
+
+
 ;; Define M-c as a prefix key
-(define-prefix-command 'my-prefix-map)
-(global-set-key (kbd "M-c") 'my-prefix-map)
+(define-prefix-command 'compile-prefix-map)
+(global-set-key (kbd "M-c") 'compile-prefix-map)
 
 ;; new commands for compile and recompile
 (global-set-key (kbd "M-c c") 'compile)
 (global-set-key (kbd "M-c m") 'recompile)
+
 
 (global-set-key (kbd "M-c n") 'next-error)
 (global-set-key (kbd "M-c b") 'previous-error)
@@ -259,8 +265,8 @@
 
 
 ;; Define M-b as a prefix key
-(define-prefix-command 'my-prefix-map)
-(global-set-key (kbd "M-b") 'my-prefix-map)
+(define-prefix-command 'bookmark-prefix-map)
+(global-set-key (kbd "M-b") 'bookmark-prefix-map)
 
 
 (global-set-key (kbd "M-b m") 'bookmark-set)
