@@ -242,7 +242,6 @@
   :ensure t
   :hook (after-init . doom-modeline-mode))
 
-
 (use-package doom-themes
   :ensure t
   :init
@@ -253,9 +252,8 @@
   (setq evil-insert-state-cursor '("green" bar))        ;; Insert mode
   (setq evil-visual-state-cursor '("red" box))     ;; Visual mode
   ;; You can also change the modeline color based on the state
-  (load-theme 'doom-one t)
-  (doom-themes-visual-bell-config)
-  (doom-themes-org-config))
+  (load-theme 'doom-one t))
+
 
 (defun convert-tabs-to-spaces ()
   "Convert all tabs to spaces."
