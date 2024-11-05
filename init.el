@@ -44,8 +44,8 @@
   (package-refresh-contents)
   (package-install 'magit))
 
-;; Bind Magit status to a key (e.g., C-x g)
-(global-set-key (kbd "C-x g") 'magit-status)
+;; Bind Magit status to a key (e.g., C-x g a)
+(global-set-key (kbd "C-x g s") 'magit-status)
 
 
 (tool-bar-mode -1)
@@ -177,6 +177,13 @@
 (global-set-key (kbd "M-<down>") 'scroll-up-line)
 
 
+(require 'rust-mode)
+(add-hook 'rust-mode-hook
+          (lambda ()
+            (rust-enable-format-on-save)))  ; Optional: enable formatting on save
+
+(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+
 
 ;; Unbind M-c from capitalize-word
 (global-unset-key (kbd "M-c"))
@@ -281,6 +288,7 @@
 (global-set-key (kbd "M-b d") 'bookmark-delete)
 
 
-
+;; Added command for cloning a repo with magit
+(global-set-key (kbd "C-x g c") 'magit-clone)
 
 ;; init.el ends here
