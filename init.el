@@ -242,24 +242,13 @@
 
 
 (require 'rainbow-delimiters)
-(require 'doom-themes)
 
 
-(use-package doom-modeline
-  :ensure t
-  :hook (after-init . doom-modeline-mode))
+;; Optionally change cursor colors by Evil state if using evil-mode
+(setq evil-normal-state-cursor '("hot pink" box))
+(setq evil-insert-state-cursor '("green" bar))
+(setq evil-visual-state-cursor '("red" box))
 
-(use-package doom-themes
-  :ensure t
-  :init
-  (require 'doom-themes) ;; Ensure doom-themes is loaded
-  :config
-  ;; Set different colors for different Evil states
-  (setq evil-normal-state-cursor '("hot pink" box))      ;; Normal mode
-  (setq evil-insert-state-cursor '("green" bar))        ;; Insert mode
-  (setq evil-visual-state-cursor '("red" box))     ;; Visual mode
-  ;; You can also change the modeline color based on the state
-  (load-theme 'doom-dark+ t))
 
 
 (defun convert-tabs-to-spaces ()
