@@ -259,7 +259,7 @@
   (setq evil-insert-state-cursor '("green" bar))        ;; Insert mode
   (setq evil-visual-state-cursor '("red" box))     ;; Visual mode
   ;; You can also change the modeline color based on the state
-  (load-theme 'doom-one t))
+  (load-theme 'doom-dark+ t))
 
 
 (defun convert-tabs-to-spaces ()
