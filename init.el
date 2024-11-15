@@ -290,7 +290,7 @@
 (add-hook 'c++-mode-hook 'eglot-ensure)
 
 
-(evil-define-key 'normal 'global (kbd "gf") 'xref-find-definitions-other-window)
+(evil-define-key 'normal 'global (kbd "SPC d") 'xref-find-definitions-other-window)
 
 
 
