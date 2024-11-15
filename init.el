@@ -280,4 +280,16 @@
 ;; Added command for cloning a repo with magit
 (global-set-key (kbd "C-x g c") 'magit-clone)
 
+
+
+
+;; Enable eglot for supported languages
+(add-hook 'python-mode-hook 'eglot-ensure)
+(add-hook 'rust-mode-hook 'eglot-ensure)
+(add-hook 'c-mode-hook 'eglot-ensure)
+(add-hook 'c++-mode-hook 'eglot-ensure)
+
+
+
+
 ;; init.el ends here
