@@ -290,6 +290,8 @@
 (add-hook 'c++-mode-hook 'eglot-ensure)
 
 
+(evil-define-key 'normal 'global (kbd "gf") 'xref-find-definitions-other-window)
+
 
 
 ;; init.el ends here
