@@ -65,7 +65,10 @@
 (setq display-line-numbers-type 'relative) ;; Set relative line numbers
 
 (with-eval-after-load 'evil
-  (define-key evil-motion-state-map (kbd ")") 'evil-end-of-line)
+  (define-key evil-normal-state-map (kbd "n") (lambda ()
+                                                (interactive)
+                                                (end-of-line)
+                                                (newline-and-indent)))
   ;; Bind occur to Space-f in normal and visual states
   (define-key evil-normal-state-map (kbd "SPC f") 'occur)
   (define-key evil-visual-state-map (kbd "SPC f") 'occur))
@@ -158,6 +161,10 @@
 
 (add-hook 'rust-mode-hook #'flycheck-mode)
 (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+
+
+(add-hook 'c++-mode-hook 'flycheck-mode)
+
 
 
 ;; Load goto-last-change package
