@@ -64,11 +64,19 @@
 (add-hook 'prog-mode-hook 'display-line-numbers-mode) ;; Enable line numbers
 (setq display-line-numbers-type 'relative) ;; Set relative line numbers
 
+
+;; Evil special keys
 (with-eval-after-load 'evil
+  ;; bind normal mode n to add new line
   (define-key evil-normal-state-map (kbd "n") (lambda ()
                                                 (interactive)
                                                 (end-of-line)
                                                 (newline-and-indent)))
+  ;; Add half-page-up/down to arrow keys in normal/visual mode
+  (define-key evil-normal-state-map (kbd "<up>") 'evil-scroll-up)
+  (define-key evil-normal-state-map (kbd "<down>") 'evil-scroll-down)
+  (define-key evil-visual-state-map (kbd "<up>") 'evil-scroll-up)
+  (define-key evil-visual-state-map (kbd "<down>") 'evil-scroll-down)
   ;; Bind occur to Space-f in normal and visual states
   (define-key evil-normal-state-map (kbd "SPC f") 'occur)
   (define-key evil-visual-state-map (kbd "SPC f") 'occur))
