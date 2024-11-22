@@ -311,4 +311,8 @@
 (scroll-bar-mode -1)
 
 
+(fset 'yes-or-no-p 'y-or-n-p)
+
+
+
 ;; init.el ends here
