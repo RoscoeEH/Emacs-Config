@@ -79,13 +79,17 @@
   (define-key evil-visual-state-map (kbd "<down>") 'evil-scroll-down)
   ;; Bind occur to Space-f in normal and visual states
   (define-key evil-normal-state-map (kbd "SPC f") 'occur)
-  (define-key evil-visual-state-map (kbd "SPC f") 'occur))
+  (define-key evil-visual-state-map (kbd "SPC f") 'occur)
+  (define-key evil-normal-state-map (kbd "SPC c c") 'ispell-word) ;; Correct word under the cursor)
+  (define-key evil-normal-state-map (kbd "SPC c b") 'ispell-buffer) ;; Check entire buffer
+  (define-key evil-visual-state-map (kbd "SPC c r") 'ispell-region) ;; Check selected region
+  (define-key evil-normal-state-map (kbd "SPC z") 'goto-last-change))
 
 
 
-(unless (package-installed-p 'ace-window)
-  (package-refresh-contents)
-  (package-install 'ace-window))
+  (unless (package-installed-p 'ace-window)
+    (package-refresh-contents)
+    (package-install 'ace-window))
 
 (global-set-key (kbd "M-o") 'ace-window)
 
@@ -312,6 +316,11 @@
 
 
 (fset 'yes-or-no-p 'y-or-n-p)
+
+
+(setq ispell-program-name "aspell")  ;; Or "hunspell" or "ispell"
+(add-hook 'text-mode-hook 'flyspell-mode)
+(add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; Comments & strings only
 
 
 
