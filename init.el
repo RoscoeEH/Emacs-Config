@@ -44,7 +44,7 @@
   (package-refresh-contents)
   (package-install 'magit))
 
-;; Bind Magit status to a key (e.g., C-x g a)
+;; Bind Magit status to a key (e.g., C-x g s)
 (global-set-key (kbd "C-x g s") 'magit-status)
 
 
@@ -307,6 +307,8 @@
 
 (evil-define-key 'normal 'global (kbd "SPC d") 'xref-find-definitions-other-window)
 
+;; Remove scroll bars
+(scroll-bar-mode -1)
 
 
 ;; init.el ends here
