@@ -185,12 +185,6 @@
   :bind (("C-c z" . goto-last-change)))
 
 
-;; Load and enable aggressive-indent-mode globally
-(use-package aggressive-indent
-  :ensure t
-  :config
-  (global-aggressive-indent-mode 1))
-
 
 (global-set-key (kbd "M-<up>") 'scroll-down-line)
 (global-set-key (kbd "M-<down>") 'scroll-up-line)
@@ -317,11 +311,12 @@
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
+(setq use-short-answers t)
+
 
 (setq ispell-program-name "aspell")  ;; Or "hunspell" or "ispell"
 (add-hook 'text-mode-hook 'flyspell-mode)
 (add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; Comments & strings only
-
 
 
 ;; init.el ends here
