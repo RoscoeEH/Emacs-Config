@@ -80,10 +80,12 @@
   ;; Bind occur to Space-f in normal and visual states
   (define-key evil-normal-state-map (kbd "SPC f") 'occur)
   (define-key evil-visual-state-map (kbd "SPC f") 'occur)
-  (define-key evil-normal-state-map (kbd "SPC c c") 'ispell-word) ;; Correct word under the cursor)
+  (define-key evil-normal-state-map (kbd "SPC c c") 'ispell-word) ;; Correct word under the cursor
   (define-key evil-normal-state-map (kbd "SPC c b") 'ispell-buffer) ;; Check entire buffer
   (define-key evil-visual-state-map (kbd "SPC c r") 'ispell-region) ;; Check selected region
-  (define-key evil-normal-state-map (kbd "SPC z") 'goto-last-change))
+  (define-key evil-normal-state-map (kbd "SPC z") 'goto-last-change)
+  (define-key evil-visual-state-map (kbd "TAB") 'evil-shift-right)    ;; Indent with TAB
+  (define-key evil-visual-state-map (kbd "<backtab>") 'evil-shift-left)) ;; Unindent with Shift-TAB
 
 
 
