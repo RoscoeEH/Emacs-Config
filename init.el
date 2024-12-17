@@ -322,6 +322,7 @@
 
 (setq magit-git-executable "/usr/bin/git")  ; or the correct path to your git binary
 (setq magit-credential 'osxkeychain)
+(setenv "SSH_AUTH_SOCK" (getenv "SSH_AUTH_SOCK"))
 
 
 ;; init.el ends here
