@@ -321,6 +321,7 @@
 (add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; Comments & strings only
 
 (setq magit-git-executable "/usr/bin/git")  ; or the correct path to your git binary
+(setq magit-credential 'osxkeychain)
 
 
 ;; init.el ends here
