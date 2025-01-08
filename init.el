@@ -166,18 +166,21 @@
 ;; Bind C-c n to go to the previous bookmark
 (global-set-key (kbd "C-c ,") 'bm-previous)
 
-
 ;; Enable Flycheck in programming modes
-(add-hook 'prog-mode-hook #'flycheck-mode)
-
 (require 'flycheck)
 (require 'flycheck-rust)
 
+;; Set Flycheck to only check syntax on save
+(setq flycheck-check-syntax-automatically '(save))
+
+;; Enable Flycheck in Rust and C++ modes
 (add-hook 'rust-mode-hook #'flycheck-mode)
 (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+(add-hook 'c++-mode-hook #'flycheck-mode)
 
+;; Enable Flycheck in all programming modes
+(add-hook 'prog-mode-hook #'flycheck-mode)
 
-(add-hook 'c++-mode-hook 'flycheck-mode)
 
 
 
@@ -319,6 +322,17 @@
 (setq ispell-program-name "aspell")  ;; Or "hunspell" or "ispell"
 (add-hook 'text-mode-hook 'flyspell-mode)
 (add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; Comments & strings only
+
+(add-hook 'flyspell-mode-hook
+          (lambda ()
+            (setq flyspell-issue-message-flag nil)
+            (flyspell-mode-off))) ;; Prevent on-the-fly checks
+
+(add-hook 'before-save-hook
+          (lambda ()
+            (when flyspell-mode
+              (flyspell-buffer))))
+
 
 (setq magit-git-executable "/usr/bin/git")  ; or the correct path to your git binary
 (setq magit-credential 'osxkeychain)
