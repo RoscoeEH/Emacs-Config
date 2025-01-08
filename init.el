@@ -19,6 +19,25 @@
       mac-option-key-is-meta t
       mac-command-key-is-meta nil)
 
+;; Performance changes
+
+;; Alter jit-lock time 
+(setq jit-lock-defer-time 0.2)
+
+;; Diable cursor blinking
+(blink-cursor-mode -1)
+
+;; Diable auto-updating of files based on the disk as it is not relevant to my use case
+(global-auto-revert-mode -1)
+
+;; diable garbage collection on start-up
+(setq gc-cons-threshold most-positive-fixnum)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (expt 2 23))))
+
+
+
 
 ;; Enable company mode globally
 (add-hook 'after-init-hook 'global-company-mode)
