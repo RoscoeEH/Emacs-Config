@@ -221,6 +221,22 @@
 
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 
+;; Custom compile command
+(defun improved-compile-command ()
+  "Set `compile-command` dynamically based on the major mode."
+  (setq-local compile-command
+              (cond
+               ((derived-mode-p 'python-mode)
+                "python3 ")
+               ((derived-mode-p 'rust-mode)
+                "cargo build")
+               ((derived-mode-p 'c-mode 'c++-mode)
+                "make k")
+               ;; Add more conditions here for other languages
+               (t "make k")))) ; Default fallback
+
+;; Add the hook to run the function for all buffers
+(add-hook 'after-change-major-mode-hook #'improved-compile-command)
 
 ;; Unbind M-c from capitalize-word
 (global-unset-key (kbd "M-c"))
