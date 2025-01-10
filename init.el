@@ -230,8 +230,6 @@
                 "python3 ")
                ((derived-mode-p 'rust-mode)
                 "cargo build")
-               ((derived-mode-p 'c-mode 'c++-mode)
-                "make k")
                ;; Add more conditions here for other languages
                (t "make k")))) ; Default fallback
 
