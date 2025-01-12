@@ -14,6 +14,7 @@
  ;; If there is more than one, they won't work right.
  )
 
+
 (load-theme 'modus-vivendi)
 (setq mac-option-modifier 'meta
       mac-option-key-is-meta t
