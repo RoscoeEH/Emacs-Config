@@ -38,8 +38,6 @@
 
 
 
-
-
 ;; Enable company mode globally
 (add-hook 'after-init-hook 'global-company-mode)
 
@@ -84,6 +82,23 @@
 (add-hook 'prog-mode-hook 'display-line-numbers-mode) ;; Enable line numbers
 (setq display-line-numbers-type 'relative) ;; Set relative line numbers
 
+;; Tabbing sections in visual mode
+(define-key evil-visual-state-map (kbd "TAB") 'maintain/evil-shift-right-visual)
+(define-key evil-visual-state-map (kbd "<backtab>") 'maintain/evil-shift-left-visual)
+
+(defun maintain/evil-shift-left-visual ()
+  (interactive)
+  (evil-shift-left (region-beginning) (region-end))
+  (evil-normal-state)
+  (evil-visual-restore))
+
+(defun maintain/evil-shift-right-visual ()
+  (interactive)
+  (evil-shift-right (region-beginning) (region-end))
+  (evil-normal-state)
+  (evil-visual-restore))
+
+
 
 ;; Evil special keys
 (with-eval-after-load 'evil
@@ -103,9 +118,7 @@
   (define-key evil-normal-state-map (kbd "SPC c c") 'ispell-word) ;; Correct word under the cursor
   (define-key evil-normal-state-map (kbd "SPC c b") 'ispell-buffer) ;; Check entire buffer
   (define-key evil-visual-state-map (kbd "SPC c r") 'ispell-region) ;; Check selected region
-  (define-key evil-normal-state-map (kbd "SPC z") 'goto-last-change)
-  (define-key evil-visual-state-map (kbd "TAB") 'evil-shift-right)    ;; Indent with TAB
-  (define-key evil-visual-state-map (kbd "<backtab>") 'evil-shift-left)) ;; Unindent with Shift-TAB
+  (define-key evil-normal-state-map (kbd "SPC z") 'goto-last-change)) 
 
 
 
