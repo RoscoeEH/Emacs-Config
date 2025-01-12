@@ -128,7 +128,9 @@
 ;; Use Space-s
 (with-eval-after-load 'evil-snipe
   (define-key evil-normal-state-map (kbd "SPC s") 'evil-snipe-s)
-  (define-key evil-visual-state-map (kbd "SPC s") 'evil-snipe-s))
+  (define-key evil-visual-state-map (kbd "SPC s") 'evil-snipe-s)
+  (define-key evil-normal-state-map (kbd "SPC S") 'evil-snipe-S)
+  (define-key evil-visual-state-map (kbd "SPC S") 'evil-snipe-S))
 
 ;; Enable wrapping
 (setq evil-snipe-scope 'whole-buffer) ;; Search the entire buffer and wrap around
