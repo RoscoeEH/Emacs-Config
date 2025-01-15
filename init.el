@@ -300,15 +300,6 @@
 
 
 
-
-
-(global-set-key (kbd "C-x <left>") 'delete-other-windows)
-(global-set-key (kbd "C-x <right>") 'split-window-right)
-(global-set-key (kbd "C-x <up>") 'delete-window)
-(global-set-key (kbd "C-x <down>") 'split-window-below)
-
-
-
 (require 'rainbow-delimiters)
 
 
