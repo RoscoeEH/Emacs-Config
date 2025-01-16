@@ -56,6 +56,64 @@
 (require 'vterm)
 (global-set-key (kbd "C-x v") 'vterm)
 
+;; OCaml setup
+
+(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
+
+;; Tuareg mode for OCaml
+(use-package tuareg
+  :ensure t
+  :mode ("\\.ml\\'" "\\.mli\\'")
+  :config
+  (setq tuareg-indent-align-with-first-arg t)
+  (setq tuareg-match-patterns-aligned t))
+
+;; Merlin for OCaml
+(use-package merlin
+  :ensure t
+  :hook ((tuareg-mode . merlin-mode)
+         (caml-mode . merlin-mode))
+  :config
+  (setq merlin-command "ocamlmerlin"))
+
+;; OCamlFormat integration
+(use-package ocamlformat
+  :ensure nil  ;; Not on MELPA; installed via OPAM
+  :hook (tuareg-mode . ocamlformat-before-save-hook)
+  :custom
+  (ocamlformat-enable 'enable-outside-detected-project))  ;; Adjust as needed
+
+;; Load OPAM environment
+(when (executable-find "opam")
+  (let ((opam-env (shell-command-to-string "opam env --shell=sh")))
+    (dolist (env (split-string opam-env "\n"))
+      (when (string-match "\\([^=]+\\)=\\(.*\\)" env)
+        (setenv (match-string 1 env) (match-string 2 env))))))
+
+;; Flycheck with Merlin
+(use-package flycheck
+  :ensure t
+  :hook (merlin-mode . flycheck-mode)
+  :config
+  (setq flycheck-check-syntax-automatically '(save mode-enabled)))  ;; Check on save or mode enable
+
+;; Ensure environment is set for PATH and OPAM
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
+
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-copy-env "PATH")
+  (exec-path-from-shell-copy-env "OPAM_SWITCH_PREFIX"))
+
+;; Ensure `merlin-mode` is enabled for OCaml files
+(add-hook 'tuareg-mode-hook 'merlin-mode)
+(add-hook 'caml-mode-hook 'merlin-mode)
+
+;; Auto-mode setup for OCaml files
+(add-to-list 'auto-mode-alist '("\\.ml\\'" . tuareg-mode))
+(add-to-list 'auto-mode-alist '("\\.mli\\'" . tuareg-mode))
 
 
 ;; Ensure Magit is installed
@@ -247,6 +305,8 @@
                 "python3 ")
                ((derived-mode-p 'rust-mode)
                 "cargo build")
+               ((derived-mode-p 'tuareg-mode)
+                "dune build")
                ;; Add more conditions here for other languages
                (t "make k")))) ; Default fallback
 
@@ -256,6 +316,15 @@
 ;; Unbind M-c from capitalize-word
 (global-unset-key (kbd "M-c"))
 
+;; Skip eol chars on evil-end-of-line
+(defun evil-end-of-line-non-whitespace ()
+  "Move to the last character before the newline, ignoring trailing whitespace."
+  (interactive)
+  (move-end-of-line 1)
+  (skip-chars-backward " \t"))
+
+(define-key evil-normal-state-map (kbd "$") 'evil-end-of-line-non-whitespace)
+(define-key evil-visual-state-map (kbd "$") 'evil-end-of-line-non-whitespace)
 
 ;; Define M-c as a prefix key
 (define-prefix-command 'compile-prefix-map)
