@@ -79,9 +79,12 @@
 ;; OCamlFormat integration
 (use-package ocamlformat
   :ensure nil  ;; Not on MELPA; installed via OPAM
-  :hook (tuareg-mode . ocamlformat-before-save-hook)
+  :if (executable-find "ocamlformat")
+  :hook (tuareg-mode . (lambda ()
+                         (when (executable-find "ocamlformat")
+                           (add-hook 'before-save-hook #'ocamlformat-before-save nil t))))
   :custom
-  (ocamlformat-enable 'enable-outside-detected-project))  ;; Adjust as needed
+  (ocamlformat-enable 'enable-outside-detected-project))
 
 ;; Load OPAM environment
 (when (executable-find "opam")
@@ -299,19 +302,25 @@
 ;; Custom compile command
 (defun improved-compile-command ()
   "Set `compile-command` dynamically based on the major mode."
-  (setq-local compile-command
-              (cond
-               ((derived-mode-p 'python-mode)
-                "python3 ")
-               ((derived-mode-p 'rust-mode)
-                "cargo build")
-               ((derived-mode-p 'tuareg-mode)
-                "dune build")
-               ;; Add more conditions here for other languages
-               (t "make k")))) ; Default fallback
+  (interactive)
+  (let ((cmd (cond
+              ((eq major-mode 'python-mode)
+               "python3 ")
+              ((eq major-mode 'rust-mode)
+               "cargo build")
+              ((eq major-mode 'tuareg-mode)
+               "dune build")
+              (t "make k"))))
+    (setq-local compile-command cmd)))
 
-;; Add the hook to run the function for all buffers
-(add-hook 'after-change-major-mode-hook #'improved-compile-command)
+;; Remove from find-file-hook as it might be too early
+(remove-hook 'find-file-hook #'improved-compile-command)
+
+;; Add only to tuareg-mode-hook
+(add-hook 'tuareg-mode-hook #'improved-compile-command)
+
+;; Set the default compile-command to nil to ensure our function takes effect
+(setq-default compile-command nil)
 
 ;; Unbind M-c from capitalize-word
 (global-unset-key (kbd "M-c"))
