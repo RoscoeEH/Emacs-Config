@@ -489,7 +489,7 @@
 ;; Bind it to SPC [ in visual mode
 (define-key evil-visual-state-map (kbd "SPC [") 'wrap-with-square-brackets)
 
-;; Function to wrap selected text in parenthesescurly braces
+;; Function to wrap selected text in curly braces
 (defun wrap-with-curly-braces ()
   "Wrap selected text with curly braces."
   (interactive)
@@ -503,6 +503,36 @@
 
 ;; Bind it to SPC { in visual mode
 (define-key evil-visual-state-map (kbd "SPC {") 'wrap-with-curly-braces)
+
+;; Function to wrap selected text in double quotes
+(defun wrap-with-double-quotes ()
+  "Wrap selected text with double quotes."
+  (interactive)
+  (let ((start (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert "\"")
+    (goto-char start)
+    (insert "\"")
+    (evil-normal-state)))
+
+;; Bind it to SPC " in visual mode
+(define-key evil-visual-state-map (kbd "SPC \"") 'wrap-with-double-quotes)
+
+;; Function to wrap selected text in single quotes
+(defun wrap-with-single-quotes ()
+  "Wrap selected text with single quotes."
+  (interactive)
+  (let ((start (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert "'")
+    (goto-char start)
+    (insert "'")
+    (evil-normal-state)))
+
+;; Bind it to SPC ' in visual mode
+(define-key evil-visual-state-map (kbd "SPC '") 'wrap-with-single-quotes)
 
 
 
