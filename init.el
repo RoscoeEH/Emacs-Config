@@ -459,4 +459,51 @@
 
 
 
+;; Function to wrap selected text in parentheses
+(defun wrap-with-parens ()
+  "Wrap selected text with parentheses."
+  (interactive)
+  (let ((start (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert ")")
+    (goto-char start)
+    (insert "(")
+    (evil-normal-state)))
+
+;; Bind it to SPC ( in visual mode
+(define-key evil-visual-state-map (kbd "SPC (") 'wrap-with-parens)
+
+;; Function to wrap selected text in square brackets
+(defun wrap-with-square-brackets ()
+  "Wrap selected text with square brackets."
+  (interactive)
+  (let ((start (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert "]")
+    (goto-char start)
+    (insert "[")
+    (evil-normal-state)))
+
+;; Bind it to SPC [ in visual mode
+(define-key evil-visual-state-map (kbd "SPC [") 'wrap-with-square-brackets)
+
+;; Function to wrap selected text in parenthesescurly braces
+(defun wrap-with-curly-braces ()
+  "Wrap selected text with curly braces."
+  (interactive)
+  (let ((start (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert "}")
+    (goto-char start)
+    (insert "{")
+    (evil-normal-state)))
+
+;; Bind it to SPC { in visual mode
+(define-key evil-visual-state-map (kbd "SPC {") 'wrap-with-curly-braces)
+
+
+
 ;; init.el ends here
