@@ -31,3 +31,5 @@ I use the following packages:
 - Improved compile command that automatically sets the right compile command based on file type
 - wrap selections in parentheses, brackets, braces, double quotes, and single quotes
 - evil EOL moves to last non-whitespace character
+- evil-delete with the 'd' key does now copy to clipboard
+- evil-paste-after/before delete selected text and paste over in visual mode
