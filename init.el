@@ -536,4 +536,21 @@
 
 
 
+;; Make visual mode 'd' delete without yanking
+(define-key evil-visual-state-map (kbd "d") (lambda ()
+                                             (interactive)
+                                             (evil-delete (region-beginning) (region-end) nil ?_)))
+
+;; Make visual mode 'p' and 'P' delete selection without yanking and then paste
+(define-key evil-visual-state-map (kbd "p") (lambda ()
+                                             (interactive)
+                                             (evil-delete (region-beginning) (region-end) nil ?_)
+                                             (evil-paste-after 1)))
+
+(define-key evil-visual-state-map (kbd "P") (lambda ()
+                                             (interactive)
+                                             (evil-delete (region-beginning) (region-end) nil ?_)
+                                             (evil-paste-before 1)))
+
+
 ;; init.el ends here
