@@ -166,9 +166,15 @@
 (with-eval-after-load 'evil
   ;; bind normal mode n to add new line
   (define-key evil-normal-state-map (kbd "n") (lambda ()
-                                                (interactive)
-                                                (end-of-line)
-                                                (newline-and-indent)))
+                                               (interactive)
+                                               (end-of-line)
+                                               (newline-and-indent)))
+  (define-key evil-normal-state-map (kbd "N") (lambda ()
+                                               (interactive)
+                                               (beginning-of-line)
+                                               (open-line 1)
+                                               (indent-according-to-mode)
+                                               (next-line)))
   ;; Add half-page-up/down to arrow keys in normal/visual mode
   (define-key evil-normal-state-map (kbd "<up>") 'evil-scroll-up)
   (define-key evil-normal-state-map (kbd "<down>") 'evil-scroll-down)
