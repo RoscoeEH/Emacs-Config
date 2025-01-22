@@ -380,9 +380,6 @@
 
 (electric-pair-mode 1)
 
-(global-set-key (kbd "C-c o") 'balance-windows)
-
-
 
 (require 'rainbow-delimiters)
 
@@ -558,5 +555,13 @@
                                              (evil-delete (region-beginning) (region-end) nil ?_)
                                              (evil-paste-before 1)))
 
+
+
+;; Window management bindings
+(global-set-key (kbd "C-c s") 'split-window-horizontally)
+(global-set-key (kbd "C-c d") 'split-window-vertically) 
+(global-set-key (kbd "C-c f") 'delete-window)
+(global-set-key (kbd "C-c a") 'delete-other-windows)
+(global-set-key (kbd "C-c o") 'balance-windows)
 
 ;; init.el ends here
