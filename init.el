@@ -194,7 +194,7 @@
     (package-refresh-contents)
     (package-install 'ace-window))
 
-(global-set-key (kbd "M-o") 'ace-window)
+(global-set-key (kbd "M-w") 'ace-window)
 
 ;; Set ace-window to use home row keys
 (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
@@ -563,5 +563,6 @@
 (global-set-key (kbd "C-c f") 'delete-window)
 (global-set-key (kbd "C-c a") 'delete-other-windows)
 (global-set-key (kbd "C-c o") 'balance-windows)
+(global-set-key (kbd "M-o") 'other-window)
 
 ;; init.el ends here
