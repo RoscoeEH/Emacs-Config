@@ -616,4 +616,36 @@
 (global-set-key (kbd "C-c o") 'balance-windows)
 (global-set-key (kbd "M-o") 'other-window)
 
+
+;; Case change commands
+
+(defun upcase-single-letter ()
+  "Convert the character at point to uppercase."
+  (interactive)
+  (let ((char (char-after)))
+    (when char
+      (save-excursion
+        (delete-char 1)
+        (insert (upcase char))))))
+
+(defun downcase-single-letter ()
+  "Convert the character at point to lowercase."
+  (interactive)
+  (let ((char (char-after)))
+    (when char
+      (save-excursion
+        (delete-char 1)
+        (insert (downcase char))))))
+
+(define-key evil-normal-state-map (kbd "C-x u") 'upcase-single-letter)
+(define-key evil-normal-state-map (kbd "C-x l") 'downcase-single-letter)
+(define-key evil-visual-state-map (kbd "C-x u") 'upcase-region)
+(define-key evil-visual-state-map (kbd "C-x l") 'downcase-region)
+
+
+;; Delete char and enter insert mode
+(define-key evil-normal-state-map (kbd "q") (lambda ()
+                                             (interactive)
+                                             (delete-char 1)
+                                             (evil-insert-state)))
 ;; init.el ends here
