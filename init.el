@@ -362,7 +362,7 @@
                                              (expand-file-name file-path))))
          (cmd (cond
                (in-mina-project
-                "dune build ~/Documents/Projects/mina/src/app/cli/src/mina.exe")
+                "dune build src/app/cli/src/mina.exe")
                ((eq major-mode 'python-mode)
                 (concat "python3 " file-path))
                ((eq major-mode 'rust-mode)
@@ -662,7 +662,7 @@
   :ensure t
   :config
   (dashboard-setup-startup-hook)
-  (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_start.jpeg")
+  (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_image.png")
   ;; Method 1: Using custom face
   (custom-set-faces
    '(dashboard-banner-logo-title ((t (:foreground "#8454b8" :weight bold)))))
@@ -682,8 +682,8 @@
           (propertize title 'face '(:foreground "red" :weight bold))))
   
   (setq dashboard-center-content t)
-  (setq dashboard-items '((recents  . 7)
-                         (bookmarks . 7)))
+  (setq dashboard-items '((recents  . 12)
+                         (bookmarks . 12)))
   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
 
 
