@@ -62,7 +62,7 @@
   ;; Minimum prefix length before showing completions
   (setq company-minimum-prefix-length 2)
 
-  ;; Only use dabbrev (buffer words) backend
+  ;; Only use dabbrev (buffer wods) backend
   (setq company-backends '(company-dabbrev))
   (setq-default company-backends '(company-dabbrev))
 
@@ -423,7 +423,8 @@
   :config
   (key-chord-mode 1))
 
-(key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
+
+(key-chord-define-global "sd" 'save-buffer)
 
 
 ;; xref find def
@@ -662,7 +663,24 @@
   :config
   (dashboard-setup-startup-hook)
   (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_start.jpeg")
-  (setq dashboard-banner-logo-title "EMACS")
+  ;; Method 1: Using custom face
+  (custom-set-faces
+   '(dashboard-banner-logo-title ((t (:foreground "#8454b8" :weight bold)))))
+  
+  ;; Method 2: Using both propertize and setting the face explicitly
+  (setq dashboard-banner-logo-title 
+        (let ((title "
+ ******** ****     ****     **       ******   ********
+/**///// /**/**   **/**    ****     **////** **////// 
+/**      /**//** ** /**   **//**   **    // /**       
+/******* /** //***  /**  **  //** /**       /*********
+/**////  /**  //*   /** **********/**       ////////**
+/**      /**   /    /**/**//////**//**    **       /**
+/********/**        /**/**     /** //******  ******** 
+//////// //         // //      //   //////  ////////  
+"))
+          (propertize title 'face '(:foreground "red" :weight bold))))
+  
   (setq dashboard-center-content t)
   (setq dashboard-items '((recents  . 7)
                          (bookmarks . 7)))
