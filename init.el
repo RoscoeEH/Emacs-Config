@@ -648,4 +648,18 @@
                                              (interactive)
                                              (delete-char 1)
                                              (evil-insert-state)))
+
+
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook)
+  (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_start.jpeg")
+  (setq dashboard-banner-logo-title "")
+  (setq dashboard-center-content t)
+  (setq dashboard-items '((recents  . 7)
+                         (bookmarks . 7)))
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
+
+
 ;; init.el ends here
