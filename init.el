@@ -288,11 +288,6 @@
 
 (require 'bm)
 
-;; Enable `bm` in all buffers
-(global-set-key (kbd "<f2>") 'bm-toggle)    ;; Toggle bookmark with F2
-(global-set-key (kbd "<f3>") 'bm-next)      ;; Go to next bookmark with F3
-(global-set-key (kbd "<f4>") 'bm-previous)  ;; Go to previous bookmark with F4
-
 ;; Persistent bookmarks between sessions
 (setq bm-repository-file "~/.emacs.d/bm-repository")
 (setq bm-restore-repository-on-load t)
@@ -360,14 +355,21 @@
 (defun improved-compile-command ()
   "Set `compile-command` dynamically based on the major mode."
   (interactive)
-  (let ((cmd (cond
-              ((eq major-mode 'python-mode)
-               "python3 ")
-              ((eq major-mode 'rust-mode)
-               "cargo build")
-              ((eq major-mode 'tuareg-mode)
-               "dune build")
-              (t "make k"))))
+  (let* ((file-path (buffer-file-name))
+         (mina-path "~/Documents/Projects/mina/")
+         (in-mina-project (and file-path
+                              (string-prefix-p (expand-file-name mina-path)
+                                             (expand-file-name file-path))))
+         (cmd (cond
+               (in-mina-project
+                "dune build ~/Documents/Projects/mina/src/app/cli/src/mina.exe")
+               ((eq major-mode 'python-mode)
+                (concat "python3 " file-path))
+               ((eq major-mode 'rust-mode)
+                "cargo build")
+               ((eq major-mode 'tuareg-mode)
+                "dune build")
+               (t "make"))))
     (setq-local compile-command cmd)))
 
 ;; Remove from find-file-hook as it might be too early
@@ -510,6 +512,11 @@
 (setq magit-git-executable "/usr/bin/git")  ; or the correct path to your git binary
 (setq magit-credential 'osxkeychain)
 (setenv "SSH_AUTH_SOCK" (getenv "SSH_AUTH_SOCK"))
+
+;; Prevent Magit from inheriting direnv environment
+(with-eval-after-load 'magit
+  (remove-hook 'magit-status-mode-hook #'direnv-update-environment)
+  (remove-hook 'magit-process-mode-hook #'direnv-update-environment))
 
 
 
@@ -655,11 +662,25 @@
   :config
   (dashboard-setup-startup-hook)
   (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_start.jpeg")
-  (setq dashboard-banner-logo-title "")
+  (setq dashboard-banner-logo-title "EMACS")
   (setq dashboard-center-content t)
   (setq dashboard-items '((recents  . 7)
                          (bookmarks . 7)))
   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
+
+
+(use-package direnv
+  :ensure t
+  :config
+  (direnv-mode)
+  
+  ;; Refresh direnv when opening files
+  (add-hook 'find-file-hook
+            (lambda ()
+              (when (file-exists-p (expand-file-name ".envrc" default-directory))
+                (direnv-update-environment)))))
+
+
 
 
 ;; init.el ends here
