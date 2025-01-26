@@ -6,9 +6,10 @@ This is stored a separte path that is isnside a git repo. The actual text in my 
 (load "<path to init.el>")
 ```
 
+The image on the start page is also here stored in the repo.
+
 ## Packages
-I use the following packages:
-- company-mode - Autocompletion
+- company-mode (dabbrev backend) - Autocompletion
 - vterm - Terminal emulator
 - magit - Git interface
 - evil-mode - Vim keybindings
@@ -26,6 +27,7 @@ I use the following packages:
 - merlin - OCaml IDE features
 - ocamlformat - OCaml code formatting
 - flycheck-rust - Rust syntax checking
+- direnv - Environment variable management based on directory
 
 ## Custom Commands
 - Improved compile command that automatically sets the right compile command based on file type
@@ -33,3 +35,5 @@ I use the following packages:
 - evil EOL moves to last non-whitespace character
 - evil-delete with the 'd' key does now copy to clipboard
 - evil-paste-after/before delete selected text and paste over in visual mode
+- Commands for changing capitalization in normal mode
+- Delete a single char and enter insert mode
