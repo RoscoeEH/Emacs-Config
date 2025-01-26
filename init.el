@@ -665,7 +665,7 @@
   (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_image.png")
   ;; Method 1: Using custom face
   (custom-set-faces
-   '(dashboard-banner-logo-title ((t (:foreground "#8454b8" :weight bold)))))
+   '(dashboard-banner-logo-title ((t (:foreground "#2957b0" :weight bold)))))
   
   ;; Method 2: Using both propertize and setting the face explicitly
   (setq dashboard-banner-logo-title 
@@ -699,6 +699,9 @@
                 (direnv-update-environment)))))
 
 
-
+;; grep command bindings
+(global-set-key (kbd "M-g g") 'grep)
+(global-set-key (kbd "M-g r") 'rgrep)
+(global-set-key (kbd "M-g l") 'lgrep)
 
 ;; init.el ends here
