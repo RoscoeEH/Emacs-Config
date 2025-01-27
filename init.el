@@ -129,13 +129,11 @@
 
 ;; OCamlFormat integration
 (use-package ocamlformat
-  :ensure nil  ;; Not on MELPA; installed via OPAM
-  :if (executable-find "ocamlformat")
-  :hook (tuareg-mode . (lambda ()
-                         (when (executable-find "ocamlformat")
-                           (add-hook 'before-save-hook #'ocamlformat-before-save nil t))))
+  :ensure t
   :custom
-  (ocamlformat-enable 'enable-outside-detected-project))
+  (ocamlformat-enable 'enable-outside-detected-project)
+  :hook (tuareg-mode . (lambda ()
+                         (add-hook 'before-save-hook 'ocamlformat-before-save nil t))))
 
 ;; Load OPAM environment
 (when (executable-find "opam")
