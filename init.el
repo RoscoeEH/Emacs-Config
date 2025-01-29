@@ -702,4 +702,17 @@
 (global-set-key (kbd "M-g r") 'rgrep)
 (global-set-key (kbd "M-g l") 'lgrep)
 
+
+(with-eval-after-load 'dired
+  (define-key dired-mode-map [mouse-1] 'dired-single-buffer)
+  (define-key dired-mode-map [mouse-2] 'dired-single-buffer))
+
+
+;; GNU plot setup
+(require 'org-plot)
+(use-package gnuplot
+  :ensure t
+  :config
+  (setq gnuplot-inline-image-mode t))
+
 ;; init.el ends here
