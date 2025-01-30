@@ -698,9 +698,8 @@
 
 
 ;; grep command bindings
-(global-set-key (kbd "M-g g") 'grep)
-(global-set-key (kbd "M-g r") 'rgrep)
-(global-set-key (kbd "M-g l") 'lgrep)
+(global-set-key (kbd "M-g g") (lambda () (interactive) (grep "git grep - rni ")))
+(global-set-key (kbd "M-g l") (lambda () (interactive) (grep "grep - rni ")))
 
 
 (with-eval-after-load 'dired
