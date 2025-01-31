@@ -714,4 +714,14 @@
   :config
   (setq gnuplot-inline-image-mode t))
 
+
+(use-package grip-mode
+  :ensure t
+  :config
+  (setq grip-update-after-change t)
+  (setq grip-binary-path "grip"))
+
+;; Bind a key for previewing Markdown
+(global-set-key (kbd "C-x g p") 'grip-mode)
+
 ;; init.el ends here
