@@ -28,6 +28,7 @@ The image on the start page is also here stored in the repo.
 - ocamlformat - OCaml code formatting
 - flycheck-rust - Rust syntax checking
 - direnv - Environment variable management based on directory
+- grip - Markdown viewing in browser
 
 ## Custom Commands
 - Improved compile command that automatically sets the right compile command based on file type
