@@ -724,4 +724,17 @@
 ;; Bind a key for previewing Markdown
 (global-set-key (kbd "C-x g p") 'grip-mode)
 
+
+(defun my/minibuffer-kill-to-last-slash ()
+  "Delete back to the last '/' in the minibuffer."
+  (interactive)
+  (let ((pos (save-excursion (search-backward "/" nil t))))
+    (if pos
+        (delete-region pos (point))
+      (backward-kill-word 1)))) ;; Fallback if no '/' found
+
+(define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'my/minibuffer-kill-to-last-slash)
+(define-key minibuffer-local-completion-map (kbd "M-DEL") 'my/minibuffer-kill-to-last-slash)
+
+
 ;; init.el ends here
