@@ -733,27 +733,25 @@
 (global-set-key (kbd "C-x g p") 'grip-mode)
 
 (defun my/minibuffer-up-one-dir ()
-  "If the character immediately left of point is '/', delete it;
-then delete all characters from point back to (but not including) the previous '/';
-finally, move the cursor one character to the right, if possible."
   (interactive)
-  ;; Step 1: If the character immediately before point is '/', delete it.
+  ;; If the character immediately before point is '/', delete it
   (when (and (> (point) (point-min)) (eq (char-before) ?/))
     (delete-char -1))
-  ;; Save the current point after deletion.
+  ;; Save the current point after deletion
   (let ((end (point)))
-    ;; Step 2: Search backward for the last "/".
+    ;; Search backward for the last "/"
     (if (search-backward "/" nil t)
-        ;; Delete from one character after the found slash to 'end'.
+        ;; Delete from one character after the found slash to 'end'
         (delete-region (1+ (point)) end)
       (message "No preceding slash found.")))
-  ;; Step 3: Move the cursor one character to the right, if possible.
+  ;; Move the cursor one character to the right, if possible.
   (when (< (point) (point-max))
     (forward-char 1)))
 
 
 (define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'my/minibuffer-up-one-dir)
-(define-key minibuffer-local-completion-map (kbd "M-DEL") 'my/minibuffer-up-one-dir)
+
+
 
 
 ;; init.el ends here
