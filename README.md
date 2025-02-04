@@ -38,4 +38,4 @@ The image on the start page is also here stored in the repo.
 - evil-paste-after/before delete selected text and paste over in visual mode
 - Commands for changing capitalization in normal mode
 - Delete a single char and enter insert mode
-- M-g <g, r, l> for different grep commands
+- M-g <g, l> for different grep commands
