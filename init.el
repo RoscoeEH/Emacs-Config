@@ -698,8 +698,16 @@
 
 
 ;; grep command bindings
-(global-set-key (kbd "M-g g") (lambda () (interactive) (grep "git grep - rni ")))
-(global-set-key (kbd "M-g l") (lambda () (interactive) (grep "grep - rni ")))
+(global-set-key (kbd "M-g g")
+                (lambda ()
+                  (interactive)
+                  (grep (read-from-minibuffer "Run grep: " "git grep -rni "))))
+
+(global-set-key (kbd "M-g l")
+                (lambda ()
+                  (interactive)
+                  (grep (read-from-minibuffer "Run grep: " "grep -rni "))))
+
 
 
 (with-eval-after-load 'dired
