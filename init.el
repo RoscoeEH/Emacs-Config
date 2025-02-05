@@ -508,7 +508,7 @@
               (flyspell-buffer))))
 
 
-(setq magit-git-executable "/usr/bin/git")  ; or the correct path to your git binary
+(setq magit-git-executable "/usr/bin/git")
 (setq magit-credential 'osxkeychain)
 (setenv "SSH_AUTH_SOCK" (getenv "SSH_AUTH_SOCK"))
 
@@ -752,6 +752,15 @@
 (define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'my/minibuffer-up-one-dir)
 
 
+(use-package epa-file
+  :ensure nil
+  :config
+  (epa-file-enable)
+  (setq epa-pinentry-mode 'loopback)
+  (setq epa-file-select-keys nil)
+  (setq epa-file-encrypt-to nil)
+  (setq auto-mode-alist (append '(("\\.gpg\\'" . epa-file)) auto-mode-alist))
+  (setq epa-file-cache-passphrase-for-symmetric-encryption t))
 
 
 ;; init.el ends here
