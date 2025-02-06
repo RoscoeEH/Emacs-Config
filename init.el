@@ -763,4 +763,7 @@
   (setq epa-file-cache-passphrase-for-symmetric-encryption t))
 
 
+;; Open scratch buffer
+(global-set-key (kbd "M-S") 'scratch-buffer)
+
 ;; init.el ends here
