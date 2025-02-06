@@ -21,6 +21,8 @@
       mac-command-key-is-meta nil)
 
 ;; Performance changes
+;; Non-interactive shell loading
+(setq exec-path-from-shell-arguments '("-l"))
 
 ;; Alter jit-lock time 
 (setq jit-lock-defer-time 0.2)
