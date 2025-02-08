@@ -29,6 +29,7 @@ The image on the start page is also here stored in the repo.
 - flycheck-rust - Rust syntax checking
 - direnv - Environment variable management based on directory
 - grip - Markdown viewing in browser
+- epa - Managing GPG keys
 
 ## Custom Commands
 - Improved compile command that automatically sets the right compile command based on file type
@@ -39,3 +40,7 @@ The image on the start page is also here stored in the repo.
 - Commands for changing capitalization in normal mode
 - Delete a single char and enter insert mode
 - M-g <g, l> for different grep commands
+- Move path in minibuffer back one directory
+
+## Other
+- exec-path-from-shell arguments set to '-l' for performance
