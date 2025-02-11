@@ -765,5 +765,7 @@
 
 
 (global-set-key (kbd "C-x C-k l") 'epa-list-keys)
+(global-set-key (kbd "C-x C-k e") 'epa-encrypt-file)
+(global-set-key (kbd "C-x C-k d") 'epa-decrypt-file)
 
 ;; init.el ends here
