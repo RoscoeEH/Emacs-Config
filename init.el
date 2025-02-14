@@ -768,4 +768,7 @@
 (global-set-key (kbd "C-x C-k e") 'epa-encrypt-file)
 (global-set-key (kbd "C-x C-k d") 'epa-decrypt-file)
 
+
+(setq make-backup-files nil)
+
 ;; init.el ends here
