@@ -363,13 +363,23 @@
                (in-mina-project
                 "dune build src/app/cli/src/mina.exe")
                ((eq major-mode 'python-mode)
-                (concat "python3 " file-path))
+                (format "python3 %s" (file-name-nondirectory (buffer-file-name))))
                ((eq major-mode 'rust-mode)
                 "cargo build")
                ((eq major-mode 'tuareg-mode)
                 "dune build")
                (t "make"))))
     (setq-local compile-command cmd)))
+
+(add-hook 'python-mode-hook #'improved-compile-command)
+(add-hook 'python-ts-mode-hook #'improved-compile-command)
+(add-hook 'rust-mode-hook #'improved-compile-command)
+(add-hook 'tuareg-mode-hook #'improved-compile-command)
+(add-hook 'c-mode-hook #'improved-compile-command)
+(add-hook 'c++-mode-hook #'improved-compile-command)
+
+
+
 
 ;; Remove from find-file-hook as it might be too early
 (remove-hook 'find-file-hook #'improved-compile-command)
