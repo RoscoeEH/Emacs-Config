@@ -174,6 +174,7 @@
   (package-refresh-contents)
   (package-install 'magit))
 
+
 ;; Bind Magit status to a key (e.g., C-x g s)
 (global-set-key (kbd "C-x g s") 'magit-status)
 
@@ -623,6 +624,22 @@
                                              (evil-delete (region-beginning) (region-end) nil ?_)
                                              (evil-paste-before 1)))
 
+(defun my-evil-paste-dwim (count &optional register yank-handler)
+  "If the current line is only whitespace, clear it, then paste. Otherwise, simply paste as usual."
+  (interactive "p")
+  ;; If the current line has only whitespace...
+  (when (save-excursion
+          (goto-char (line-beginning-position))
+          (looking-at-p "^[[:space:]]*$"))
+    ;; ...delete all characters from beginning to end of the line.
+    (delete-region (line-beginning-position) (line-end-position)))
+  ;; Then do the paste.
+  (evil-paste-after count register yank-handler))
+
+;; Bind the new command to "p" in normal mode.
+(define-key evil-normal-state-map (kbd "p") 'my-evil-paste-dwim)
+
+          
 
 
 ;; Window management bindings
