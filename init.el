@@ -624,178 +624,203 @@
                                              (evil-delete (region-beginning) (region-end) nil ?_)
                                              (evil-paste-before 1)))
 
-(defun my-evil-paste-dwim (count &optional register yank-handler)
-  "If the current line is only whitespace, clear it, then paste. Otherwise, simply paste as usual."
+
+
+
+;; paste preserves the spacing of the initial line
+(defun my-evil-paste-after-dwim (count &optional register yank-handler)
   (interactive "p")
-  ;; If the current line has only whitespace...
-  (when (save-excursion
-          (goto-char (line-beginning-position))
-          (looking-at-p "^[[:space:]]*$"))
-    ;; ...delete all characters from beginning to end of the line.
-    (delete-region (line-beginning-position) (line-end-position)))
-  ;; Then do the paste.
-  (evil-paste-after count register yank-handler))
-
-;; Bind the new command to "p" in normal mode.
-(define-key evil-normal-state-map (kbd "p") 'my-evil-paste-dwim)
-
-          
-
-
-;; Window management bindings
-(global-set-key (kbd "C-c s") 'split-window-horizontally)
-(global-set-key (kbd "C-c d") 'split-window-vertically) 
-(global-set-key (kbd "C-c f") 'delete-window)
-(global-set-key (kbd "C-c a") 'delete-other-windows)
-(global-set-key (kbd "C-c o") 'balance-windows)
-(global-set-key (kbd "M-o") 'other-window)
-
-
-;; Case change commands
-
-(defun upcase-single-letter ()
-  "Convert the character at point to uppercase."
-  (interactive)
-  (let ((char (char-after)))
-    (when char
+  (let* ((start (point))
+         (initial-whitespace (save-excursion
+                               (goto-char (line-beginning-position))
+                               (when (looking-at "^[[:space:]]*")
+                                 (match-string 0)))))
+    ;; Paste the text
+    (evil-paste-after count register yank-handler)
+    ;; Align pasted text by adding initial whitespace to each subsequent line
+    (when initial-whitespace
       (save-excursion
-        (delete-char 1)
-        (insert (upcase char))))))
+        (goto-char start)
+        (while (re-search-forward "\n\\([^\n]\\)" nil t)
+          (replace-match (concat "\n" initial-whitespace "\\1")))))))
 
-(defun downcase-single-letter ()
-  "Convert the character at point to lowercase."
-  (interactive)
-  (let ((char (char-after)))
-    (when char
+
+(defun my-evil-paste-before-dwim (count &optional register yank-handler)
+  (interactive "p")
+  (let* ((start (point))
+         (initial-whitespace (save-excursion
+                               (goto-char (line-beginning-position))
+                               (when (looking-at "^[[:space:]]*")
+                                 (match-string 0)))))
+    ;; Paste before the cursor
+    (evil-paste-before count register yank-handler)
+    ;; Align pasted text by adding initial whitespace to each subsequent line
+    (when initial-whitespace
       (save-excursion
-        (delete-char 1)
-        (insert (downcase char))))))
-
-(define-key evil-normal-state-map (kbd "C-x u") 'upcase-single-letter)
-(define-key evil-normal-state-map (kbd "C-x l") 'downcase-single-letter)
-(define-key evil-visual-state-map (kbd "C-x u") 'upcase-region)
-(define-key evil-visual-state-map (kbd "C-x l") 'downcase-region)
-
-
-;; Delete char and enter insert mode
-(define-key evil-normal-state-map (kbd "q") (lambda ()
-                                             (interactive)
-                                             (delete-char 1)
-                                             (evil-insert-state)))
-
-
-(use-package dashboard
-  :ensure t
-  :config
-  (dashboard-setup-startup-hook)
-  (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_image.png")
-  ;; Method 1: Using custom face
-  (custom-set-faces
-   '(dashboard-banner-logo-title ((t (:foreground "#2957b0" :weight bold)))))
-  
-  ;; Method 2: Using both propertize and setting the face explicitly
-  (setq dashboard-banner-logo-title 
-        (let ((title "
- ******** ****     ****     **       ******   ********
-/**///// /**/**   **/**    ****     **////** **////// 
-/**      /**//** ** /**   **//**   **    // /**       
-/******* /** //***  /**  **  //** /**       /*********
-/**////  /**  //*   /** **********/**       ////////**
-/**      /**   /    /**/**//////**//**    **       /**
-/********/**        /**/**     /** //******  ******** 
-//////// //         // //      //   //////  ////////  
-"))
-          (propertize title 'face '(:foreground "red" :weight bold))))
-  
-  (setq dashboard-center-content t)
-  (setq dashboard-items '((recents  . 12)
-                         (bookmarks . 12)))
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
-
-
-(use-package direnv
-  :ensure t
-  :config
-  (direnv-mode)
-  
-  ;; Refresh direnv when opening files
-  (add-hook 'find-file-hook
-            (lambda ()
-              (when (file-exists-p (expand-file-name ".envrc" default-directory))
-                (direnv-update-environment)))))
-
-
-;; grep command bindings
-(global-set-key (kbd "M-g g")
-                (lambda ()
-                  (interactive)
-                  (grep (read-from-minibuffer "Run grep: " "git grep -rni "))))
-
-(global-set-key (kbd "M-g l")
-                (lambda ()
-                  (interactive)
-                  (grep (read-from-minibuffer "Run grep: " "grep -rni "))))
+        (goto-char start)
+        (while (re-search-forward "\n\\([^\n]\\)" nil t)
+          (replace-match (concat "\n" initial-whitespace "\\1")))))))
 
 
 
-(with-eval-after-load 'dired
-  (define-key dired-mode-map [mouse-1] 'dired-single-buffer)
-  (define-key dired-mode-map [mouse-2] 'dired-single-buffer))
+(define-key evil-normal-state-map (kbd "p") 'my-evil-paste-after-dwim)
+(define-key evil-normal-state-map (kbd "P") 'my-evil-paste-before-dwim)
 
 
-;; GNU plot setup
-(require 'org-plot)
-(use-package gnuplot
-  :ensure t
-  :config
-  (setq gnuplot-inline-image-mode t))
+ ;; Window management bindings
+ (global-set-key (kbd "C-c s") 'split-window-horizontally)
+ (global-set-key (kbd "C-c d") 'split-window-vertically) 
+ (global-set-key (kbd "C-c f") 'delete-window)
+ (global-set-key (kbd "C-c a") 'delete-other-windows)
+ (global-set-key (kbd "C-c o") 'balance-windows)
+ (global-set-key (kbd "M-o") 'other-window)
 
 
-(use-package grip-mode
-  :ensure t
-  :config
-  (setq grip-update-after-change t)
-  (setq grip-binary-path "grip"))
+ ;; Case change commands
 
-;; Bind a key for previewing Markdown
-(global-set-key (kbd "C-x g p") 'grip-mode)
+ (defun upcase-single-letter ()
+   "Convert the character at point to uppercase."
+   (interactive)
+   (let ((char (char-after)))
+     (when char
+       (save-excursion
+         (delete-char 1)
+         (insert (upcase char))))))
 
-(defun my/minibuffer-up-one-dir ()
-  (interactive)
-  ;; If the character immediately before point is '/', delete it
-  (when (and (> (point) (point-min)) (eq (char-before) ?/))
-    (delete-char -1))
-  ;; Save the current point after deletion
-  (let ((end (point)))
-    ;; Search backward for the last "/"
-    (if (search-backward "/" nil t)
-        ;; Delete from one character after the found slash to 'end'
-        (delete-region (1+ (point)) end)
-      (message "No preceding slash found.")))
-  ;; Move the cursor one character to the right, if possible.
-  (when (< (point) (point-max))
-    (forward-char 1)))
+ (defun downcase-single-letter ()
+   "Convert the character at point to lowercase."
+   (interactive)
+   (let ((char (char-after)))
+     (when char
+       (save-excursion
+         (delete-char 1)
+         (insert (downcase char))))))
 
-
-(define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'my/minibuffer-up-one-dir)
+ (define-key evil-normal-state-map (kbd "C-x u") 'upcase-single-letter)
+ (define-key evil-normal-state-map (kbd "C-x l") 'downcase-single-letter)
+ (define-key evil-visual-state-map (kbd "C-x u") 'upcase-region)
+ (define-key evil-visual-state-map (kbd "C-x l") 'downcase-region)
 
 
-(use-package epa-file
-  :ensure nil
-  :config
-  (epa-file-enable)
-  (setq epa-pinentry-mode 'loopback)
-  (setq epa-file-select-keys nil)
-  (setq epa-file-encrypt-to nil)
-  (setq auto-mode-alist (append '(("\\.gpg\\'" . epa-file)) auto-mode-alist))
-  (setq epa-file-cache-passphrase-for-symmetric-encryption t))
+ ;; Delete char and enter insert mode
+ (define-key evil-normal-state-map (kbd "q") (lambda ()
+                                              (interactive)
+                                              (delete-char 1)
+                                              (evil-insert-state)))
 
 
-(global-set-key (kbd "C-x C-k l") 'epa-list-keys)
-(global-set-key (kbd "C-x C-k e") 'epa-encrypt-file)
-(global-set-key (kbd "C-x C-k d") 'epa-decrypt-file)
+ (use-package dashboard
+   :ensure t
+   :config
+   (dashboard-setup-startup-hook)
+   (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_image.png")
+   ;; Method 1: Using custom face
+   (custom-set-faces
+    '(dashboard-banner-logo-title ((t (:foreground "#2957b0" :weight bold)))))
+   
+   ;; Method 2: Using both propertize and setting the face explicitly
+   (setq dashboard-banner-logo-title 
+         (let ((title "
+  ******** ****     ****     **       ******   ********
+ /**///// /**/**   **/**    ****     **////** **////// 
+ /**      /**//** ** /**   **//**   **    // /**       
+ /******* /** //***  /**  **  //** /**       /*********
+ /**////  /**  //*   /** **********/**       ////////**
+ /**      /**   /    /**/**//////**//**    **       /**
+ /********/**        /**/**     /** //******  ******** 
+ //////// //         // //      //   //////  ////////  
+ "))
+           (propertize title 'face '(:foreground "red" :weight bold))))
+   
+   (setq dashboard-center-content t)
+   (setq dashboard-items '((recents  . 12)
+                          (bookmarks . 12)))
+   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
 
 
-(setq make-backup-files nil)
+ (use-package direnv
+   :ensure t
+   :config
+   (direnv-mode)
+   
+   ;; Refresh direnv when opening files
+   (add-hook 'find-file-hook
+             (lambda ()
+               (when (file-exists-p (expand-file-name ".envrc" default-directory))
+                 (direnv-update-environment)))))
 
-;; init.el ends here
+
+ ;; grep command bindings
+ (global-set-key (kbd "M-g g")
+                 (lambda ()
+                   (interactive)
+                   (grep (read-from-minibuffer "Run grep: " "git grep -rni "))))
+
+ (global-set-key (kbd "M-g l")
+                 (lambda ()
+                   (interactive)
+                   (grep (read-from-minibuffer "Run grep: " "grep -rni "))))
+
+
+
+ (with-eval-after-load 'dired
+   (define-key dired-mode-map [mouse-1] 'dired-single-buffer)
+   (define-key dired-mode-map [mouse-2] 'dired-single-buffer))
+
+
+ ;; GNU plot setup
+ (require 'org-plot)
+ (use-package gnuplot
+   :ensure t
+   :config
+   (setq gnuplot-inline-image-mode t))
+
+
+ (use-package grip-mode
+   :ensure t
+   :config
+   (setq grip-update-after-change t)
+   (setq grip-binary-path "grip"))
+
+ ;; Bind a key for previewing Markdown
+ (global-set-key (kbd "C-x g p") 'grip-mode)
+
+ (defun my/minibuffer-up-one-dir ()
+   (interactive)
+   ;; If the character immediately before point is '/', delete it
+   (when (and (> (point) (point-min)) (eq (char-before) ?/))
+     (delete-char -1))
+   ;; Save the current point after deletion
+   (let ((end (point)))
+     ;; Search backward for the last "/"
+     (if (search-backward "/" nil t)
+         ;; Delete from one character after the found slash to 'end'
+         (delete-region (1+ (point)) end)
+       (message "No preceding slash found.")))
+   ;; Move the cursor one character to the right, if possible.
+   (when (< (point) (point-max))
+     (forward-char 1)))
+
+
+ (define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'my/minibuffer-up-one-dir)
+
+
+ (use-package epa-file
+   :ensure nil
+   :config
+   (epa-file-enable)
+   (setq epa-pinentry-mode 'loopback)
+   (setq epa-file-select-keys nil)
+   (setq epa-file-encrypt-to nil)
+   (setq auto-mode-alist (append '(("\\.gpg\\'" . epa-file)) auto-mode-alist))
+   (setq epa-file-cache-passphrase-for-symmetric-encryption t))
+
+
+ (global-set-key (kbd "C-x C-k l") 'epa-list-keys)
+ (global-set-key (kbd "C-x C-k e") 'epa-encrypt-file)
+ (global-set-key (kbd "C-x C-k d") 'epa-decrypt-file)
+
+
+ (setq make-backup-files nil)
+
+ ;; init.el ends here
