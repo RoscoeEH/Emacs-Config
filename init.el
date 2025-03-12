@@ -840,4 +840,10 @@
     (kbd "z o") 'origami-open-all-nodes
     (kbd "z c") 'origami-close-all-nodes))
 
-;; init.el ends here
+
+(with-eval-after-load 'evil
+  (define-key evil-normal-state-map (kbd "SPC i") 'imenu))
+
+        
+
+;;; init.el ends here
