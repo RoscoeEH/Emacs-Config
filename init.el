@@ -358,19 +358,20 @@
   (let* ((file-path (buffer-file-name))
          (mina-path "~/Documents/Projects/mina/")
          (in-mina-project (and file-path
-                              (string-prefix-p (expand-file-name mina-path)
-                                             (expand-file-name file-path))))
+                               (string-prefix-p (expand-file-name mina-path)
+                                                (expand-file-name file-path))))
          (cmd (cond
                (in-mina-project
                 "dune build src/app/cli/src/mina.exe")
-               ((eq major-mode 'python-mode)
-                (format "python3 %s" (file-name-nondirectory (buffer-file-name))))
+               ((and (eq major-mode 'python-mode) file-path)
+                (format "python3 %s" (file-name-nondirectory file-path)))
                ((eq major-mode 'rust-mode)
                 "cargo build")
                ((eq major-mode 'tuareg-mode)
                 "dune build")
                (t "make"))))
-    (setq-local compile-command cmd)))
+    (when cmd
+      (setq-local compile-command cmd))))
 
 (add-hook 'python-mode-hook #'improved-compile-command)
 (add-hook 'python-ts-mode-hook #'improved-compile-command)
@@ -378,7 +379,6 @@
 (add-hook 'tuareg-mode-hook #'improved-compile-command)
 (add-hook 'c-mode-hook #'improved-compile-command)
 (add-hook 'c++-mode-hook #'improved-compile-command)
-
 
 
 
@@ -823,4 +823,24 @@
 
  (setq make-backup-files nil)
 
- ;; init.el ends here
+(use-package origami
+  :ensure t
+  :hook (prog-mode . origami-mode)
+  :config
+  (setq origami-parser-alist
+        '((python-mode . origami-python-parser)
+          (rust-mode . origami-c-style-parser)
+          (c-mode . origami-c-style-parser)
+          (c++-mode . origami-c-style-parser)
+          (emacs-lisp-mode . origami-lisp-parser)))
+
+  (evil-define-key 'normal origami-mode-map
+    (kbd "z a") 'origami-toggle-node
+    (kbd "z A") 'origami-recursively-toggle-node
+    (kbd "z M") 'origami-toggle-all-nodes
+    (kbd "z o") 'origami-open-node
+    (kbd "z O") 'origami-open-all-nodes
+    (kbd "z c") 'origami-close-node
+    (kbd "z C") 'origami-close-all-nodes))
+
+;; init.el ends here
