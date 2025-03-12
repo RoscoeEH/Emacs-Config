@@ -837,10 +837,7 @@
   (evil-define-key 'normal origami-mode-map
     (kbd "z a") 'origami-toggle-node
     (kbd "z A") 'origami-recursively-toggle-node
-    (kbd "z M") 'origami-toggle-all-nodes
-    (kbd "z o") 'origami-open-node
-    (kbd "z O") 'origami-open-all-nodes
-    (kbd "z c") 'origami-close-node
-    (kbd "z C") 'origami-close-all-nodes))
+    (kbd "z o") 'origami-open-all-nodes
+    (kbd "z c") 'origami-close-all-nodes))
 
 ;; init.el ends here
