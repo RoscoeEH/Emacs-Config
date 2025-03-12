@@ -628,7 +628,7 @@
 
 
 ;; paste preserves the spacing of the initial line
-(defun my-evil-paste-after-dwim (count &optional register yank-handler)
+(defun evil-paste-after-dwim (count &optional register yank-handler)
   (interactive "p")
   (let* ((start (point))
          (initial-whitespace (save-excursion
@@ -645,7 +645,7 @@
           (replace-match (concat "\n" initial-whitespace "\\1")))))))
 
 
-(defun my-evil-paste-before-dwim (count &optional register yank-handler)
+(defun evil-paste-before-dwim (count &optional register yank-handler)
   (interactive "p")
   (let* ((start (point))
          (initial-whitespace (save-excursion
@@ -663,8 +663,8 @@
 
 
 
-(define-key evil-normal-state-map (kbd "p") 'my-evil-paste-after-dwim)
-(define-key evil-normal-state-map (kbd "P") 'my-evil-paste-before-dwim)
+(define-key evil-normal-state-map (kbd "p") 'evil-paste-after-dwim)
+(define-key evil-normal-state-map (kbd "P") 'evil-paste-before-dwim)
 
 
  ;; Window management bindings
@@ -785,7 +785,7 @@
  ;; Bind a key for previewing Markdown
  (global-set-key (kbd "C-x g p") 'grip-mode)
 
- (defun my/minibuffer-up-one-dir ()
+ (defun minibuffer-up-one-dir ()
    (interactive)
    ;; If the character immediately before point is '/', delete it
    (when (and (> (point) (point-min)) (eq (char-before) ?/))
@@ -802,7 +802,7 @@
      (forward-char 1)))
 
 
- (define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'my/minibuffer-up-one-dir)
+ (define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'minibuffer-up-one-dir)
 
 
  (use-package epa-file
@@ -844,6 +844,34 @@
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "SPC i") 'imenu))
 
-        
+(defun jump-next-function-def ()
+  "Jump to the beginning of the next function definition."
+  (interactive)
+  (beginning-of-defun -1))
+
+(defun jump-previous-function-def ()
+  "Jump to the beginning of the previous function definition."
+  (interactive)
+  (beginning-of-defun 1))
+
+(define-key evil-normal-state-map (kbd "}") 'jump-next-function-def)
+(define-key evil-normal-state-map (kbd "{") 'jump-previous-function-def)
+(define-key evil-visual-state-map (kbd "}") 'jump-next-function-def)
+(define-key evil-visual-state-map (kbd "{") 'jump-previous-function-def)
+
+(defun backward-sexp-adjusted ()
+  "Jump backward to the matching opening delimiter.
+If the character under point is a closing delimiter, move one char right first."
+  (interactive)
+  (when (member (char-after) '(?\) ?\] ?\}))
+    (forward-char 1))
+  (backward-sexp))
+
+
+(define-key evil-normal-state-map (kbd "]]") 'forward-sexp)
+(define-key evil-normal-state-map (kbd "[[") 'backward-sexp-adjusted)
+(define-key evil-visual-state-map (kbd "]]") 'forward-sexp)
+(define-key evil-visual-state-map (kbd "[[") 'backward-sexp-adjusted)
+
 
 ;;; init.el ends here
