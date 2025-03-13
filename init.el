@@ -840,10 +840,26 @@
     (kbd "z o") 'origami-open-all-nodes
     (kbd "z c") 'origami-close-all-nodes))
 
-
+;; imenu setuo
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "SPC i") 'imenu))
 
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+(setq merlin-command "/Users/roscoeelings-haynie/.opam/4.13.1/bin/ocamlmerlin")
+
+
+(defun ocaml-imenu-setup ()
+  (setq imenu-generic-expression
+        '(("Functions" "^let[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
+          ("Types" "^type[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
+          ("Modules" "^module[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
+          ("Classes" "^class[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1))))
+
+(add-hook 'tuareg-mode-hook 'ocaml-imenu-setup)
+
+
+;; File navigation commands
 (defun jump-next-function-def ()
   "Jump to the beginning of the next function definition."
   (interactive)
