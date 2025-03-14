@@ -751,15 +751,22 @@
 
 
  ;; grep command bindings
- (global-set-key (kbd "M-g g")
-                 (lambda ()
-                   (interactive)
-                   (grep (read-from-minibuffer "Run grep: " "git grep -rni "))))
+(global-set-key (kbd "M-g r")
+  (lambda ()
+    (interactive)
+    (grep (read-from-minibuffer "Run grep: " "rg "))))
+(global-set-key (kbd "M-g c") 'consult-ripgrep)
 
- (global-set-key (kbd "M-g l")
-                 (lambda ()
-                   (interactive)
-                   (grep (read-from-minibuffer "Run grep: " "grep -rni "))))
+
+;; enables consult-ripgrep
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode))
+(with-eval-after-load 'vertico
+  (define-key vertico-map (kbd "TAB") #'minibuffer-complete))
+(setq completion-styles '(partial-completion orderless basic))
+
 
 
 
@@ -841,8 +848,11 @@
     (kbd "z c") 'origami-close-all-nodes))
 
 ;; imenu setuo
+(use-package consult
+  :ensure t)
+
 (with-eval-after-load 'evil
-  (define-key evil-normal-state-map (kbd "SPC i") 'imenu))
+  (define-key evil-normal-state-map (kbd "SPC i") 'consult-imenu))
 
 (when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize))
@@ -851,10 +861,20 @@
 
 (defun ocaml-imenu-setup ()
   (setq imenu-generic-expression
-        '(("Functions" "^let[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
+        '(
+          ;; Match functions: after the name, require at least one non-space, non-= character
+          ("Functions" 
+           "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]+\\([^ =].*\\)[[:space:]]*="
+           2)
+          ;; Match simple values (bindings with no parameter)
+          ("Values"
+           "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]*=[[:space:]]*"
+           2)
           ("Types" "^type[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
           ("Modules" "^module[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
           ("Classes" "^class[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1))))
+
+
 
 (add-hook 'tuareg-mode-hook 'ocaml-imenu-setup)
 
