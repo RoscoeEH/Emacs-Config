@@ -105,7 +105,9 @@
   (package-install 'vterm))
 
 ;; Load vterm
-(require 'vterm)
+(use-package vterm
+  :ensure t)
+
 (global-set-key (kbd "C-x v") 'vterm)
 
 ;; OCaml setup
@@ -187,10 +189,16 @@
   (package-install 'evil-collection))
 
 (setq evil-want-keybinding nil)
-(require 'evil)
-(require 'evil-collection)
-(evil-mode 1)
-(evil-collection-init)
+(use-package evil
+  :ensure t
+  :init
+  (evil-mode 1))  ;; Enable evil-mode globally
+
+(use-package evil-collection
+  :ensure t
+  :after evil
+  :config
+  (evil-collection-init))  ;; Initialize evil-collection after evil is loaded
 
 (add-hook 'prog-mode-hook 'display-line-numbers-mode) ;; Enable line numbers
 (setq display-line-numbers-type 'relative) ;; Set relative line numbers
@@ -252,662 +260,664 @@
 
 
 
-
-(require 'evil-snipe)
-(evil-snipe-mode 1)
-(evil-snipe-override-mode 1)
-
-;; Use Space-s
-(with-eval-after-load 'evil-snipe
-  (define-key evil-normal-state-map (kbd "SPC s") 'evil-snipe-s)
-  (define-key evil-visual-state-map (kbd "SPC s") 'evil-snipe-s)
-  (define-key evil-normal-state-map (kbd "SPC S") 'evil-snipe-S)
-  (define-key evil-visual-state-map (kbd "SPC S") 'evil-snipe-S))
-
-;; Enable wrapping
-(setq evil-snipe-scope 'whole-buffer) ;; Search the entire buffer and wrap around
-(setq evil-snipe-repeat-scope 'whole-buffer) ;; Wrapping for repeated searches
-
-
-
-
-
-(defun open-init-file ()
-  "Open the Emacs init file."
-  (interactive)
-  (find-file "~/.config/emacs/init.el"))
-
-
-;; You can bind this function to a key for quick access
-(global-set-key (kbd "C-c I") 'open-init-file)
-
-
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-
-
-
-(require 'bm)
-
-;; Persistent bookmarks between sessions
-(setq bm-repository-file "~/.emacs.d/bm-repository")
-(setq bm-restore-repository-on-load t)
-
-;; Save bookmarks on killing the buffer or exiting Emacs
-(add-hook 'kill-buffer-hook #'bm-buffer-save)
-(add-hook 'kill-emacs-hook #'bm-repository-save)
-
-;; Load bookmarks when opening a file
-(add-hook 'find-file-hook #'bm-buffer-restore)
-(add-hook 'after-revert-hook #'bm-buffer-restore)
-
-;; Fringes are supported for graphical display of bookmarks
-(setq bm-highlight-style 'bm-highlight-only-fringe)
-
-;; Make sure the repository is loaded when Emacs starts
-(bm-repository-load)
-
-;; Bind C-c b to set a bookmark
-(global-set-key (kbd "C-c b") 'bm-toggle)
-
-;; Bind C-c m to go to the next bookmark
-(global-set-key (kbd "C-c .") 'bm-next)
-
-;; Bind C-c n to go to the previous bookmark
-(global-set-key (kbd "C-c ,") 'bm-previous)
-
-;; Enable Flycheck in programming modes
-(require 'flycheck)
-(require 'flycheck-rust)
-
-;; Set Flycheck to only check syntax on save
-(setq flycheck-check-syntax-automatically '(save))
-
-;; Enable Flycheck in Rust and C++ modes
-(add-hook 'rust-mode-hook #'flycheck-mode)
-(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
-(add-hook 'c++-mode-hook #'flycheck-mode)
-
-;; Enable Flycheck in all programming modes
-(add-hook 'prog-mode-hook #'flycheck-mode)
-
-
-
-
-;; Load goto-last-change package
-(use-package goto-last-change
+(use-package evil-snipe
   :ensure t
-  :bind (("C-c z" . goto-last-change)))
-
-
-
-(global-set-key (kbd "M-<up>") 'scroll-down-line)
-(global-set-key (kbd "M-<down>") 'scroll-up-line)
-
-
-(require 'rust-mode)
-(add-hook 'rust-mode-hook
-          (lambda ()
-            (rust-enable-format-on-save)))  ; Optional: enable formatting on save
-
-(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
-
-;; Custom compile command
-(defun improved-compile-command ()
-  "Set `compile-command` dynamically based on the major mode."
-  (interactive)
-  (let* ((file-path (buffer-file-name))
-         (mina-path "~/Documents/Projects/mina/")
-         (in-mina-project (and file-path
-                               (string-prefix-p (expand-file-name mina-path)
-                                                (expand-file-name file-path))))
-         (cmd (cond
-               (in-mina-project
-                "dune build src/app/cli/src/mina.exe")
-               ((and (eq major-mode 'python-mode) file-path)
-                (format "python3 %s" (file-name-nondirectory file-path)))
-               ((eq major-mode 'rust-mode)
-                "cargo build")
-               ((eq major-mode 'tuareg-mode)
-                "dune build")
-               (t "make"))))
-    (when cmd
-      (setq-local compile-command cmd))))
-
-(add-hook 'python-mode-hook #'improved-compile-command)
-(add-hook 'python-ts-mode-hook #'improved-compile-command)
-(add-hook 'rust-mode-hook #'improved-compile-command)
-(add-hook 'tuareg-mode-hook #'improved-compile-command)
-(add-hook 'c-mode-hook #'improved-compile-command)
-(add-hook 'c++-mode-hook #'improved-compile-command)
-
-
-
-;; Remove from find-file-hook as it might be too early
-(remove-hook 'find-file-hook #'improved-compile-command)
-
-;; Add only to tuareg-mode-hook
-(add-hook 'tuareg-mode-hook #'improved-compile-command)
-
-;; Set the default compile-command to nil to ensure our function takes effect
-(setq-default compile-command nil)
-
-;; Unbind M-c from capitalize-word
-(global-unset-key (kbd "M-c"))
-
-;; Skip eol chars on evil-end-of-line
-(defun evil-end-of-line-non-whitespace ()
-  "Move to the last character before the newline, ignoring trailing whitespace."
-  (interactive)
-  (move-end-of-line 1)
-  (skip-chars-backward " \t"))
-
-(define-key evil-normal-state-map (kbd "$") 'evil-end-of-line-non-whitespace)
-(define-key evil-visual-state-map (kbd "$") 'evil-end-of-line-non-whitespace)
-
-;; Define M-c as a prefix key
-(define-prefix-command 'compile-prefix-map)
-(global-set-key (kbd "M-c") 'compile-prefix-map)
-
-;; new commands for compile and recompile
-(global-set-key (kbd "M-c c") 'compile)
-(global-set-key (kbd "M-c m") 'recompile)
-
-
-(global-set-key (kbd "M-c n") 'next-error)
-(global-set-key (kbd "M-c b") 'previous-error)
-
-
-(defun toggle-fullscreen ()
-  "Toggle fullscreen mode on macOS."
-  (interactive)
-  (set-frame-parameter nil 'fullscreen
-                       (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
-
-;; Bind Command-Control-f to toggle fullscreen
-(global-set-key (kbd "s-C-f") 'toggle-fullscreen)
-
-
-;; key-chord to bind jk to escape
-(use-package key-chord
-  :ensure t
+  :after evil
   :config
-  (key-chord-mode 1))
+  (evil-snipe-mode 1)
+  (evil-snipe-override-mode 1))
 
 
-(key-chord-define-global "sd" 'save-buffer)
+  ;; Use Space-s
+  (with-eval-after-load 'evil-snipe
+    (define-key evil-normal-state-map (kbd "SPC s") 'evil-snipe-s)
+    (define-key evil-visual-state-map (kbd "SPC s") 'evil-snipe-s)
+    (define-key evil-normal-state-map (kbd "SPC S") 'evil-snipe-S)
+    (define-key evil-visual-state-map (kbd "SPC S") 'evil-snipe-S))
 
+  ;; Enable wrapping
+  (setq evil-snipe-scope 'whole-buffer) ;; Search the entire buffer and wrap around
+  (setq evil-snipe-repeat-scope 'whole-buffer) ;; Wrapping for repeated searches
 
-;; xref find def
-(define-key evil-normal-state-map (kbd "M-.") 'xref-find-definitions)
-(define-key evil-motion-state-map (kbd "M-.") 'xref-find-definitions)
 
 
-(electric-pair-mode 1)
 
 
-(require 'rainbow-delimiters)
-
-
-;; Optionally change cursor colors by Evil state if using evil-mode
-(setq evil-normal-state-cursor '("hot pink" box))
-(setq evil-insert-state-cursor '("green" bar))
-(setq evil-visual-state-cursor '("red" box))
-
-
-
-(defun convert-tabs-to-spaces ()
-  "Convert all tabs to spaces."
-  (untabify (point-min) (point-max)))
-
-(add-hook 'before-save-hook 'convert-tabs-to-spaces)
-
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 2)  ;; Set the number of spaces for a tab, change 4 to your preference
-
-
-(add-hook 'makefile-mode-hook
-          (lambda ()
-            (setq indent-tabs-mode t)))
-
-
-;; Define M-b as a prefix key
-(define-prefix-command 'bookmark-prefix-map)
-(global-set-key (kbd "M-b") 'bookmark-prefix-map)
-
-
-(global-set-key (kbd "M-b m") 'bookmark-set)
-(global-set-key (kbd "M-b j") 'bookmark-jump)
-(global-set-key (kbd "M-b l") 'bookmark-bmenu-list)
-(global-set-key (kbd "M-b d") 'bookmark-delete)
-
-
-;; Added command for cloning a repo with magit
-(global-set-key (kbd "C-x g c") 'magit-clone)
-
-
-
-
-;; Enable eglot for supported languages
-(add-hook 'python-mode-hook 'eglot-ensure)
-(add-hook 'rust-mode-hook 'eglot-ensure)
-(add-hook 'c-mode-hook 'eglot-ensure)
-(add-hook 'c++-mode-hook 'eglot-ensure)
-
-
-(evil-define-key 'normal 'global (kbd "SPC d") 'xref-find-definitions-other-window)
-
-;; Remove scroll bars
-(scroll-bar-mode -1)
-
-
-(fset 'yes-or-no-p 'y-or-n-p)
-
-(setq use-short-answers t)
-
-
-(setq ispell-program-name "aspell")  ;; Or "hunspell" or "ispell"
-(add-hook 'text-mode-hook 'flyspell-mode)
-(add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; Comments & strings only
-
-(add-hook 'flyspell-mode-hook
-          (lambda ()
-            (setq flyspell-issue-message-flag nil)
-            (flyspell-mode-off))) ;; Prevent on-the-fly checks
-
-(add-hook 'before-save-hook
-          (lambda ()
-            (when flyspell-mode
-              (flyspell-buffer))))
-
-
-(setq magit-git-executable "/usr/bin/git")
-(setq magit-credential 'osxkeychain)
-(setenv "SSH_AUTH_SOCK" (getenv "SSH_AUTH_SOCK"))
-
-;; Prevent Magit from inheriting direnv environment
-(with-eval-after-load 'magit
-  (remove-hook 'magit-status-mode-hook #'direnv-update-environment)
-  (remove-hook 'magit-process-mode-hook #'direnv-update-environment))
-
-
-
-;; Function to wrap selected text in parentheses
-(defun wrap-with-parens ()
-  "Wrap selected text with parentheses."
-  (interactive)
-  (let ((start (region-beginning))
-        (end (region-end)))
-    (goto-char end)
-    (insert ")")
-    (goto-char start)
-    (insert "(")
-    (evil-normal-state)))
-
-;; Bind it to SPC ( in visual mode
-(define-key evil-visual-state-map (kbd "SPC (") 'wrap-with-parens)
-
-;; Function to wrap selected text in square brackets
-(defun wrap-with-square-brackets ()
-  "Wrap selected text with square brackets."
-  (interactive)
-  (let ((start (region-beginning))
-        (end (region-end)))
-    (goto-char end)
-    (insert "]")
-    (goto-char start)
-    (insert "[")
-    (evil-normal-state)))
-
-;; Bind it to SPC [ in visual mode
-(define-key evil-visual-state-map (kbd "SPC [") 'wrap-with-square-brackets)
-
-;; Function to wrap selected text in curly braces
-(defun wrap-with-curly-braces ()
-  "Wrap selected text with curly braces."
-  (interactive)
-  (let ((start (region-beginning))
-        (end (region-end)))
-    (goto-char end)
-    (insert "}")
-    (goto-char start)
-    (insert "{")
-    (evil-normal-state)))
-
-;; Bind it to SPC { in visual mode
-(define-key evil-visual-state-map (kbd "SPC {") 'wrap-with-curly-braces)
-
-;; Function to wrap selected text in double quotes
-(defun wrap-with-double-quotes ()
-  "Wrap selected text with double quotes."
-  (interactive)
-  (let ((start (region-beginning))
-        (end (region-end)))
-    (goto-char end)
-    (insert "\"")
-    (goto-char start)
-    (insert "\"")
-    (evil-normal-state)))
-
-;; Bind it to SPC " in visual mode
-(define-key evil-visual-state-map (kbd "SPC \"") 'wrap-with-double-quotes)
-
-;; Function to wrap selected text in single quotes
-(defun wrap-with-single-quotes ()
-  "Wrap selected text with single quotes."
-  (interactive)
-  (let ((start (region-beginning))
-        (end (region-end)))
-    (goto-char end)
-    (insert "'")
-    (goto-char start)
-    (insert "'")
-    (evil-normal-state)))
-
-;; Bind it to SPC ' in visual mode
-(define-key evil-visual-state-map (kbd "SPC '") 'wrap-with-single-quotes)
-
-
-
-;; Make visual mode 'd' delete without yanking
-(define-key evil-visual-state-map (kbd "d") (lambda ()
-                                             (interactive)
-                                             (evil-delete (region-beginning) (region-end) nil ?_)))
-
-;; Make visual mode 'p' and 'P' delete selection without yanking and then paste
-(define-key evil-visual-state-map (kbd "p") (lambda ()
-                                             (interactive)
-                                             (evil-delete (region-beginning) (region-end) nil ?_)
-                                             (evil-paste-after 1)))
-
-(define-key evil-visual-state-map (kbd "P") (lambda ()
-                                             (interactive)
-                                             (evil-delete (region-beginning) (region-end) nil ?_)
-                                             (evil-paste-before 1)))
-
-
-
-
-;; paste preserves the spacing of the initial line
-(defun evil-paste-after-dwim (count &optional register yank-handler)
-  (interactive "p")
-  (let* ((start (point))
-         (initial-whitespace (save-excursion
-                               (goto-char (line-beginning-position))
-                               (when (looking-at "^[[:space:]]*")
-                                 (match-string 0)))))
-    ;; Paste the text
-    (evil-paste-after count register yank-handler)
-    ;; Align pasted text by adding initial whitespace to each subsequent line
-    (when initial-whitespace
-      (save-excursion
-        (goto-char start)
-        (while (re-search-forward "\n\\([^\n]\\)" nil t)
-          (replace-match (concat "\n" initial-whitespace "\\1")))))))
-
-
-(defun evil-paste-before-dwim (count &optional register yank-handler)
-  (interactive "p")
-  (let* ((start (point))
-         (initial-whitespace (save-excursion
-                               (goto-char (line-beginning-position))
-                               (when (looking-at "^[[:space:]]*")
-                                 (match-string 0)))))
-    ;; Paste before the cursor
-    (evil-paste-before count register yank-handler)
-    ;; Align pasted text by adding initial whitespace to each subsequent line
-    (when initial-whitespace
-      (save-excursion
-        (goto-char start)
-        (while (re-search-forward "\n\\([^\n]\\)" nil t)
-          (replace-match (concat "\n" initial-whitespace "\\1")))))))
-
-
-
-(define-key evil-normal-state-map (kbd "p") 'evil-paste-after-dwim)
-(define-key evil-normal-state-map (kbd "P") 'evil-paste-before-dwim)
-
-
- ;; Window management bindings
- (global-set-key (kbd "C-c s") 'split-window-horizontally)
- (global-set-key (kbd "C-c d") 'split-window-vertically) 
- (global-set-key (kbd "C-c f") 'delete-window)
- (global-set-key (kbd "C-c a") 'delete-other-windows)
- (global-set-key (kbd "C-c o") 'balance-windows)
- (global-set-key (kbd "M-o") 'other-window)
-
-
- ;; Case change commands
-
- (defun upcase-single-letter ()
-   "Convert the character at point to uppercase."
-   (interactive)
-   (let ((char (char-after)))
-     (when char
-       (save-excursion
-         (delete-char 1)
-         (insert (upcase char))))))
-
- (defun downcase-single-letter ()
-   "Convert the character at point to lowercase."
-   (interactive)
-   (let ((char (char-after)))
-     (when char
-       (save-excursion
-         (delete-char 1)
-         (insert (downcase char))))))
-
- (define-key evil-normal-state-map (kbd "C-x u") 'upcase-single-letter)
- (define-key evil-normal-state-map (kbd "C-x l") 'downcase-single-letter)
- (define-key evil-visual-state-map (kbd "C-x u") 'upcase-region)
- (define-key evil-visual-state-map (kbd "C-x l") 'downcase-region)
-
-
- ;; Delete char and enter insert mode
- (define-key evil-normal-state-map (kbd "q") (lambda ()
-                                              (interactive)
-                                              (delete-char 1)
-                                              (evil-insert-state)))
-
-
- (use-package dashboard
-   :ensure t
-   :config
-   (dashboard-setup-startup-hook)
-   (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_image.png")
-   ;; Method 1: Using custom face
-   (custom-set-faces
-    '(dashboard-banner-logo-title ((t (:foreground "#2957b0" :weight bold)))))
-   
-   ;; Method 2: Using both propertize and setting the face explicitly
-   (setq dashboard-banner-logo-title 
-         (let ((title "
-  ******** ****     ****     **       ******   ********
- /**///// /**/**   **/**    ****     **////** **////// 
- /**      /**//** ** /**   **//**   **    // /**       
- /******* /** //***  /**  **  //** /**       /*********
- /**////  /**  //*   /** **********/**       ////////**
- /**      /**   /    /**/**//////**//**    **       /**
- /********/**        /**/**     /** //******  ******** 
- //////// //         // //      //   //////  ////////  
- "))
-           (propertize title 'face '(:foreground "red" :weight bold))))
-   
-   (setq dashboard-center-content t)
-   (setq dashboard-items '((recents  . 12)
-                          (bookmarks . 12)))
-   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
-
-
- (use-package direnv
-   :ensure t
-   :config
-   (direnv-mode)
-   
-   ;; Refresh direnv when opening files
-   (add-hook 'find-file-hook
-             (lambda ()
-               (when (file-exists-p (expand-file-name ".envrc" default-directory))
-                 (direnv-update-environment)))))
-
-
- ;; grep command bindings
-(global-set-key (kbd "M-g r")
-  (lambda ()
+  (defun open-init-file ()
+    "Open the Emacs init file."
     (interactive)
-    (grep (read-from-minibuffer "Run grep: " "rg "))))
-(global-set-key (kbd "M-g c") 'consult-ripgrep)
+    (find-file "~/.config/emacs/init.el"))
 
 
-;; enables consult-ripgrep
-(use-package vertico
+  ;; You can bind this function to a key for quick access
+  (global-set-key (kbd "C-c I") 'open-init-file)
+
+
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+
+
+  (use-package bm
   :ensure t
-  :init
-  (vertico-mode))
-(with-eval-after-load 'vertico
-  (define-key vertico-map (kbd "TAB") #'minibuffer-complete))
-(setq completion-styles '(partial-completion orderless basic))
-
-
-
-
- (with-eval-after-load 'dired
-   (define-key dired-mode-map [mouse-1] 'dired-single-buffer)
-   (define-key dired-mode-map [mouse-2] 'dired-single-buffer))
-
-
- ;; GNU plot setup
- (require 'org-plot)
- (use-package gnuplot
-   :ensure t
-   :config
-   (setq gnuplot-inline-image-mode t))
-
-
- (use-package grip-mode
-   :ensure t
-   :config
-   (setq grip-update-after-change t)
-   (setq grip-binary-path "grip"))
-
- ;; Bind a key for previewing Markdown
- (global-set-key (kbd "C-x g p") 'grip-mode)
-
- (defun minibuffer-up-one-dir ()
-   (interactive)
-   ;; If the character immediately before point is '/', delete it
-   (when (and (> (point) (point-min)) (eq (char-before) ?/))
-     (delete-char -1))
-   ;; Save the current point after deletion
-   (let ((end (point)))
-     ;; Search backward for the last "/"
-     (if (search-backward "/" nil t)
-         ;; Delete from one character after the found slash to 'end'
-         (delete-region (1+ (point)) end)
-       (message "No preceding slash found.")))
-   ;; Move the cursor one character to the right, if possible.
-   (when (< (point) (point-max))
-     (forward-char 1)))
-
-
- (define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'minibuffer-up-one-dir)
-
-
- (use-package epa-file
-   :ensure nil
-   :config
-   (epa-file-enable)
-   (setq epa-pinentry-mode 'loopback)
-   (setq epa-file-select-keys nil)
-   (setq epa-file-encrypt-to nil)
-   (setq auto-mode-alist (append '(("\\.gpg\\'" . epa-file)) auto-mode-alist))
-   (setq epa-file-cache-passphrase-for-symmetric-encryption t))
-
-
- (global-set-key (kbd "C-x C-k l") 'epa-list-keys)
- (global-set-key (kbd "C-x C-k e") 'epa-encrypt-file)
- (global-set-key (kbd "C-x C-k d") 'epa-decrypt-file)
-
-
- (setq make-backup-files nil)
-
-(use-package origami
-  :ensure t
-  :hook (prog-mode . origami-mode)
   :config
-  (setq origami-parser-alist
-        '((python-mode . origami-python-parser)
-          (rust-mode . origami-c-style-parser)
-          (c-mode . origami-c-style-parser)
-          (c++-mode . origami-c-style-parser)
-          (emacs-lisp-mode . origami-lisp-parser)))
+  ;; Persistent bookmarks between sessions
+  (setq bm-repository-file "~/.emacs.d/bm-repository")
+  (setq bm-restore-repository-on-load t)
 
-  (evil-define-key 'normal origami-mode-map
-    (kbd "z a") 'origami-toggle-node
-    (kbd "z A") 'origami-recursively-toggle-node
-    (kbd "z o") 'origami-open-all-nodes
-    (kbd "z c") 'origami-close-all-nodes))
+  ;; Save bookmarks on killing the buffer or exiting Emacs
+  (add-hook 'kill-buffer-hook #'bm-buffer-save)
+  (add-hook 'kill-emacs-hook #'bm-repository-save)
 
-;; imenu setuo
-(use-package consult
+  ;; Load bookmarks when opening a file
+  (add-hook 'find-file-hook #'bm-buffer-restore)
+  (add-hook 'after-revert-hook #'bm-buffer-restore)
+
+  ;; Fringes are supported for graphical display of bookmarks
+  (setq bm-highlight-style 'bm-highlight-only-fringe)
+
+  ;; Make sure the repository is loaded when Emacs starts
+  (bm-repository-load)
+
+  ;; Bind C-c b to set a bookmark
+  (global-set-key (kbd "C-c b") 'bm-toggle)
+
+  ;; Bind C-c m to go to the next bookmark
+  (global-set-key (kbd "C-c .") 'bm-next)
+
+  ;; Bind C-c n to go to the previous bookmark
+  (global-set-key (kbd "C-c ,") 'bm-previous))
+
+
+  ;; Enable Flycheck in programming modes
+  (use-package flycheck
   :ensure t)
 
-(with-eval-after-load 'evil
-  (define-key evil-normal-state-map (kbd "SPC i") 'consult-imenu))
+(use-package flycheck-rust
+  :ensure t)
 
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
-(setq merlin-command "/Users/roscoeelings-haynie/.opam/4.13.1/bin/ocamlmerlin")
+  ;; Set Flycheck to only check syntax on save
+  (setq flycheck-check-syntax-automatically '(save))
 
+  ;; Enable Flycheck in Rust and C++ modes
+  (add-hook 'rust-mode-hook #'flycheck-mode)
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+  (add-hook 'c++-mode-hook #'flycheck-mode)
 
-(defun ocaml-imenu-setup ()
-  (setq imenu-generic-expression
-        '(
-          ;; Match functions: after the name, require at least one non-space, non-= character
-          ("Functions" 
-           "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]+\\([^ =].*\\)[[:space:]]*="
-           2)
-          ;; Match simple values (bindings with no parameter)
-          ("Values"
-           "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]*=[[:space:]]*"
-           2)
-          ("Types" "^type[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
-          ("Modules" "^module[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
-          ("Classes" "^class[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1))))
+  ;; Enable Flycheck in all programming modes
+  (add-hook 'prog-mode-hook #'flycheck-mode)
 
 
 
-(add-hook 'tuareg-mode-hook 'ocaml-imenu-setup)
+
+  ;; Load goto-last-change package
+  (use-package goto-last-change
+    :ensure t
+    :bind (("C-c z" . goto-last-change)))
 
 
-;; File navigation commands
-(defun jump-next-function-def ()
-  "Jump to the beginning of the next function definition."
-  (interactive)
-  (beginning-of-defun -1))
 
-(defun jump-previous-function-def ()
-  "Jump to the beginning of the previous function definition."
-  (interactive)
-  (beginning-of-defun 1))
-
-(define-key evil-normal-state-map (kbd "}") 'jump-next-function-def)
-(define-key evil-normal-state-map (kbd "{") 'jump-previous-function-def)
-(define-key evil-visual-state-map (kbd "}") 'jump-next-function-def)
-(define-key evil-visual-state-map (kbd "{") 'jump-previous-function-def)
-
-(defun backward-sexp-adjusted ()
-  "Jump backward to the matching opening delimiter.
-If the character under point is a closing delimiter, move one char right first."
-  (interactive)
-  (when (member (char-after) '(?\) ?\] ?\}))
-    (forward-char 1))
-  (backward-sexp))
+  (global-set-key (kbd "M-<up>") 'scroll-down-line)
+  (global-set-key (kbd "M-<down>") 'scroll-up-line)
 
 
-(define-key evil-normal-state-map (kbd "]]") 'forward-sexp)
-(define-key evil-normal-state-map (kbd "[[") 'backward-sexp-adjusted)
-(define-key evil-visual-state-map (kbd "]]") 'forward-sexp)
-(define-key evil-visual-state-map (kbd "[[") 'backward-sexp-adjusted)
+  (require 'rust-mode)
+  (add-hook 'rust-mode-hook
+            (lambda ()
+              (rust-enable-format-on-save)))  ; Optional: enable formatting on save
+
+  (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+
+  ;; Custom compile command
+  (defun improved-compile-command ()
+    "Set `compile-command` dynamically based on the major mode."
+    (interactive)
+    (let* ((file-path (buffer-file-name))
+           (mina-path "~/Documents/Projects/mina/")
+           (in-mina-project (and file-path
+                                 (string-prefix-p (expand-file-name mina-path)
+                                                  (expand-file-name file-path))))
+           (cmd (cond
+                 (in-mina-project
+                  "dune build src/app/cli/src/mina.exe")
+                 ((and (eq major-mode 'python-mode) file-path)
+                  (format "python3 %s" (file-name-nondirectory file-path)))
+                 ((eq major-mode 'rust-mode)
+                  "cargo build")
+                 ((eq major-mode 'tuareg-mode)
+                  "dune build")
+                 (t "make"))))
+      (when cmd
+        (setq-local compile-command cmd))))
+
+  (add-hook 'python-mode-hook #'improved-compile-command)
+  (add-hook 'python-ts-mode-hook #'improved-compile-command)
+  (add-hook 'rust-mode-hook #'improved-compile-command)
+  (add-hook 'tuareg-mode-hook #'improved-compile-command)
+  (add-hook 'c-mode-hook #'improved-compile-command)
+  (add-hook 'c++-mode-hook #'improved-compile-command)
 
 
-;;; init.el ends here
+
+  ;; Remove from find-file-hook as it might be too early
+  (remove-hook 'find-file-hook #'improved-compile-command)
+
+  ;; Add only to tuareg-mode-hook
+  (add-hook 'tuareg-mode-hook #'improved-compile-command)
+
+  ;; Set the default compile-command to nil to ensure our function takes effect
+  (setq-default compile-command nil)
+
+  ;; Unbind M-c from capitalize-word
+  (global-unset-key (kbd "M-c"))
+
+  ;; Skip eol chars on evil-end-of-line
+  (defun evil-end-of-line-non-whitespace ()
+    "Move to the last character before the newline, ignoring trailing whitespace."
+    (interactive)
+    (move-end-of-line 1)
+    (skip-chars-backward " \t"))
+
+  (define-key evil-normal-state-map (kbd "$") 'evil-end-of-line-non-whitespace)
+  (define-key evil-visual-state-map (kbd "$") 'evil-end-of-line-non-whitespace)
+
+  ;; Define M-c as a prefix key
+  (define-prefix-command 'compile-prefix-map)
+  (global-set-key (kbd "M-c") 'compile-prefix-map)
+
+  ;; new commands for compile and recompile
+  (global-set-key (kbd "M-c c") 'compile)
+  (global-set-key (kbd "M-c m") 'recompile)
+
+
+  (global-set-key (kbd "M-c n") 'next-error)
+  (global-set-key (kbd "M-c b") 'previous-error)
+
+
+  (defun toggle-fullscreen ()
+    "Toggle fullscreen mode on macOS."
+    (interactive)
+    (set-frame-parameter nil 'fullscreen
+                         (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
+
+  ;; Bind Command-Control-f to toggle fullscreen
+  (global-set-key (kbd "s-C-f") 'toggle-fullscreen)
+
+
+  ;; key-chord to bind jk to escape
+  (use-package key-chord
+    :ensure t
+    :config
+    (key-chord-mode 1))
+
+
+  (key-chord-define-global "sd" 'save-buffer)
+
+
+  ;; xref find def
+  (define-key evil-normal-state-map (kbd "M-.") 'xref-find-definitions)
+  (define-key evil-motion-state-map (kbd "M-.") 'xref-find-definitions)
+
+
+  (electric-pair-mode 1)
+
+
+(use-package rainbow-delimiters
+  :ensure t)
+
+
+  ;; Optionally change cursor colors by Evil state if using evil-mode
+  (setq evil-normal-state-cursor '("hot pink" box))
+  (setq evil-insert-state-cursor '("green" bar))
+  (setq evil-visual-state-cursor '("red" box))
+
+
+
+  (defun convert-tabs-to-spaces ()
+    "Convert all tabs to spaces."
+    (untabify (point-min) (point-max)))
+
+  (add-hook 'before-save-hook 'convert-tabs-to-spaces)
+
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 2)  ;; Set the number of spaces for a tab, change 4 to your preference
+
+
+  (add-hook 'makefile-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode t)))
+
+
+  ;; Define M-b as a prefix key
+  (define-prefix-command 'bookmark-prefix-map)
+  (global-set-key (kbd "M-b") 'bookmark-prefix-map)
+
+
+  (global-set-key (kbd "M-b m") 'bookmark-set)
+  (global-set-key (kbd "M-b j") 'bookmark-jump)
+  (global-set-key (kbd "M-b l") 'bookmark-bmenu-list)
+  (global-set-key (kbd "M-b d") 'bookmark-delete)
+
+
+  ;; Added command for cloning a repo with magit
+  (global-set-key (kbd "C-x g c") 'magit-clone)
+
+
+
+
+  ;; Enable eglot for supported languages
+  (add-hook 'python-mode-hook 'eglot-ensure)
+  (add-hook 'rust-mode-hook 'eglot-ensure)
+  (add-hook 'c-mode-hook 'eglot-ensure)
+  (add-hook 'c++-mode-hook 'eglot-ensure)
+
+
+  (evil-define-key 'normal 'global (kbd "SPC d") 'xref-find-definitions-other-window)
+
+  ;; Remove scroll bars
+  (scroll-bar-mode -1)
+
+
+  (fset 'yes-or-no-p 'y-or-n-p)
+
+  (setq use-short-answers t)
+
+
+  (setq ispell-program-name "aspell")  ;; Or "hunspell" or "ispell"
+  (add-hook 'text-mode-hook 'flyspell-mode)
+  (add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; Comments & strings only
+
+  (add-hook 'flyspell-mode-hook
+            (lambda ()
+              (setq flyspell-issue-message-flag nil)
+              (flyspell-mode-off))) ;; Prevent on-the-fly checks
+
+  (add-hook 'before-save-hook
+            (lambda ()
+              (when flyspell-mode
+                (flyspell-buffer))))
+
+
+  (setq magit-git-executable "/usr/bin/git")
+  (setq magit-credential 'osxkeychain)
+  (setenv "SSH_AUTH_SOCK" (getenv "SSH_AUTH_SOCK"))
+
+  ;; Prevent Magit from inheriting direnv environment
+  (with-eval-after-load 'magit
+    (remove-hook 'magit-status-mode-hook #'direnv-update-environment)
+    (remove-hook 'magit-process-mode-hook #'direnv-update-environment))
+
+
+
+  ;; Function to wrap selected text in parentheses
+  (defun wrap-with-parens ()
+    "Wrap selected text with parentheses."
+    (interactive)
+    (let ((start (region-beginning))
+          (end (region-end)))
+      (goto-char end)
+      (insert ")")
+      (goto-char start)
+      (insert "(")
+      (evil-normal-state)))
+
+  ;; Bind it to SPC ( in visual mode
+  (define-key evil-visual-state-map (kbd "SPC (") 'wrap-with-parens)
+
+  ;; Function to wrap selected text in square brackets
+  (defun wrap-with-square-brackets ()
+    "Wrap selected text with square brackets."
+    (interactive)
+    (let ((start (region-beginning))
+          (end (region-end)))
+      (goto-char end)
+      (insert "]")
+      (goto-char start)
+      (insert "[")
+      (evil-normal-state)))
+
+  ;; Bind it to SPC [ in visual mode
+  (define-key evil-visual-state-map (kbd "SPC [") 'wrap-with-square-brackets)
+
+  ;; Function to wrap selected text in curly braces
+  (defun wrap-with-curly-braces ()
+    "Wrap selected text with curly braces."
+    (interactive)
+    (let ((start (region-beginning))
+          (end (region-end)))
+      (goto-char end)
+      (insert "}")
+      (goto-char start)
+      (insert "{")
+      (evil-normal-state)))
+
+  ;; Bind it to SPC { in visual mode
+  (define-key evil-visual-state-map (kbd "SPC {") 'wrap-with-curly-braces)
+
+  ;; Function to wrap selected text in double quotes
+  (defun wrap-with-double-quotes ()
+    "Wrap selected text with double quotes."
+    (interactive)
+    (let ((start (region-beginning))
+          (end (region-end)))
+      (goto-char end)
+      (insert "\"")
+      (goto-char start)
+      (insert "\"")
+      (evil-normal-state)))
+
+  ;; Bind it to SPC " in visual mode
+  (define-key evil-visual-state-map (kbd "SPC \"") 'wrap-with-double-quotes)
+
+  ;; Function to wrap selected text in single quotes
+  (defun wrap-with-single-quotes ()
+    "Wrap selected text with single quotes."
+    (interactive)
+    (let ((start (region-beginning))
+          (end (region-end)))
+      (goto-char end)
+      (insert "'")
+      (goto-char start)
+      (insert "'")
+      (evil-normal-state)))
+
+  ;; Bind it to SPC ' in visual mode
+  (define-key evil-visual-state-map (kbd "SPC '") 'wrap-with-single-quotes)
+
+
+
+  ;; Make visual mode 'd' delete without yanking
+  (define-key evil-visual-state-map (kbd "d") (lambda ()
+                                               (interactive)
+                                               (evil-delete (region-beginning) (region-end) nil ?_)))
+
+  ;; Make visual mode 'p' and 'P' delete selection without yanking and then paste
+  (define-key evil-visual-state-map (kbd "p") (lambda ()
+                                               (interactive)
+                                               (evil-delete (region-beginning) (region-end) nil ?_)
+                                               (evil-paste-after 1)))
+
+  (define-key evil-visual-state-map (kbd "P") (lambda ()
+                                               (interactive)
+                                               (evil-delete (region-beginning) (region-end) nil ?_)
+                                               (evil-paste-before 1)))
+
+
+
+
+  ;; paste preserves the spacing of the initial line
+  (defun evil-paste-after-dwim (count &optional register yank-handler)
+    (interactive "p")
+    (let* ((start (point))
+           (initial-whitespace (save-excursion
+                                 (goto-char (line-beginning-position))
+                                 (when (looking-at "^[[:space:]]*")
+                                   (match-string 0)))))
+      ;; Paste the text
+      (evil-paste-after count register yank-handler)
+      ;; Align pasted text by adding initial whitespace to each subsequent line
+      (when initial-whitespace
+        (save-excursion
+          (goto-char start)
+          (while (re-search-forward "\n\\([^\n]\\)" nil t)
+            (replace-match (concat "\n" initial-whitespace "\\1")))))))
+
+
+  (defun evil-paste-before-dwim (count &optional register yank-handler)
+    (interactive "p")
+    (let* ((start (point))
+           (initial-whitespace (save-excursion
+                                 (goto-char (line-beginning-position))
+                                 (when (looking-at "^[[:space:]]*")
+                                   (match-string 0)))))
+      ;; Paste before the cursor
+      (evil-paste-before count register yank-handler)
+      ;; Align pasted text by adding initial whitespace to each subsequent line
+      (when initial-whitespace
+        (save-excursion
+          (goto-char start)
+          (while (re-search-forward "\n\\([^\n]\\)" nil t)
+            (replace-match (concat "\n" initial-whitespace "\\1")))))))
+
+
+
+  (define-key evil-normal-state-map (kbd "p") 'evil-paste-after-dwim)
+  (define-key evil-normal-state-map (kbd "P") 'evil-paste-before-dwim)
+
+
+   ;; Window management bindings
+   (global-set-key (kbd "C-c s") 'split-window-horizontally)
+   (global-set-key (kbd "C-c d") 'split-window-vertically) 
+   (global-set-key (kbd "C-c f") 'delete-window)
+   (global-set-key (kbd "C-c a") 'delete-other-windows)
+   (global-set-key (kbd "C-c o") 'balance-windows)
+   (global-set-key (kbd "M-o") 'other-window)
+
+
+   ;; Case change commands
+
+   (defun upcase-single-letter ()
+     "Convert the character at point to uppercase."
+     (interactive)
+     (let ((char (char-after)))
+       (when char
+         (save-excursion
+           (delete-char 1)
+           (insert (upcase char))))))
+
+   (defun downcase-single-letter ()
+     "Convert the character at point to lowercase."
+     (interactive)
+     (let ((char (char-after)))
+       (when char
+         (save-excursion
+           (delete-char 1)
+           (insert (downcase char))))))
+
+   (define-key evil-normal-state-map (kbd "C-x u") 'upcase-single-letter)
+   (define-key evil-normal-state-map (kbd "C-x l") 'downcase-single-letter)
+   (define-key evil-visual-state-map (kbd "C-x u") 'upcase-region)
+   (define-key evil-visual-state-map (kbd "C-x l") 'downcase-region)
+
+
+   ;; Delete char and enter insert mode
+   (define-key evil-normal-state-map (kbd "q") (lambda ()
+                                                (interactive)
+                                                (delete-char 1)
+                                                (evil-insert-state)))
+
+
+   (use-package dashboard
+     :ensure t
+     :config
+     (dashboard-setup-startup-hook)
+     (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_image.png")
+     ;; Method 1: Using custom face
+     (custom-set-faces
+      '(dashboard-banner-logo-title ((t (:foreground "#2957b0" :weight bold)))))
+     
+     ;; Method 2: Using both propertize and setting the face explicitly
+     (setq dashboard-banner-logo-title 
+           (let ((title "
+    ******** ****     ****     **       ******   ********
+   /**///// /**/**   **/**    ****     **////** **////// 
+   /**      /**//** ** /**   **//**   **    // /**       
+   /******* /** //***  /**  **  //** /**       /*********
+   /**////  /**  //*   /** **********/**       ////////**
+   /**      /**   /    /**/**//////**//**    **       /**
+   /********/**        /**/**     /** //******  ******** 
+   //////// //         // //      //   //////  ////////  
+   "))
+             (propertize title 'face '(:foreground "red" :weight bold))))
+     
+     (setq dashboard-center-content t)
+     (setq dashboard-items '((recents  . 12)
+                            (bookmarks . 12)))
+     (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
+
+
+   (use-package direnv
+     :ensure t
+     :config
+     (direnv-mode)
+     
+     ;; Refresh direnv when opening files
+     (add-hook 'find-file-hook
+               (lambda ()
+                 (when (file-exists-p (expand-file-name ".envrc" default-directory))
+                   (direnv-update-environment)))))
+
+
+   ;; grep command bindings
+  (global-set-key (kbd "M-g r")
+    (lambda ()
+      (interactive)
+      (grep (read-from-minibuffer "Run grep: " "rg "))))
+  (global-set-key (kbd "M-g c") 'consult-ripgrep)
+
+
+  ;; enables consult-ripgrep
+  (use-package vertico
+    :ensure t
+    :init
+    (vertico-mode))
+  (with-eval-after-load 'vertico
+    (define-key vertico-map (kbd "TAB") #'minibuffer-complete))
+  (setq completion-styles '(partial-completion orderless basic))
+
+
+
+
+   (with-eval-after-load 'dired
+     (define-key dired-mode-map [mouse-1] 'dired-single-buffer)
+     (define-key dired-mode-map [mouse-2] 'dired-single-buffer))
+
+
+
+   (use-package grip-mode
+     :ensure t
+     :config
+     (setq grip-update-after-change t)
+     (setq grip-binary-path "grip"))
+
+   ;; Bind a key for previewing Markdown
+   (global-set-key (kbd "C-x g p") 'grip-mode)
+
+   (defun minibuffer-up-one-dir ()
+     (interactive)
+     ;; If the character immediately before point is '/', delete it
+     (when (and (> (point) (point-min)) (eq (char-before) ?/))
+       (delete-char -1))
+     ;; Save the current point after deletion
+     (let ((end (point)))
+       ;; Search backward for the last "/"
+       (if (search-backward "/" nil t)
+           ;; Delete from one character after the found slash to 'end'
+           (delete-region (1+ (point)) end)
+         (message "No preceding slash found.")))
+     ;; Move the cursor one character to the right, if possible.
+     (when (< (point) (point-max))
+       (forward-char 1)))
+
+
+   (define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'minibuffer-up-one-dir)
+
+
+   (use-package epa-file
+     :ensure nil
+     :config
+     (epa-file-enable)
+     (setq epa-pinentry-mode 'loopback)
+     (setq epa-file-select-keys nil)
+     (setq epa-file-encrypt-to nil)
+     (setq auto-mode-alist (append '(("\\.gpg\\'" . epa-file)) auto-mode-alist))
+     (setq epa-file-cache-passphrase-for-symmetric-encryption t))
+
+
+   (global-set-key (kbd "C-x C-k l") 'epa-list-keys)
+   (global-set-key (kbd "C-x C-k e") 'epa-encrypt-file)
+   (global-set-key (kbd "C-x C-k d") 'epa-decrypt-file)
+
+
+   (setq make-backup-files nil)
+
+  (use-package origami
+    :ensure t
+    :hook (prog-mode . origami-mode)
+    :config
+    (setq origami-parser-alist
+          '((python-mode . origami-python-parser)
+            (rust-mode . origami-c-style-parser)
+            (c-mode . origami-c-style-parser)
+            (c++-mode . origami-c-style-parser)
+            (emacs-lisp-mode . origami-lisp-parser)))
+
+    (evil-define-key 'normal origami-mode-map
+      (kbd "z a") 'origami-toggle-node
+      (kbd "z A") 'origami-recursively-toggle-node
+      (kbd "z o") 'origami-open-all-nodes
+      (kbd "z c") 'origami-close-all-nodes))
+
+  ;; imenu setuo
+  (use-package consult
+    :ensure t)
+
+  (with-eval-after-load 'evil
+    (define-key evil-normal-state-map (kbd "SPC i") 'consult-imenu))
+
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
+  (setq merlin-command "/Users/roscoeelings-haynie/.opam/4.13.1/bin/ocamlmerlin")
+
+
+  (defun ocaml-imenu-setup ()
+    (setq imenu-generic-expression
+          '(
+            ;; Match functions: after the name, require at least one non-space, non-= character
+            ("Functions" 
+             "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]+\\([^ =].*\\)[[:space:]]*="
+             2)
+            ;; Match simple values (bindings with no parameter)
+            ("Values"
+             "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]*=[[:space:]]*"
+             2)
+            ("Types" "^type[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
+            ("Modules" "^module[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
+            ("Classes" "^class[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1))))
+
+
+
+  (add-hook 'tuareg-mode-hook 'ocaml-imenu-setup)
+
+
+  ;; File navigation commands
+  (defun jump-next-function-def ()
+    "Jump to the beginning of the next function definition."
+    (interactive)
+    (beginning-of-defun -1))
+
+  (defun jump-previous-function-def ()
+    "Jump to the beginning of the previous function definition."
+    (interactive)
+    (beginning-of-defun 1))
+
+  (define-key evil-normal-state-map (kbd "}") 'jump-next-function-def)
+  (define-key evil-normal-state-map (kbd "{") 'jump-previous-function-def)
+  (define-key evil-visual-state-map (kbd "}") 'jump-next-function-def)
+  (define-key evil-visual-state-map (kbd "{") 'jump-previous-function-def)
+
+  (defun backward-sexp-adjusted ()
+    "Jump backward to the matching opening delimiter.
+  If the character under point is a closing delimiter, move one char right first."
+    (interactive)
+    (when (member (char-after) '(?\) ?\] ?\}))
+      (forward-char 1))
+    (backward-sexp))
+
+
+  (define-key evil-normal-state-map (kbd "]]") 'forward-sexp)
+  (define-key evil-normal-state-map (kbd "[[") 'backward-sexp-adjusted)
+  (define-key evil-visual-state-map (kbd "]]") 'forward-sexp)
+  (define-key evil-visual-state-map (kbd "[[") 'backward-sexp-adjusted)
+
+
+  ;;; init.el ends here
