@@ -465,459 +465,509 @@
   :ensure t)
 
 
-  ;; Optionally change cursor colors by Evil state if using evil-mode
-  (setq evil-normal-state-cursor '("hot pink" box))
-  (setq evil-insert-state-cursor '("green" bar))
-  (setq evil-visual-state-cursor '("red" box))
+;; Optionally change cursor colors by Evil state if using evil-mode
+(setq evil-normal-state-cursor '("hot pink" box))
+(setq evil-insert-state-cursor '("green" bar))
+(setq evil-visual-state-cursor '("red" box))
 
 
 
-  (defun convert-tabs-to-spaces ()
-    "Convert all tabs to spaces."
-    (untabify (point-min) (point-max)))
+(defun convert-tabs-to-spaces ()
+"Convert all tabs to spaces."
+(untabify (point-min) (point-max)))
 
-  (add-hook 'before-save-hook 'convert-tabs-to-spaces)
+(add-hook 'before-save-hook 'convert-tabs-to-spaces)
 
-  (setq-default indent-tabs-mode nil)
-  (setq-default tab-width 2)  ;; Set the number of spaces for a tab, change 4 to your preference
-
-
-  (add-hook 'makefile-mode-hook
-            (lambda ()
-              (setq indent-tabs-mode t)))
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)  ;; Set the number of spaces for a tab, change 4 to your preference
 
 
-  ;; Define M-b as a prefix key
-  (define-prefix-command 'bookmark-prefix-map)
-  (global-set-key (kbd "M-b") 'bookmark-prefix-map)
+(add-hook 'makefile-mode-hook
+        (lambda ()
+            (setq indent-tabs-mode t)))
 
 
-  (global-set-key (kbd "M-b m") 'bookmark-set)
-  (global-set-key (kbd "M-b j") 'bookmark-jump)
-  (global-set-key (kbd "M-b l") 'bookmark-bmenu-list)
-  (global-set-key (kbd "M-b d") 'bookmark-delete)
+;; Define M-b as a prefix key
+(define-prefix-command 'bookmark-prefix-map)
+(global-set-key (kbd "M-b") 'bookmark-prefix-map)
 
 
-  ;; Added command for cloning a repo with magit
-  (global-set-key (kbd "C-x g c") 'magit-clone)
+(global-set-key (kbd "M-b m") 'bookmark-set)
+(global-set-key (kbd "M-b j") 'bookmark-jump)
+(global-set-key (kbd "M-b l") 'bookmark-bmenu-list)
+(global-set-key (kbd "M-b d") 'bookmark-delete)
 
 
-
-
-  ;; Enable eglot for supported languages
-  (add-hook 'python-mode-hook 'eglot-ensure)
-  (add-hook 'rust-mode-hook 'eglot-ensure)
-  (add-hook 'c-mode-hook 'eglot-ensure)
-  (add-hook 'c++-mode-hook 'eglot-ensure)
-
-
-  (evil-define-key 'normal 'global (kbd "SPC d") 'xref-find-definitions-other-window)
-
-  ;; Remove scroll bars
-  (scroll-bar-mode -1)
-
-
-  (fset 'yes-or-no-p 'y-or-n-p)
-
-  (setq use-short-answers t)
-
-
-  (setq ispell-program-name "aspell")  ;; Or "hunspell" or "ispell"
-  (add-hook 'text-mode-hook 'flyspell-mode)
-  (add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; Comments & strings only
-
-  (add-hook 'flyspell-mode-hook
-            (lambda ()
-              (setq flyspell-issue-message-flag nil)
-              (flyspell-mode-off))) ;; Prevent on-the-fly checks
-
-  (add-hook 'before-save-hook
-            (lambda ()
-              (when flyspell-mode
-                (flyspell-buffer))))
-
-
-  (setq magit-git-executable "/usr/bin/git")
-  (setq magit-credential 'osxkeychain)
-  (setenv "SSH_AUTH_SOCK" (getenv "SSH_AUTH_SOCK"))
-
-  ;; Prevent Magit from inheriting direnv environment
-  (with-eval-after-load 'magit
-    (remove-hook 'magit-status-mode-hook #'direnv-update-environment)
-    (remove-hook 'magit-process-mode-hook #'direnv-update-environment))
+;; Added command for cloning a repo with magit
+(global-set-key (kbd "C-x g c") 'magit-clone)
 
 
 
-  ;; Function to wrap selected text in parentheses
-  (defun wrap-with-parens ()
-    "Wrap selected text with parentheses."
+
+;; Enable eglot for supported languages
+(add-hook 'python-mode-hook 'eglot-ensure)
+(add-hook 'rust-mode-hook 'eglot-ensure)
+(add-hook 'c-mode-hook 'eglot-ensure)
+(add-hook 'c++-mode-hook 'eglot-ensure)
+
+
+(evil-define-key 'normal 'global (kbd "SPC d") 'xref-find-definitions-other-window)
+
+;; Remove scroll bars
+(scroll-bar-mode -1)
+
+
+(fset 'yes-or-no-p 'y-or-n-p)
+
+(setq use-short-answers t)
+
+
+(setq ispell-program-name "aspell")  ;; Or "hunspell" or "ispell"
+(add-hook 'text-mode-hook 'flyspell-mode)
+(add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; Comments & strings only
+
+(add-hook 'flyspell-mode-hook
+        (lambda ()
+            (setq flyspell-issue-message-flag nil)
+            (flyspell-mode-off))) ;; Prevent on-the-fly checks
+
+(add-hook 'before-save-hook
+        (lambda ()
+            (when flyspell-mode
+            (flyspell-buffer))))
+
+
+(setq magit-git-executable "/usr/bin/git")
+(setq magit-credential 'osxkeychain)
+(setenv "SSH_AUTH_SOCK" (getenv "SSH_AUTH_SOCK"))
+
+;; Prevent Magit from inheriting direnv environment
+(with-eval-after-load 'magit
+(remove-hook 'magit-status-mode-hook #'direnv-update-environment)
+(remove-hook 'magit-process-mode-hook #'direnv-update-environment))
+
+
+
+;; Function to wrap selected text in parentheses
+(defun wrap-with-parens ()
+"Wrap selected text with parentheses."
+(interactive)
+(let ((start (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert ")")
+    (goto-char start)
+    (insert "(")
+    (evil-normal-state)))
+
+;; Bind it to SPC ( in visual mode
+(define-key evil-visual-state-map (kbd "SPC (") 'wrap-with-parens)
+
+;; Function to wrap selected text in square brackets
+(defun wrap-with-square-brackets ()
+"Wrap selected text with square brackets."
+(interactive)
+(let ((start (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert "]")
+    (goto-char start)
+    (insert "[")
+    (evil-normal-state)))
+
+;; Bind it to SPC [ in visual mode
+(define-key evil-visual-state-map (kbd "SPC [") 'wrap-with-square-brackets)
+
+;; Function to wrap selected text in curly braces
+(defun wrap-with-curly-braces ()
+"Wrap selected text with curly braces."
+(interactive)
+(let ((start (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert "}")
+    (goto-char start)
+    (insert "{")
+    (evil-normal-state)))
+
+;; Bind it to SPC { in visual mode
+(define-key evil-visual-state-map (kbd "SPC {") 'wrap-with-curly-braces)
+
+;; Function to wrap selected text in double quotes
+(defun wrap-with-double-quotes ()
+"Wrap selected text with double quotes."
+(interactive)
+(let ((start (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert "\"")
+    (goto-char start)
+    (insert "\"")
+    (evil-normal-state)))
+
+;; Bind it to SPC " in visual mode
+(define-key evil-visual-state-map (kbd "SPC \"") 'wrap-with-double-quotes)
+
+;; Function to wrap selected text in single quotes
+(defun wrap-with-single-quotes ()
+"Wrap selected text with single quotes."
+(interactive)
+(let ((start (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert "'")
+    (goto-char start)
+    (insert "'")
+    (evil-normal-state)))
+
+;; Bind it to SPC ' in visual mode
+(define-key evil-visual-state-map (kbd "SPC '") 'wrap-with-single-quotes)
+
+
+
+;; Make visual mode 'd' delete without yanking
+(define-key evil-visual-state-map (kbd "d") (lambda ()
+                                            (interactive)
+                                            (evil-delete (region-beginning) (region-end) nil ?_)))
+
+;; Make visual mode 'p' and 'P' delete selection without yanking and then paste
+(define-key evil-visual-state-map (kbd "p") (lambda ()
+                                            (interactive)
+                                            (evil-delete (region-beginning) (region-end) nil ?_)
+                                            (evil-paste-after 1)))
+
+(define-key evil-visual-state-map (kbd "P") (lambda ()
+                                            (interactive)
+                                            (evil-delete (region-beginning) (region-end) nil ?_)
+                                            (evil-paste-before 1)))
+
+
+
+
+;; paste preserves the spacing of the initial line
+(defun evil-paste-after-dwim (count &optional register yank-handler)
+(interactive "p")
+(let* ((start (point))
+        (initial-whitespace (save-excursion
+                                (goto-char (line-beginning-position))
+                                (when (looking-at "^[[:space:]]*")
+                                (match-string 0)))))
+    ;; Paste the text
+    (evil-paste-after count register yank-handler)
+    ;; Align pasted text by adding initial whitespace to each subsequent line
+    (when initial-whitespace
+    (save-excursion
+        (goto-char start)
+        (while (re-search-forward "\n\\([^\n]\\)" nil t)
+        (replace-match (concat "\n" initial-whitespace "\\1")))))))
+
+
+(defun evil-paste-before-dwim (count &optional register yank-handler)
+(interactive "p")
+(let* ((start (point))
+        (initial-whitespace (save-excursion
+                                (goto-char (line-beginning-position))
+                                (when (looking-at "^[[:space:]]*")
+                                (match-string 0)))))
+    ;; Paste before the cursor
+    (evil-paste-before count register yank-handler)
+    ;; Align pasted text by adding initial whitespace to each subsequent line
+    (when initial-whitespace
+    (save-excursion
+        (goto-char start)
+        (while (re-search-forward "\n\\([^\n]\\)" nil t)
+        (replace-match (concat "\n" initial-whitespace "\\1")))))))
+
+
+
+(define-key evil-normal-state-map (kbd "p") 'evil-paste-after-dwim)
+(define-key evil-normal-state-map (kbd "P") 'evil-paste-before-dwim)
+
+
+;; Window management bindings
+(global-set-key (kbd "C-c s") 'split-window-horizontally)
+(global-set-key (kbd "C-c d") 'split-window-vertically) 
+(global-set-key (kbd "C-c f") 'delete-window)
+(global-set-key (kbd "C-c a") 'delete-other-windows)
+(global-set-key (kbd "C-c o") 'balance-windows)
+(global-set-key (kbd "M-o") 'other-window)
+
+
+;; Case change commands
+
+(defun upcase-single-letter ()
+    "Convert the character at point to uppercase."
     (interactive)
-    (let ((start (region-beginning))
-          (end (region-end)))
-      (goto-char end)
-      (insert ")")
-      (goto-char start)
-      (insert "(")
-      (evil-normal-state)))
-
-  ;; Bind it to SPC ( in visual mode
-  (define-key evil-visual-state-map (kbd "SPC (") 'wrap-with-parens)
-
-  ;; Function to wrap selected text in square brackets
-  (defun wrap-with-square-brackets ()
-    "Wrap selected text with square brackets."
-    (interactive)
-    (let ((start (region-beginning))
-          (end (region-end)))
-      (goto-char end)
-      (insert "]")
-      (goto-char start)
-      (insert "[")
-      (evil-normal-state)))
-
-  ;; Bind it to SPC [ in visual mode
-  (define-key evil-visual-state-map (kbd "SPC [") 'wrap-with-square-brackets)
-
-  ;; Function to wrap selected text in curly braces
-  (defun wrap-with-curly-braces ()
-    "Wrap selected text with curly braces."
-    (interactive)
-    (let ((start (region-beginning))
-          (end (region-end)))
-      (goto-char end)
-      (insert "}")
-      (goto-char start)
-      (insert "{")
-      (evil-normal-state)))
-
-  ;; Bind it to SPC { in visual mode
-  (define-key evil-visual-state-map (kbd "SPC {") 'wrap-with-curly-braces)
-
-  ;; Function to wrap selected text in double quotes
-  (defun wrap-with-double-quotes ()
-    "Wrap selected text with double quotes."
-    (interactive)
-    (let ((start (region-beginning))
-          (end (region-end)))
-      (goto-char end)
-      (insert "\"")
-      (goto-char start)
-      (insert "\"")
-      (evil-normal-state)))
-
-  ;; Bind it to SPC " in visual mode
-  (define-key evil-visual-state-map (kbd "SPC \"") 'wrap-with-double-quotes)
-
-  ;; Function to wrap selected text in single quotes
-  (defun wrap-with-single-quotes ()
-    "Wrap selected text with single quotes."
-    (interactive)
-    (let ((start (region-beginning))
-          (end (region-end)))
-      (goto-char end)
-      (insert "'")
-      (goto-char start)
-      (insert "'")
-      (evil-normal-state)))
-
-  ;; Bind it to SPC ' in visual mode
-  (define-key evil-visual-state-map (kbd "SPC '") 'wrap-with-single-quotes)
-
-
-
-  ;; Make visual mode 'd' delete without yanking
-  (define-key evil-visual-state-map (kbd "d") (lambda ()
-                                               (interactive)
-                                               (evil-delete (region-beginning) (region-end) nil ?_)))
-
-  ;; Make visual mode 'p' and 'P' delete selection without yanking and then paste
-  (define-key evil-visual-state-map (kbd "p") (lambda ()
-                                               (interactive)
-                                               (evil-delete (region-beginning) (region-end) nil ?_)
-                                               (evil-paste-after 1)))
-
-  (define-key evil-visual-state-map (kbd "P") (lambda ()
-                                               (interactive)
-                                               (evil-delete (region-beginning) (region-end) nil ?_)
-                                               (evil-paste-before 1)))
-
-
-
-
-  ;; paste preserves the spacing of the initial line
-  (defun evil-paste-after-dwim (count &optional register yank-handler)
-    (interactive "p")
-    (let* ((start (point))
-           (initial-whitespace (save-excursion
-                                 (goto-char (line-beginning-position))
-                                 (when (looking-at "^[[:space:]]*")
-                                   (match-string 0)))))
-      ;; Paste the text
-      (evil-paste-after count register yank-handler)
-      ;; Align pasted text by adding initial whitespace to each subsequent line
-      (when initial-whitespace
+    (let ((char (char-after)))
+    (when char
         (save-excursion
-          (goto-char start)
-          (while (re-search-forward "\n\\([^\n]\\)" nil t)
-            (replace-match (concat "\n" initial-whitespace "\\1")))))))
+        (delete-char 1)
+        (insert (upcase char))))))
 
-
-  (defun evil-paste-before-dwim (count &optional register yank-handler)
-    (interactive "p")
-    (let* ((start (point))
-           (initial-whitespace (save-excursion
-                                 (goto-char (line-beginning-position))
-                                 (when (looking-at "^[[:space:]]*")
-                                   (match-string 0)))))
-      ;; Paste before the cursor
-      (evil-paste-before count register yank-handler)
-      ;; Align pasted text by adding initial whitespace to each subsequent line
-      (when initial-whitespace
+(defun downcase-single-letter ()
+    "Convert the character at point to lowercase."
+    (interactive)
+    (let ((char (char-after)))
+    (when char
         (save-excursion
-          (goto-char start)
-          (while (re-search-forward "\n\\([^\n]\\)" nil t)
-            (replace-match (concat "\n" initial-whitespace "\\1")))))))
+        (delete-char 1)
+        (insert (downcase char))))))
+
+(define-key evil-normal-state-map (kbd "C-x u") 'upcase-single-letter)
+(define-key evil-normal-state-map (kbd "C-x l") 'downcase-single-letter)
+(define-key evil-visual-state-map (kbd "C-x u") 'upcase-region)
+(define-key evil-visual-state-map (kbd "C-x l") 'downcase-region)
 
 
-
-  (define-key evil-normal-state-map (kbd "p") 'evil-paste-after-dwim)
-  (define-key evil-normal-state-map (kbd "P") 'evil-paste-before-dwim)
-
-
-   ;; Window management bindings
-   (global-set-key (kbd "C-c s") 'split-window-horizontally)
-   (global-set-key (kbd "C-c d") 'split-window-vertically) 
-   (global-set-key (kbd "C-c f") 'delete-window)
-   (global-set-key (kbd "C-c a") 'delete-other-windows)
-   (global-set-key (kbd "C-c o") 'balance-windows)
-   (global-set-key (kbd "M-o") 'other-window)
+;; Delete char and enter insert mode
+(define-key evil-normal-state-map (kbd "q") (lambda ()
+                                            (interactive)
+                                            (delete-char 1)
+                                            (evil-insert-state)))
 
 
-   ;; Case change commands
-
-   (defun upcase-single-letter ()
-     "Convert the character at point to uppercase."
-     (interactive)
-     (let ((char (char-after)))
-       (when char
-         (save-excursion
-           (delete-char 1)
-           (insert (upcase char))))))
-
-   (defun downcase-single-letter ()
-     "Convert the character at point to lowercase."
-     (interactive)
-     (let ((char (char-after)))
-       (when char
-         (save-excursion
-           (delete-char 1)
-           (insert (downcase char))))))
-
-   (define-key evil-normal-state-map (kbd "C-x u") 'upcase-single-letter)
-   (define-key evil-normal-state-map (kbd "C-x l") 'downcase-single-letter)
-   (define-key evil-visual-state-map (kbd "C-x u") 'upcase-region)
-   (define-key evil-visual-state-map (kbd "C-x l") 'downcase-region)
-
-
-   ;; Delete char and enter insert mode
-   (define-key evil-normal-state-map (kbd "q") (lambda ()
-                                                (interactive)
-                                                (delete-char 1)
-                                                (evil-insert-state)))
-
-
-   (use-package dashboard
-     :ensure t
-     :config
-     (dashboard-setup-startup-hook)
-     (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_image.png")
-     ;; Method 1: Using custom face
-     (custom-set-faces
-      '(dashboard-banner-logo-title ((t (:foreground "#2957b0" :weight bold)))))
-     
-     ;; Method 2: Using both propertize and setting the face explicitly
-     (setq dashboard-banner-logo-title 
-           (let ((title "
-    ******** ****     ****     **       ******   ********
-   /**///// /**/**   **/**    ****     **////** **////// 
-   /**      /**//** ** /**   **//**   **    // /**       
-   /******* /** //***  /**  **  //** /**       /*********
-   /**////  /**  //*   /** **********/**       ////////**
-   /**      /**   /    /**/**//////**//**    **       /**
-   /********/**        /**/**     /** //******  ******** 
-   //////// //         // //      //   //////  ////////  
-   "))
-             (propertize title 'face '(:foreground "red" :weight bold))))
-     
-     (setq dashboard-center-content t)
-     (setq dashboard-items '((recents  . 12)
-                            (bookmarks . 12)))
-     (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
-
-
-   (use-package direnv
-     :ensure t
-     :config
-     (direnv-mode)
-     
-     ;; Refresh direnv when opening files
-     (add-hook 'find-file-hook
-               (lambda ()
-                 (when (file-exists-p (expand-file-name ".envrc" default-directory))
-                   (direnv-update-environment)))))
-
-
-   ;; grep command bindings
-  (global-set-key (kbd "M-g r")
-    (lambda ()
-      (interactive)
-      (grep (read-from-minibuffer "Run grep: " "rg "))))
-  (global-set-key (kbd "M-g c") 'consult-ripgrep)
-
-
-  ;; enables consult-ripgrep
-  (use-package vertico
+(use-package dashboard
     :ensure t
-    :init
-    (vertico-mode))
-  (with-eval-after-load 'vertico
-    (define-key vertico-map (kbd "TAB") #'minibuffer-complete))
-  (setq completion-styles '(partial-completion orderless basic))
-
-
-
-
-   (with-eval-after-load 'dired
-     (define-key dired-mode-map [mouse-1] 'dired-single-buffer)
-     (define-key dired-mode-map [mouse-2] 'dired-single-buffer))
-
-
-
-   (use-package grip-mode
-     :ensure t
-     :config
-     (setq grip-update-after-change t)
-     (setq grip-binary-path "grip"))
-
-   ;; Bind a key for previewing Markdown
-   (global-set-key (kbd "C-x g p") 'grip-mode)
-
-   (defun minibuffer-up-one-dir ()
-     (interactive)
-     ;; If the character immediately before point is '/', delete it
-     (when (and (> (point) (point-min)) (eq (char-before) ?/))
-       (delete-char -1))
-     ;; Save the current point after deletion
-     (let ((end (point)))
-       ;; Search backward for the last "/"
-       (if (search-backward "/" nil t)
-           ;; Delete from one character after the found slash to 'end'
-           (delete-region (1+ (point)) end)
-         (message "No preceding slash found.")))
-     ;; Move the cursor one character to the right, if possible.
-     (when (< (point) (point-max))
-       (forward-char 1)))
-
-
-   (define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'minibuffer-up-one-dir)
-
-
-   (use-package epa-file
-     :ensure nil
-     :config
-     (epa-file-enable)
-     (setq epa-pinentry-mode 'loopback)
-     (setq epa-file-select-keys nil)
-     (setq epa-file-encrypt-to nil)
-     (setq auto-mode-alist (append '(("\\.gpg\\'" . epa-file)) auto-mode-alist))
-     (setq epa-file-cache-passphrase-for-symmetric-encryption t))
-
-
-   (global-set-key (kbd "C-x C-k l") 'epa-list-keys)
-   (global-set-key (kbd "C-x C-k e") 'epa-encrypt-file)
-   (global-set-key (kbd "C-x C-k d") 'epa-decrypt-file)
-
-
-   (setq make-backup-files nil)
-
-  (use-package origami
-    :ensure t
-    :hook (prog-mode . origami-mode)
     :config
-    (setq origami-parser-alist
-          '((python-mode . origami-python-parser)
-            (rust-mode . origami-c-style-parser)
-            (c-mode . origami-c-style-parser)
-            (c++-mode . origami-c-style-parser)
-            (emacs-lisp-mode . origami-lisp-parser)))
+    (dashboard-setup-startup-hook)
+    (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_image.png")
+    ;; Method 1: Using custom face
+    (custom-set-faces
+    '(dashboard-banner-logo-title ((t (:foreground "#2957b0" :weight bold)))))
 
-    (evil-define-key 'normal origami-mode-map
-      (kbd "z a") 'origami-toggle-node
-      (kbd "z A") 'origami-recursively-toggle-node
-      (kbd "z o") 'origami-open-all-nodes
-      (kbd "z c") 'origami-close-all-nodes))
+    ;; Method 2: Using both propertize and setting the face explicitly
+    (setq dashboard-banner-logo-title 
+        (let ((title "
+******** ****     ****     **       ******   ********
+/**///// /**/**   **/**    ****     **////** **////// 
+/**      /**//** ** /**   **//**   **    // /**       
+/******* /** //***  /**  **  //** /**       /*********
+/**////  /**  //*   /** **********/**       ////////**
+/**      /**   /    /**/**//////**//**    **       /**
+/********/**        /**/**     /** //******  ******** 
+//////// //         // //      //   //////  ////////  
+"))
+            (propertize title 'face '(:foreground "red" :weight bold))))
 
-  ;; imenu setuo
-  (use-package consult
-    :ensure t)
-
-  (with-eval-after-load 'evil
-    (define-key evil-normal-state-map (kbd "SPC i") 'consult-imenu))
-
-  (when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize))
-  (setq merlin-command "/Users/roscoeelings-haynie/.opam/4.13.1/bin/ocamlmerlin")
-
-
-  (defun ocaml-imenu-setup ()
-    (setq imenu-generic-expression
-          '(
-            ;; Match functions: after the name, require at least one non-space, non-= character
-            ("Functions" 
-             "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]+\\([^ =].*\\)[[:space:]]*="
-             2)
-            ;; Match simple values (bindings with no parameter)
-            ("Values"
-             "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]*=[[:space:]]*"
-             2)
-            ("Types" "^type[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
-            ("Modules" "^module[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
-            ("Classes" "^class[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1))))
+    (setq dashboard-center-content t)
+    (setq dashboard-items '((recents  . 12)
+                        (bookmarks . 12)))
+    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
 
 
+(use-package direnv
+    :ensure t
+    :config
+    (direnv-mode)
 
-  (add-hook 'tuareg-mode-hook 'ocaml-imenu-setup)
+    ;; Refresh direnv when opening files
+    (add-hook 'find-file-hook
+            (lambda ()
+                (when (file-exists-p (expand-file-name ".envrc" default-directory))
+                (direnv-update-environment)))))
 
 
-  ;; File navigation commands
-  (defun jump-next-function-def ()
-    "Jump to the beginning of the next function definition."
+;; grep command bindings
+(global-set-key (kbd "M-g r")
+(lambda ()
     (interactive)
-    (beginning-of-defun -1))
+    (grep (read-from-minibuffer "Run grep: " "rg "))))
+(global-set-key (kbd "M-g c") 'consult-ripgrep)
 
-  (defun jump-previous-function-def ()
-    "Jump to the beginning of the previous function definition."
+
+;; enables consult-ripgrep
+(use-package vertico
+:ensure t
+:init
+(vertico-mode))
+(with-eval-after-load 'vertico
+(define-key vertico-map (kbd "TAB") #'minibuffer-complete))
+(setq completion-styles '(partial-completion orderless basic))
+
+
+
+
+(with-eval-after-load 'dired
+    (define-key dired-mode-map [mouse-1] 'dired-single-buffer)
+    (define-key dired-mode-map [mouse-2] 'dired-single-buffer))
+
+
+
+(use-package grip-mode
+    :ensure t
+    :config
+    (setq grip-update-after-change t)
+    (setq grip-binary-path "grip"))
+
+;; Bind a key for previewing Markdown
+(global-set-key (kbd "C-x g p") 'grip-mode)
+
+;; markdown list quality changes
+(defun markdown-list-dwim ()
+  "Continue a Markdown list item or checklist based on the current line."
+  (interactive)
+  (let* ((current-line (thing-at-point 'line t))
+         ;; Capture leading whitespace.
+         (indent (if (string-match "^[ \t]*" current-line)
+                     (match-string 0 current-line)
+                   ""))
+         new-prefix)
+    (cond
+     ;; Checklist: "- [ ]" or "- [x]"
+     ((string-match "^[ \t]*-\\s-*\\[\\([xX ]\\)\\]\\s-+" current-line)
+      (setq new-prefix (concat indent "- [ ] ")))
+     ;; Ordered list with parenthesi
+     ((string-match "^[ \t]*\\([0-9]+\\))\\s-+" current-line)
+      (let ((num (string-to-number (match-string 1 current-line))))
+        (setq new-prefix (concat indent (number-to-string (1+ num)) ") "))))
+     ;; Ordered list with period
+     ((string-match "^[ \t]*\\([0-9]+\\)\\.\\s-+" current-line)
+      (let ((num (string-to-number (match-string 1 current-line))))
+        (setq new-prefix (concat indent (number-to-string (1+ num)) ". "))))
+     ;; Bullet list
+     ((string-match "^[ \t]*\\([-*]\\)\\s-+" current-line)
+      (setq new-prefix (concat indent (match-string 1 current-line) " ")))
+
+     (t (setq new-prefix nil)))
+    (newline)
+    (when new-prefix
+      (insert new-prefix))))
+
+
+(defun markdown-outdent ()
+  "Outdent the current Markdown list item."
+  (interactive)
+  (when (eq major-mode 'markdown-mode)
+    (let* ((current-indent (current-indentation))
+           (cursor-offset (- (current-column) current-indent))
+           (outdent-step 2)
+           (new-indent (max 0 (- current-indent outdent-step))))
+      (indent-line-to new-indent)
+      (move-to-column (+ new-indent cursor-offset)))))
+
+
+(add-hook 'markdown-mode-hook
+          (lambda ()
+            (local-set-key (kbd "<backtab>") 'markdown-outdent)
+            (local-set-key (kbd "RET") 'markdown-list-dwim)))
+
+
+(defun minibuffer-up-one-dir ()
     (interactive)
-    (beginning-of-defun 1))
-
-  (define-key evil-normal-state-map (kbd "}") 'jump-next-function-def)
-  (define-key evil-normal-state-map (kbd "{") 'jump-previous-function-def)
-  (define-key evil-visual-state-map (kbd "}") 'jump-next-function-def)
-  (define-key evil-visual-state-map (kbd "{") 'jump-previous-function-def)
-
-  (defun backward-sexp-adjusted ()
-    "Jump backward to the matching opening delimiter.
-  If the character under point is a closing delimiter, move one char right first."
-    (interactive)
-    (when (member (char-after) '(?\) ?\] ?\}))
-      (forward-char 1))
-    (backward-sexp))
-
-
-  (define-key evil-normal-state-map (kbd "]]") 'forward-sexp)
-  (define-key evil-normal-state-map (kbd "[[") 'backward-sexp-adjusted)
-  (define-key evil-visual-state-map (kbd "]]") 'forward-sexp)
-  (define-key evil-visual-state-map (kbd "[[") 'backward-sexp-adjusted)
+    ;; If the character immediately before point is '/', delete it
+    (when (and (> (point) (point-min)) (eq (char-before) ?/))
+    (delete-char -1))
+    ;; Save the current point after deletion
+    (let ((end (point)))
+    ;; Search backward for the last "/"
+    (if (search-backward "/" nil t)
+        ;; Delete from one character after the found slash to 'end'
+        (delete-region (1+ (point)) end)
+        (message "No preceding slash found.")))
+    ;; Move the cursor one character to the right, if possible.
+    (when (< (point) (point-max))
+    (forward-char 1)))
 
 
-  ;;; init.el ends here
+(define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'minibuffer-up-one-dir)
+
+
+(use-package epa-file
+    :ensure nil
+    :config
+    (epa-file-enable)
+    (setq epa-pinentry-mode 'loopback)
+    (setq epa-file-select-keys nil)
+    (setq epa-file-encrypt-to nil)
+    (setq auto-mode-alist (append '(("\\.gpg\\'" . epa-file)) auto-mode-alist))
+    (setq epa-file-cache-passphrase-for-symmetric-encryption t))
+
+
+(global-set-key (kbd "C-x C-k l") 'epa-list-keys)
+(global-set-key (kbd "C-x C-k e") 'epa-encrypt-file)
+(global-set-key (kbd "C-x C-k d") 'epa-decrypt-file)
+
+
+(setq make-backup-files nil)
+
+(use-package origami
+:ensure t
+:hook (prog-mode . origami-mode)
+:config
+(setq origami-parser-alist
+        '((python-mode . origami-python-parser)
+        (rust-mode . origami-c-style-parser)
+        (c-mode . origami-c-style-parser)
+        (c++-mode . origami-c-style-parser)
+        (emacs-lisp-mode . origami-lisp-parser)))
+
+(evil-define-key 'normal origami-mode-map
+    (kbd "z a") 'origami-toggle-node
+    (kbd "z A") 'origami-recursively-toggle-node
+    (kbd "z o") 'origami-open-all-nodes
+    (kbd "z c") 'origami-close-all-nodes))
+
+;; imenu setuo
+(use-package consult
+:ensure t)
+
+(with-eval-after-load 'evil
+(define-key evil-normal-state-map (kbd "SPC i") 'consult-imenu))
+
+(when (memq window-system '(mac ns x))
+(exec-path-from-shell-initialize))
+(setq merlin-command "/Users/roscoeelings-haynie/.opam/4.13.1/bin/ocamlmerlin")
+
+
+(defun ocaml-imenu-setup ()
+(setq imenu-generic-expression
+        '(
+        ;; Match functions: after the name, require at least one non-space, non-= character
+        ("Functions" 
+            "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]+\\([^ =].*\\)[[:space:]]*="
+            2)
+        ;; Match simple values (bindings with no parameter)
+        ("Values"
+            "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]*=[[:space:]]*"
+            2)
+        ("Types" "^type[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
+        ("Modules" "^module[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
+        ("Classes" "^class[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1))))
+
+
+
+(add-hook 'tuareg-mode-hook 'ocaml-imenu-setup)
+
+
+;; File navigation commands
+(defun jump-next-function-def ()
+"Jump to the beginning of the next function definition."
+(interactive)
+(beginning-of-defun -1))
+
+(defun jump-previous-function-def ()
+"Jump to the beginning of the previous function definition."
+(interactive)
+(beginning-of-defun 1))
+
+(define-key evil-normal-state-map (kbd "}") 'jump-next-function-def)
+(define-key evil-normal-state-map (kbd "{") 'jump-previous-function-def)
+(define-key evil-visual-state-map (kbd "}") 'jump-next-function-def)
+(define-key evil-visual-state-map (kbd "{") 'jump-previous-function-def)
+
+(defun backward-sexp-adjusted ()
+"Jump backward to the matching opening delimiter.
+If the character under point is a closing delimiter, move one char right first."
+(interactive)
+(when (member (char-after) '(?\) ?\] ?\}))
+    (forward-char 1))
+(backward-sexp))
+
+
+(define-key evil-normal-state-map (kbd "]]") 'forward-sexp)
+(define-key evil-normal-state-map (kbd "[[") 'backward-sexp-adjusted)
+(define-key evil-visual-state-map (kbd "]]") 'forward-sexp)
+(define-key evil-visual-state-map (kbd "[[") 'backward-sexp-adjusted)
+
+
+;;; init.el ends here
