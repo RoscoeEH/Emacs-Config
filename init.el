@@ -13,6 +13,12 @@
  ;; If there is more than one, they won't work right.
  )
 
+;; for some reason emacs was not loading a bunch of packages so this is my fix
+(add-to-list 'load-path "~/.emacs.d/elpa/")
+(dolist (dir (directory-files "~/.emacs.d/elpa/" t "^[^.]"))
+  (when (file-directory-p dir)
+    (add-to-list 'load-path dir)))
+
 
 (load-theme 'modus-vivendi)
 (setq mac-option-modifier 'meta
@@ -793,15 +799,6 @@
 
 
 
-(use-package grip-mode
-    :ensure t
-    :config
-    (setq grip-update-after-change t)
-    (setq grip-binary-path "grip"))
-
-;; Bind a key for previewing Markdown
-(global-set-key (kbd "C-x g p") 'grip-mode)
-
 ;; markdown list quality changes
 (defun markdown-list-dwim ()
   "Continue a Markdown list item or checklist based on the current line."
@@ -850,26 +847,6 @@
           (lambda ()
             (local-set-key (kbd "<backtab>") 'markdown-outdent)
             (local-set-key (kbd "RET") 'markdown-list-dwim)))
-
-
-(defun minibuffer-up-one-dir ()
-    (interactive)
-    ;; If the character immediately before point is '/', delete it
-    (when (and (> (point) (point-min)) (eq (char-before) ?/))
-    (delete-char -1))
-    ;; Save the current point after deletion
-    (let ((end (point)))
-    ;; Search backward for the last "/"
-    (if (search-backward "/" nil t)
-        ;; Delete from one character after the found slash to 'end'
-        (delete-region (1+ (point)) end)
-        (message "No preceding slash found.")))
-    ;; Move the cursor one character to the right, if possible.
-    (when (< (point) (point-max))
-    (forward-char 1)))
-
-
-(define-key minibuffer-local-filename-completion-map (kbd "M-DEL") 'minibuffer-up-one-dir)
 
 
 (use-package epa-file
