@@ -206,7 +206,7 @@
   :config
   (evil-collection-init))  ;; Initialize evil-collection after evil is loaded
 
-(add-hook 'prog-mode-hook 'display-line-numbers-mode) ;; Enable line numbers
+(global-display-line-numbers-mode t)  ;; Enable line numbers globally
 (setq display-line-numbers-type 'relative) ;; Set relative line numbers
 
 ;; Tabbing sections in visual mode
@@ -352,6 +352,17 @@
   ;; Enable Flycheck in all programming modes
   (add-hook 'prog-mode-hook #'flycheck-mode)
 
+
+(with-eval-after-load 'flycheck
+  (flycheck-define-checker latex-latexmk
+    "A LaTeX checker using latexmk."
+    :command ("latexmk" "-pdf" "-interaction=nonstopmode" source)
+    :error-patterns
+    ((warning line-start (file-name) ":" line ": " (message) line-end)
+     (error line-start (file-name) ":" line ": " (message) line-end))
+    :modes (latex-mode))
+
+  (add-to-list 'flycheck-checkers 'latex-latexmk))
 
 
 
@@ -820,151 +831,168 @@
 
 
 ;; markdown list quality changes
+(use-package markdown-mode
+  :ensure t)
+
 (defun markdown-list-dwim ()
   "Continue a Markdown list item or checklist based on the current line."
   (interactive)
-  (let* ((current-line (thing-at-point 'line t))
-         ;; Capture leading whitespace.
-         (indent (if (string-match "^[ \t]*" current-line)
-                     (match-string 0 current-line)
-                   ""))
-         new-prefix)
-    (cond
-     ;; Checklist: "- [ ]" or "- [x]"
-     ((string-match "^[ \t]*-\\s-*\\[\\([xX ]\\)\\]\\s-+" current-line)
-      (setq new-prefix (concat indent "- [ ] ")))
-     ;; Ordered list with parenthesi
-     ((string-match "^[ \t]*\\([0-9]+\\))\\s-+" current-line)
-      (let ((num (string-to-number (match-string 1 current-line))))
-        (setq new-prefix (concat indent (number-to-string (1+ num)) ") "))))
-     ;; Ordered list with period
-     ((string-match "^[ \t]*\\([0-9]+\\)\\.\\s-+" current-line)
-      (let ((num (string-to-number (match-string 1 current-line))))
-        (setq new-prefix (concat indent (number-to-string (1+ num)) ". "))))
-     ;; Bullet list
-     ((string-match "^[ \t]*\\([-*]\\)\\s-+" current-line)
-      (setq new-prefix (concat indent (match-string 1 current-line) " ")))
+ (message "markdown-list-dwim called") 
+    (let* ((current-line (thing-at-point 'line t))
+           ;; Capture leading whitespace.
+           (indent (if (string-match "^[ \t]*" current-line)
+                       (match-string 0 current-line)
+                     ""))
+           new-prefix)
+      (cond
+       ;; Checklist: "- [ ]" or "- [x]"
+       ((string-match "^[ \t]*-\\s-*\\[\\([xX ]\\)\\]\\s-+" current-line)
+        (setq new-prefix (concat indent "- [ ] ")))
+       ;; Ordered list with parenthesi
+       ((string-match "^[ \t]*\\([0-9]+\\))\\s-+" current-line)
+        (let ((num (string-to-number (match-string 1 current-line))))
+          (setq new-prefix (concat indent (number-to-string (1+ num)) ") "))))
+       ;; Ordered list with period
+       ((string-match "^[ \t]*\\([0-9]+\\)\\.\\s-+" current-line)
+        (let ((num (string-to-number (match-string 1 current-line))))
+          (setq new-prefix (concat indent (number-to-string (1+ num)) ". "))))
+       ;; Bullet list
+       ((string-match "^[ \t]*\\([-*]\\)\\s-+" current-line)
+        (setq new-prefix (concat indent (match-string 1 current-line) " ")))
 
-     (t (setq new-prefix nil)))
-    (newline)
-    (when new-prefix
-      (insert new-prefix))))
-
-
-(defun markdown-outdent ()
-  "Outdent the current Markdown list item."
-  (interactive)
-  (when (eq major-mode 'markdown-mode)
-    (let* ((current-indent (current-indentation))
-           (cursor-offset (- (current-column) current-indent))
-           (outdent-step 2)
-           (new-indent (max 0 (- current-indent outdent-step))))
-      (indent-line-to new-indent)
-      (move-to-column (+ new-indent cursor-offset)))))
+       (t (setq new-prefix nil)))
+      (newline)
+      (when new-prefix
+        (insert new-prefix))))
 
 
-(add-hook 'markdown-mode-hook
+  (defun markdown-outdent ()
+    "Outdent the current Markdown list item."
+    (interactive)
+    (when (eq major-mode 'markdown-mode)
+      (let* ((current-indent (current-indentation))
+             (cursor-offset (- (current-column) current-indent))
+             (outdent-step 2)
+             (new-indent (max 0 (- current-indent outdent-step))))
+        (indent-line-to new-indent)
+        (move-to-column (+ new-indent cursor-offset)))))
+
+
+ (add-hook 'markdown-mode-hook
           (lambda ()
-            (local-set-key (kbd "<backtab>") 'markdown-outdent)
-            (local-set-key (kbd "RET") 'markdown-list-dwim)))
+            (define-key evil-insert-state-local-map (kbd "RET") 'markdown-list-dwim)
+            (define-key evil-insert-state-local-map (kbd "<backtab>") 'markdown-outdent)))
 
 
-(use-package epa-file
-    :ensure nil
+  (use-package epa-file
+      :ensure nil
+      :config
+      (epa-file-enable)
+      (setq epa-pinentry-mode 'loopback)
+      (setq epa-file-select-keys nil)
+      (setq epa-file-encrypt-to nil)
+      (setq auto-mode-alist (append '(("\\.gpg\\'" . epa-file)) auto-mode-alist))
+      (setq epa-file-cache-passphrase-for-symmetric-encryption t))
+
+
+  (global-set-key (kbd "C-x C-k l") 'epa-list-keys)
+  (global-set-key (kbd "C-x C-k e") 'epa-encrypt-file)
+  (global-set-key (kbd "C-x C-k d") 'epa-decrypt-file)
+
+
+  (setq make-backup-files nil)
+
+  (use-package origami
+  :ensure t
+  :hook (prog-mode . origami-mode)
+  :config
+  (setq origami-parser-alist
+          '((python-mode . origami-python-parser)
+          (rust-mode . origami-c-style-parser)
+          (c-mode . origami-c-style-parser)
+          (c++-mode . origami-c-style-parser)
+          (emacs-lisp-mode . origami-lisp-parser)))
+
+  (evil-define-key 'normal origami-mode-map
+      (kbd "z a") 'origami-toggle-node
+      (kbd "z A") 'origami-recursively-toggle-node
+      (kbd "z o") 'origami-open-all-nodes
+      (kbd "z c") 'origami-close-all-nodes))
+
+  ;; imenu setuo
+  (use-package consult
+  :ensure t)
+
+  (with-eval-after-load 'evil
+  (define-key evil-normal-state-map (kbd "SPC i") 'consult-imenu))
+
+  (when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+  (setq merlin-command "/Users/roscoeelings-haynie/.opam/4.13.1/bin/ocamlmerlin")
+
+
+  (defun ocaml-imenu-setup ()
+  (setq imenu-generic-expression
+          '(
+          ;; Match functions: after the name, require at least one non-space, non-= character
+          ("Functions" 
+              "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]+\\([^ =].*\\)[[:space:]]*="
+              2)
+          ;; Match simple values (bindings with no parameter)
+          ("Values"
+              "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]*=[[:space:]]*"
+              2)
+          ("Types" "^type[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
+          ("Modules" "^module[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
+          ("Classes" "^class[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1))))
+
+
+
+  (add-hook 'tuareg-mode-hook 'ocaml-imenu-setup)
+
+
+  ;; File navigation commands
+  (defun jump-next-function-def ()
+  "Jump to the beginning of the next function definition."
+  (interactive)
+  (beginning-of-defun -1))
+
+  (defun jump-previous-function-def ()
+  "Jump to the beginning of the previous function definition."
+  (interactive)
+  (beginning-of-defun 1))
+
+  (define-key evil-normal-state-map (kbd "}") 'jump-next-function-def)
+  (define-key evil-normal-state-map (kbd "{") 'jump-previous-function-def)
+  (define-key evil-visual-state-map (kbd "}") 'jump-next-function-def)
+  (define-key evil-visual-state-map (kbd "{") 'jump-previous-function-def)
+
+  (defun backward-sexp-adjusted ()
+  "Jump backward to the matching opening delimiter.
+  If the character under point is a closing delimiter, move one char right first."
+  (interactive)
+  (when (member (char-after) '(?\) ?\] ?\}))
+      (forward-char 1))
+  (backward-sexp))
+
+
+  (define-key evil-normal-state-map (kbd "]]") 'forward-sexp)
+  (define-key evil-normal-state-map (kbd "[[") 'backward-sexp-adjusted)
+  (define-key evil-visual-state-map (kbd "]]") 'forward-sexp)
+  (define-key evil-visual-state-map (kbd "[[") 'backward-sexp-adjusted)
+
+  ;; LaTeX setup
+  (use-package tex
+    :ensure auctex)
+  (use-package pdf-tools
+    :ensure t
     :config
-    (epa-file-enable)
-    (setq epa-pinentry-mode 'loopback)
-    (setq epa-file-select-keys nil)
-    (setq epa-file-encrypt-to nil)
-    (setq auto-mode-alist (append '(("\\.gpg\\'" . epa-file)) auto-mode-alist))
-    (setq epa-file-cache-passphrase-for-symmetric-encryption t))
+    (pdf-tools-install))
+
+  (setq-default pdf-view-display-size 'fit-page)  ;; Fit one page at a time
+
+  (with-eval-after-load 'latex
+    (define-key LaTeX-mode-map (kbd "M-c c") #'TeX-command-run-all))
 
 
-(global-set-key (kbd "C-x C-k l") 'epa-list-keys)
-(global-set-key (kbd "C-x C-k e") 'epa-encrypt-file)
-(global-set-key (kbd "C-x C-k d") 'epa-decrypt-file)
-
-
-(setq make-backup-files nil)
-
-(use-package origami
-:ensure t
-:hook (prog-mode . origami-mode)
-:config
-(setq origami-parser-alist
-        '((python-mode . origami-python-parser)
-        (rust-mode . origami-c-style-parser)
-        (c-mode . origami-c-style-parser)
-        (c++-mode . origami-c-style-parser)
-        (emacs-lisp-mode . origami-lisp-parser)))
-
-(evil-define-key 'normal origami-mode-map
-    (kbd "z a") 'origami-toggle-node
-    (kbd "z A") 'origami-recursively-toggle-node
-    (kbd "z o") 'origami-open-all-nodes
-    (kbd "z c") 'origami-close-all-nodes))
-
-;; imenu setuo
-(use-package consult
-:ensure t)
-
-(with-eval-after-load 'evil
-(define-key evil-normal-state-map (kbd "SPC i") 'consult-imenu))
-
-(when (memq window-system '(mac ns x))
-(exec-path-from-shell-initialize))
-(setq merlin-command "/Users/roscoeelings-haynie/.opam/4.13.1/bin/ocamlmerlin")
-
-
-(defun ocaml-imenu-setup ()
-(setq imenu-generic-expression
-        '(
-        ;; Match functions: after the name, require at least one non-space, non-= character
-        ("Functions" 
-            "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]+\\([^ =].*\\)[[:space:]]*="
-            2)
-        ;; Match simple values (bindings with no parameter)
-        ("Values"
-            "^let[[:space:]]+\\(rec[[:space:]]+\\)?\\([a-zA-Z0-9_]+\\)[[:space:]]*=[[:space:]]*"
-            2)
-        ("Types" "^type[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
-        ("Modules" "^module[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1)
-        ("Classes" "^class[[:space:]]+\\([a-zA-Z0-9_]+\\)" 1))))
-
-
-
-(add-hook 'tuareg-mode-hook 'ocaml-imenu-setup)
-
-
-;; File navigation commands
-(defun jump-next-function-def ()
-"Jump to the beginning of the next function definition."
-(interactive)
-(beginning-of-defun -1))
-
-(defun jump-previous-function-def ()
-"Jump to the beginning of the previous function definition."
-(interactive)
-(beginning-of-defun 1))
-
-(define-key evil-normal-state-map (kbd "}") 'jump-next-function-def)
-(define-key evil-normal-state-map (kbd "{") 'jump-previous-function-def)
-(define-key evil-visual-state-map (kbd "}") 'jump-next-function-def)
-(define-key evil-visual-state-map (kbd "{") 'jump-previous-function-def)
-
-(defun backward-sexp-adjusted ()
-"Jump backward to the matching opening delimiter.
-If the character under point is a closing delimiter, move one char right first."
-(interactive)
-(when (member (char-after) '(?\) ?\] ?\}))
-    (forward-char 1))
-(backward-sexp))
-
-
-(define-key evil-normal-state-map (kbd "]]") 'forward-sexp)
-(define-key evil-normal-state-map (kbd "[[") 'backward-sexp-adjusted)
-(define-key evil-visual-state-map (kbd "]]") 'forward-sexp)
-(define-key evil-visual-state-map (kbd "[[") 'backward-sexp-adjusted)
-
-
-;;; init.el ends here
+  ;;; init.el ends here
