@@ -629,6 +629,26 @@
 ;; Bind it to SPC ' in visual mode
 (define-key evil-visual-state-map (kbd "SPC '") 'wrap-with-single-quotes)
 
+(defun remove-wrapping-delimiters ()
+  (interactive)
+  (when (evil-visual-state-p)
+    (let* ((beg (region-beginning))
+           (end (region-end))
+           (first-char (char-after beg))
+           (last-char (char-before end))
+           (pairs '((?\( . ?\)) (?\{ . ?\}) (?\[ . ?\]) (?\" . ?\") (?\' . ?\'))))
+      (when (and first-char last-char (assoc first-char pairs))
+        (let ((matching-char (cdr (assoc first-char pairs))))
+          (when (eq last-char matching-char)
+            (save-excursion
+              (goto-char end)
+              (delete-char -1)
+              (goto-char beg)
+              (delete-char 1))))))))
+
+(define-key evil-visual-state-map (kbd "SPC )") 'remove-wrapping-delimiters)
+
+
 
 
 ;; Make visual mode 'd' delete without yanking
