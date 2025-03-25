@@ -994,5 +994,44 @@
   (with-eval-after-load 'latex
     (define-key LaTeX-mode-map (kbd "M-c c") #'TeX-command-run-all))
 
+;; neighboring files
+(defun next-neighbor-file ()
+  "Move to the next non-directory, non-image file in the current directory."
+  (interactive)
+  (let* ((current-file (buffer-file-name))
+         (dir (file-name-directory current-file))
+         (image-extensions '("png" "jpg" "jpeg" "gif" "bmp" "svg" "webp" "tiff" "ico"))
+         (files (seq-filter
+                 (lambda (f)
+                   (and (not (file-directory-p f))
+                        (not (member (file-name-extension f) image-extensions))))
+                 (directory-files dir t "^[^.].*")))
+         (next-file (car (cdr (member current-file files)))))
+    (if next-file
+        (find-file next-file)
+      (message "No next non-image file."))))
 
-  ;;; init.el ends here
+
+
+
+(defun previous-neighbor-file ()
+  "Move to the previous non-directory, non-image file in the current directory."
+  (interactive)
+  (let* ((current-file (buffer-file-name))
+         (dir (file-name-directory current-file))
+         (image-extensions '("png" "jpg" "jpeg" "gif" "bmp" "svg" "webp" "tiff" "ico"))
+         (files (seq-filter
+                 (lambda (f)
+                   (and (not (file-directory-p f))
+                        (not (member (file-name-extension f) image-extensions))))
+                 (directory-files dir t "^[^.].*")))
+         (prev-file (car (last (seq-take-while (lambda (f) (not (equal f current-file))) files)))))
+    (if prev-file
+        (find-file prev-file)
+      (message "No previous non-image file."))))
+
+(define-key evil-normal-state-map (kbd "F") 'next-neighbor-file)
+(define-key evil-normal-state-map (kbd "B") 'previous-neighbor-file)
+
+
+;;; init.el ends here
