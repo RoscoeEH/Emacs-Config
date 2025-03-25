@@ -1010,7 +1010,7 @@ This allows you to create new directories without Vertico auto-completing to an 
 
 ;; neighboring files
 (defun next-neighbor-file ()
-  "Move to the next non-directory, non-image file in the current directory."
+  "Move to the next non-directory, non-image file in the current directory, wrapping around if needed."
   (interactive)
   (let* ((current-file (buffer-file-name))
          (dir (file-name-directory current-file))
@@ -1020,16 +1020,16 @@ This allows you to create new directories without Vertico auto-completing to an 
                    (and (not (file-directory-p f))
                         (not (member (file-name-extension f) image-extensions))))
                  (directory-files dir t "^[^.].*")))
-         (next-file (car (cdr (member current-file files)))))
+         (next-file (or (car (cdr (member current-file files))) (car files)))) ; Wrap around
     (if next-file
         (find-file next-file)
-      (message "No next non-image file."))))
+      (message "No non-image files found."))))
 
 
 
 
 (defun previous-neighbor-file ()
-  "Move to the previous non-directory, non-image file in the current directory."
+  "Move to the previous non-directory, non-image file in the current directory, wrapping around if needed."
   (interactive)
   (let* ((current-file (buffer-file-name))
          (dir (file-name-directory current-file))
@@ -1039,13 +1039,13 @@ This allows you to create new directories without Vertico auto-completing to an 
                    (and (not (file-directory-p f))
                         (not (member (file-name-extension f) image-extensions))))
                  (directory-files dir t "^[^.].*")))
-         (prev-file (car (last (seq-take-while (lambda (f) (not (equal f current-file))) files)))))
+         (prev-file (or (car (last (seq-take-while (lambda (f) (not (equal f current-file))) files)))
+                        (car (last files)))))  ; Wrap around to last file
     (if prev-file
         (find-file prev-file)
       (message "No previous non-image file."))))
+  (define-key evil-normal-state-map (kbd "F") 'next-neighbor-file)
+  (define-key evil-normal-state-map (kbd "B") 'previous-neighbor-file)
 
-(define-key evil-normal-state-map (kbd "F") 'next-neighbor-file)
-(define-key evil-normal-state-map (kbd "B") 'previous-neighbor-file)
 
-
-;;; init.el ends here
+  ;;; init.el ends here
