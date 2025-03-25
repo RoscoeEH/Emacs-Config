@@ -1,6 +1,7 @@
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(package-initialize)
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("gnu"   . "https://elpa.gnu.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))(package-initialize)
 
 (custom-set-variables ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -935,10 +936,11 @@ This allows you to create new directories without Vertico auto-completing to an 
 
   ;; imenu setuo
   (use-package consult
-  :ensure t)
-
+  :ensure t
+  :config
+  (require 'consult-imenu) ;; Force it to be loaded
   (with-eval-after-load 'evil
-  (define-key evil-normal-state-map (kbd "SPC i") 'consult-imenu))
+    (define-key evil-normal-state-map (kbd "SPC i") 'consult-imenu)))
 
   (when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize))
