@@ -820,7 +820,12 @@
 (vertico-mode))
 (with-eval-after-load 'vertico
 (define-key vertico-map (kbd "TAB") #'minibuffer-complete))
+
 (setq completion-styles '(partial-completion orderless basic))
+(setq completion-category-overrides
+      '((consult-grep (styles basic))
+        (consult-ripgrep (styles basic))))
+
 
 (defun find-file-without-vertico ()
   "Temporarily disable Vertico mode while invoking find-file.
