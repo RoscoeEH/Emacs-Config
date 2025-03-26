@@ -1,53 +1,13 @@
-(require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("gnu"   . "https://elpa.gnu.org/packages/")
-                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))(package-initialize)
+;;; init.el starts here
 
-(custom-set-variables ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("e410458d3e769c33e0865971deb6e8422457fad02bf51f7862fa180ccc42c032" "0f76f9e0af168197f4798aba5c5ef18e07c926f4e7676b95f2a13771355ce850" default))
- '(package-selected-packages
-   '(lsp-mode key-chord free-keys aggressive-indent goto-last-change flycheck bm minimap rainbow-delimiters ace-window evil-collection evil magit vterm company ## rust-mode modus-themes)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-
-;; for some reason emacs was not loading a bunch of packages so this is my fix
-(add-to-list 'load-path "~/.emacs.d/elpa/")
-(dolist (dir (directory-files "~/.emacs.d/elpa/" t "^[^.]"))
-  (when (file-directory-p dir)
-    (add-to-list 'load-path dir)))
+;; Constants
+(defconst EMACS_PATH "~/.emacs.d/" "Path to .emacs.d")
+(defconst ELPA_PATH (concat EMACS_PATH "elpa") "Path to the elpa directory.")
+(defconst CONFIG_PATH "~/.config/emacs/" "Path to config directory.")
 
 
-(load-theme 'modus-vivendi)
-(setq mac-option-modifier 'meta
-      mac-option-key-is-meta t
-      mac-command-key-is-meta nil)
-
-;; Performance changes
-;; Non-interactive shell loading
-(setq exec-path-from-shell-arguments '("-l"))
-
-;; Alter jit-lock time 
-(setq jit-lock-defer-time 0.2)
-
-;; Diable cursor blinking
-(blink-cursor-mode -1)
-
-;; Diable auto-updating of files based on the disk as it is not relevant to my use case
-(global-auto-revert-mode -1)
-
-;; diable garbage collection on start-up
-(setq gc-cons-threshold most-positive-fixnum)
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (setq gc-cons-threshold (expt 2 23))))
+;; Loads elpa for package-install
+(load (concat CONFIG_PATH "elpa-setup.el"))
 
 
 
@@ -119,7 +79,7 @@
 
 ;; OCaml setup
 
-(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
+(require 'opam-user-setup (concat EMACS_PATH "opam-user-setup.el"))
 
 ;; Tuareg mode for OCaml
 (use-package tuareg
@@ -200,7 +160,6 @@
 (global-set-key (kbd "C-x g s") 'magit-status)
 
 
-(tool-bar-mode -1)
 
 
 (unless (package-installed-p 'evil-collection)
@@ -218,26 +177,6 @@
   :after evil
   :config
   (evil-collection-init))  ;; Initialize evil-collection after evil is loaded
-
-(global-display-line-numbers-mode t)  ;; Enable line numbers globally
-(setq display-line-numbers-type 'relative) ;; Set relative line numbers
-
-;; Tabbing sections in visual mode
-(define-key evil-visual-state-map (kbd "TAB") 'maintain/evil-shift-right-visual)
-(define-key evil-visual-state-map (kbd "<backtab>") 'maintain/evil-shift-left-visual)
-
-(defun maintain/evil-shift-left-visual ()
-  (interactive)
-  (evil-shift-left (region-beginning) (region-end))
-  (evil-normal-state)
-  (evil-visual-restore))
-
-(defun maintain/evil-shift-right-visual ()
-  (interactive)
-  (evil-shift-right (region-beginning) (region-end))
-  (evil-normal-state)
-  (evil-visual-restore))
-
 
 
 ;; Evil special keys
@@ -302,14 +241,6 @@
 
 
 
-  (defun open-init-file ()
-    "Open the Emacs init file."
-    (interactive)
-    (find-file "~/.config/emacs/init.el"))
-
-
-  ;; You can bind this function to a key for quick access
-  (global-set-key (kbd "C-c I") 'open-init-file)
 
 
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
@@ -320,7 +251,7 @@
   :ensure t
   :config
   ;; Persistent bookmarks between sessions
-  (setq bm-repository-file "~/.emacs.d/bm-repository")
+  (setq bm-repository-file (concat EMACS_PATH "bm-repository"))
   (setq bm-restore-repository-on-load t)
 
   ;; Save bookmarks on killing the buffer or exiting Emacs
@@ -386,8 +317,6 @@
 
 
 
-  (global-set-key (kbd "M-<up>") 'scroll-down-line)
-  (global-set-key (kbd "M-<down>") 'scroll-up-line)
 
 
   (require 'rust-mode)
@@ -396,81 +325,6 @@
               (rust-enable-format-on-save)))  ; Optional: enable formatting on save
 
   (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
-
-  ;; Custom compile command
-  (defun improved-compile-command ()
-    "Set `compile-command` dynamically based on the major mode."
-    (interactive)
-    (let* ((file-path (buffer-file-name))
-           (mina-path "~/Documents/Projects/mina/")
-           (in-mina-project (and file-path
-                                 (string-prefix-p (expand-file-name mina-path)
-                                                  (expand-file-name file-path))))
-           (cmd (cond
-                 (in-mina-project
-                  "dune build src/app/cli/src/mina.exe")
-                 ((and (eq major-mode 'python-mode) file-path)
-                  (format "python3 %s" (file-name-nondirectory file-path)))
-                 ((eq major-mode 'rust-mode)
-                  "cargo build")
-                 ((eq major-mode 'tuareg-mode)
-                  "dune build")
-                 (t "make"))))
-      (when cmd
-        (setq-local compile-command cmd))))
-
-  (add-hook 'python-mode-hook #'improved-compile-command)
-  (add-hook 'python-ts-mode-hook #'improved-compile-command)
-  (add-hook 'rust-mode-hook #'improved-compile-command)
-  (add-hook 'tuareg-mode-hook #'improved-compile-command)
-  (add-hook 'c-mode-hook #'improved-compile-command)
-  (add-hook 'c++-mode-hook #'improved-compile-command)
-
-
-
-  ;; Remove from find-file-hook as it might be too early
-  (remove-hook 'find-file-hook #'improved-compile-command)
-
-  ;; Add only to tuareg-mode-hook
-  (add-hook 'tuareg-mode-hook #'improved-compile-command)
-
-  ;; Set the default compile-command to nil to ensure our function takes effect
-  (setq-default compile-command nil)
-
-  ;; Unbind M-c from capitalize-word
-  (global-unset-key (kbd "M-c"))
-
-  ;; Skip eol chars on evil-end-of-line
-  (defun evil-end-of-line-non-whitespace ()
-    "Move to the last character before the newline, ignoring trailing whitespace."
-    (interactive)
-    (move-end-of-line 1)
-    (skip-chars-backward " \t"))
-
-  (define-key evil-normal-state-map (kbd "$") 'evil-end-of-line-non-whitespace)
-  (define-key evil-visual-state-map (kbd "$") 'evil-end-of-line-non-whitespace)
-
-  ;; Define M-c as a prefix key
-  (define-prefix-command 'compile-prefix-map)
-  (global-set-key (kbd "M-c") 'compile-prefix-map)
-
-  ;; new commands for compile and recompile
-  (global-set-key (kbd "M-c c") 'compile)
-  (global-set-key (kbd "M-c m") 'recompile)
-
-
-  (global-set-key (kbd "M-c n") 'next-error)
-  (global-set-key (kbd "M-c b") 'previous-error)
-
-
-  (defun toggle-fullscreen ()
-    "Toggle fullscreen mode on macOS."
-    (interactive)
-    (set-frame-parameter nil 'fullscreen
-                         (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
-
-  ;; Bind Command-Control-f to toggle fullscreen
-  (global-set-key (kbd "s-C-f") 'toggle-fullscreen)
 
 
   ;; key-chord to bind jk to escape
@@ -483,12 +337,7 @@
   (key-chord-define-global "sd" 'save-buffer)
 
 
-  ;; xref find def
-  (define-key evil-normal-state-map (kbd "M-.") 'xref-find-definitions)
-  (define-key evil-motion-state-map (kbd "M-.") 'xref-find-definitions)
 
-
-  (electric-pair-mode 1)
 
 
 (use-package rainbow-delimiters
@@ -502,19 +351,6 @@
 
 
 
-(defun convert-tabs-to-spaces ()
-"Convert all tabs to spaces."
-(untabify (point-min) (point-max)))
-
-(add-hook 'before-save-hook 'convert-tabs-to-spaces)
-
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 2)  ;; Set the number of spaces for a tab, change 4 to your preference
-
-
-(add-hook 'makefile-mode-hook
-        (lambda ()
-            (setq indent-tabs-mode t)))
 
 
 ;; Define M-b as a prefix key
@@ -531,25 +367,6 @@
 ;; Added command for cloning a repo with magit
 (global-set-key (kbd "C-x g c") 'magit-clone)
 
-
-
-
-;; Enable eglot for supported languages
-(add-hook 'python-mode-hook 'eglot-ensure)
-(add-hook 'rust-mode-hook 'eglot-ensure)
-(add-hook 'c-mode-hook 'eglot-ensure)
-(add-hook 'c++-mode-hook 'eglot-ensure)
-
-
-(evil-define-key 'normal 'global (kbd "SPC d") 'xref-find-definitions-other-window)
-
-;; Remove scroll bars
-(scroll-bar-mode -1)
-
-
-(fset 'yes-or-no-p 'y-or-n-p)
-
-(setq use-short-answers t)
 
 
 (setq ispell-program-name "aspell")  ;; Or "hunspell" or "ispell"
@@ -578,233 +395,6 @@
 
 
 
-;; Function to wrap selected text in parentheses
-(defun wrap-with-parens ()
-"Wrap selected text with parentheses."
-(interactive)
-(let ((start (region-beginning))
-        (end (region-end)))
-    (goto-char end)
-    (insert ")")
-    (goto-char start)
-    (insert "(")
-    (evil-normal-state)))
-
-;; Bind it to SPC ( in visual mode
-(define-key evil-visual-state-map (kbd "SPC (") 'wrap-with-parens)
-
-;; Function to wrap selected text in square brackets
-(defun wrap-with-square-brackets ()
-"Wrap selected text with square brackets."
-(interactive)
-(let ((start (region-beginning))
-        (end (region-end)))
-    (goto-char end)
-    (insert "]")
-    (goto-char start)
-    (insert "[")
-    (evil-normal-state)))
-
-;; Bind it to SPC [ in visual mode
-(define-key evil-visual-state-map (kbd "SPC [") 'wrap-with-square-brackets)
-
-;; Function to wrap selected text in curly braces
-(defun wrap-with-curly-braces ()
-"Wrap selected text with curly braces."
-(interactive)
-(let ((start (region-beginning))
-        (end (region-end)))
-    (goto-char end)
-    (insert "}")
-    (goto-char start)
-    (insert "{")
-    (evil-normal-state)))
-
-;; Bind it to SPC { in visual mode
-(define-key evil-visual-state-map (kbd "SPC {") 'wrap-with-curly-braces)
-
-;; Function to wrap selected text in double quotes
-(defun wrap-with-double-quotes ()
-"Wrap selected text with double quotes."
-(interactive)
-(let ((start (region-beginning))
-        (end (region-end)))
-    (goto-char end)
-    (insert "\"")
-    (goto-char start)
-    (insert "\"")
-    (evil-normal-state)))
-
-;; Bind it to SPC " in visual mode
-(define-key evil-visual-state-map (kbd "SPC \"") 'wrap-with-double-quotes)
-
-;; Function to wrap selected text in single quotes
-(defun wrap-with-single-quotes ()
-"Wrap selected text with single quotes."
-(interactive)
-(let ((start (region-beginning))
-        (end (region-end)))
-    (goto-char end)
-    (insert "'")
-    (goto-char start)
-    (insert "'")
-    (evil-normal-state)))
-
-;; Bind it to SPC ' in visual mode
-(define-key evil-visual-state-map (kbd "SPC '") 'wrap-with-single-quotes)
-
-(defun remove-wrapping-delimiters ()
-  (interactive)
-  (when (evil-visual-state-p)
-    (let* ((beg (region-beginning))
-           (end (region-end))
-           (first-char (char-after beg))
-           (last-char (char-before end))
-           (pairs '((?\( . ?\)) (?\{ . ?\}) (?\[ . ?\]) (?\" . ?\") (?\' . ?\'))))
-      (when (and first-char last-char (assoc first-char pairs))
-        (let ((matching-char (cdr (assoc first-char pairs))))
-          (when (eq last-char matching-char)
-            (save-excursion
-              (goto-char end)
-              (delete-char -1)
-              (goto-char beg)
-              (delete-char 1))))))))
-
-(define-key evil-visual-state-map (kbd "SPC )") 'remove-wrapping-delimiters)
-
-
-
-
-;; Make visual mode 'd' delete without yanking
-(define-key evil-visual-state-map (kbd "d") (lambda ()
-                                            (interactive)
-                                            (evil-delete (region-beginning) (region-end) nil ?_)))
-
-;; Make visual mode 'p' and 'P' delete selection without yanking and then paste
-(define-key evil-visual-state-map (kbd "p") (lambda ()
-                                            (interactive)
-                                            (evil-delete (region-beginning) (region-end) nil ?_)
-                                            (evil-paste-after 1)))
-
-(define-key evil-visual-state-map (kbd "P") (lambda ()
-                                            (interactive)
-                                            (evil-delete (region-beginning) (region-end) nil ?_)
-                                            (evil-paste-before 1)))
-
-
-
-
-;; paste preserves the spacing of the initial line
-(defun evil-paste-after-dwim (count &optional register yank-handler)
-(interactive "p")
-(let* ((start (point))
-        (initial-whitespace (save-excursion
-                                (goto-char (line-beginning-position))
-                                (when (looking-at "^[[:space:]]*")
-                                (match-string 0)))))
-    ;; Paste the text
-    (evil-paste-after count register yank-handler)
-    ;; Align pasted text by adding initial whitespace to each subsequent line
-    (when initial-whitespace
-    (save-excursion
-        (goto-char start)
-        (while (re-search-forward "\n\\([^\n]\\)" nil t)
-        (replace-match (concat "\n" initial-whitespace "\\1")))))))
-
-
-(defun evil-paste-before-dwim (count &optional register yank-handler)
-(interactive "p")
-(let* ((start (point))
-        (initial-whitespace (save-excursion
-                                (goto-char (line-beginning-position))
-                                (when (looking-at "^[[:space:]]*")
-                                (match-string 0)))))
-    ;; Paste before the cursor
-    (evil-paste-before count register yank-handler)
-    ;; Align pasted text by adding initial whitespace to each subsequent line
-    (when initial-whitespace
-    (save-excursion
-        (goto-char start)
-        (while (re-search-forward "\n\\([^\n]\\)" nil t)
-        (replace-match (concat "\n" initial-whitespace "\\1")))))))
-
-
-
-(define-key evil-normal-state-map (kbd "p") 'evil-paste-after-dwim)
-(define-key evil-normal-state-map (kbd "P") 'evil-paste-before-dwim)
-
-
-;; Window management bindings
-(global-set-key (kbd "C-c s") 'split-window-horizontally)
-(global-set-key (kbd "C-c d") 'split-window-vertically) 
-(global-set-key (kbd "C-c f") 'delete-window)
-(global-set-key (kbd "C-c a") 'delete-other-windows)
-(global-set-key (kbd "C-c o") 'balance-windows)
-(global-set-key (kbd "M-o") 'other-window)
-
-
-;; Case change commands
-
-(defun upcase-single-letter ()
-    "Convert the character at point to uppercase."
-    (interactive)
-    (let ((char (char-after)))
-    (when char
-        (save-excursion
-        (delete-char 1)
-        (insert (upcase char))))))
-
-(defun downcase-single-letter ()
-    "Convert the character at point to lowercase."
-    (interactive)
-    (let ((char (char-after)))
-    (when char
-        (save-excursion
-        (delete-char 1)
-        (insert (downcase char))))))
-
-(define-key evil-normal-state-map (kbd "C-x u") 'upcase-single-letter)
-(define-key evil-normal-state-map (kbd "C-x l") 'downcase-single-letter)
-(define-key evil-visual-state-map (kbd "C-x u") 'upcase-region)
-(define-key evil-visual-state-map (kbd "C-x l") 'downcase-region)
-
-
-;; Delete char and enter insert mode
-(define-key evil-normal-state-map (kbd "q") (lambda ()
-                                            (interactive)
-                                            (delete-char 1)
-                                            (evil-insert-state)))
-
-
-(use-package dashboard
-    :ensure t
-    :config
-    (dashboard-setup-startup-hook)
-    (setq dashboard-startup-banner "/Users/roscoeelings-haynie/.config/emacs/emacs_image.png")
-    ;; Method 1: Using custom face
-    (custom-set-faces
-    '(dashboard-banner-logo-title ((t (:foreground "#2957b0" :weight bold)))))
-
-    ;; Method 2: Using both propertize and setting the face explicitly
-    (setq dashboard-banner-logo-title 
-        (let ((title "
-******** ****     ****     **       ******   ********
-/**///// /**/**   **/**    ****     **////** **////// 
-/**      /**//** ** /**   **//**   **    // /**       
-/******* /** //***  /**  **  //** /**       /*********
-/**////  /**  //*   /** **********/**       ////////**
-/**      /**   /    /**/**//////**//**    **       /**
-/********/**        /**/**     /** //******  ******** 
-//////// //         // //      //   //////  ////////  
-"))
-            (propertize title 'face '(:foreground "red" :weight bold))))
-
-    (setq dashboard-center-content t)
-    (setq dashboard-items '((recents  . 12)
-                        (bookmarks . 12)))
-    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
-
-
 (use-package direnv
     :ensure t
     :config
@@ -817,11 +407,6 @@
                 (direnv-update-environment)))))
 
 
-;; grep command bindings
-(global-set-key (kbd "M-g r")
-(lambda ()
-    (interactive)
-    (grep (read-from-minibuffer "Run grep: " "rg "))))
 (global-set-key (kbd "M-g c") 'consult-ripgrep)
 
 
@@ -852,13 +437,6 @@ This allows you to create new directories without Vertico auto-completing to an 
         (vertico-mode 1)))))
 
 (global-set-key (kbd "C-x C-f") #'find-file-without-vertico)
-
-
-
-
-(with-eval-after-load 'dired
-    (define-key dired-mode-map [mouse-1] 'dired-single-buffer)
-    (define-key dired-mode-map [mouse-2] 'dired-single-buffer))
 
 
 
@@ -932,8 +510,6 @@ This allows you to create new directories without Vertico auto-completing to an 
   (global-set-key (kbd "C-x C-k d") 'epa-decrypt-file)
 
 
-  (setq make-backup-files nil)
-
   (use-package origami
   :ensure t
   :hook (prog-mode . origami-mode)
@@ -951,7 +527,7 @@ This allows you to create new directories without Vertico auto-completing to an 
       (kbd "z o") 'origami-open-all-nodes
       (kbd "z c") 'origami-close-all-nodes))
 
-  ;; imenu setuo
+  ;; imenu setup
   (use-package consult
   :ensure t
   :config
@@ -984,39 +560,11 @@ This allows you to create new directories without Vertico auto-completing to an 
   (add-hook 'tuareg-mode-hook 'ocaml-imenu-setup)
 
 
-  ;; File navigation commands
-  (defun jump-next-function-def ()
-  "Jump to the beginning of the next function definition."
-  (interactive)
-  (beginning-of-defun -1))
-
-  (defun jump-previous-function-def ()
-  "Jump to the beginning of the previous function definition."
-  (interactive)
-  (beginning-of-defun 1))
-
-  (define-key evil-normal-state-map (kbd "}") 'jump-next-function-def)
-  (define-key evil-normal-state-map (kbd "{") 'jump-previous-function-def)
-  (define-key evil-visual-state-map (kbd "}") 'jump-next-function-def)
-  (define-key evil-visual-state-map (kbd "{") 'jump-previous-function-def)
-
-  (defun backward-sexp-adjusted ()
-  "Jump backward to the matching opening delimiter.
-  If the character under point is a closing delimiter, move one char right first."
-  (interactive)
-  (when (member (char-after) '(?\) ?\] ?\}))
-      (forward-char 1))
-  (backward-sexp))
-
-
-  (define-key evil-normal-state-map (kbd "]]") 'forward-sexp)
-  (define-key evil-normal-state-map (kbd "[[") 'backward-sexp-adjusted)
-  (define-key evil-visual-state-map (kbd "]]") 'forward-sexp)
-  (define-key evil-visual-state-map (kbd "[[") 'backward-sexp-adjusted)
 
   ;; LaTeX setup
   (use-package tex
     :ensure auctex)
+
   (use-package pdf-tools
     :ensure t
     :config
@@ -1027,44 +575,15 @@ This allows you to create new directories without Vertico auto-completing to an 
   (with-eval-after-load 'latex
     (define-key LaTeX-mode-map (kbd "M-c c") #'TeX-command-run-all))
 
-;; neighboring files
-(defun next-neighbor-file ()
-  "Move to the next non-directory, non-image file in the current directory, wrapping around if needed."
-  (interactive)
-  (let* ((current-file (buffer-file-name))
-         (dir (file-name-directory current-file))
-         (image-extensions '("png" "jpg" "jpeg" "gif" "bmp" "svg" "webp" "tiff" "ico"))
-         (files (seq-filter
-                 (lambda (f)
-                   (and (not (file-directory-p f))
-                        (not (member (file-name-extension f) image-extensions))))
-                 (directory-files dir t "^[^.].*")))
-         (next-file (or (car (cdr (member current-file files))) (car files)))) ; Wrap around
-    (if next-file
-        (find-file next-file)
-      (message "No non-image files found."))))
+
+;; Load homescreen
+(load (concat CONFIG_PATH "homescreen.el"))
+
+;; Load system setup
+(load (concat CONFIG_PATH "setup.el"))
+
+;; Load custom commands that are un-associated with packages
+(load (concat CONFIG_PATH "custom-commands.el"))
 
 
-
-
-(defun previous-neighbor-file ()
-  "Move to the previous non-directory, non-image file in the current directory, wrapping around if needed."
-  (interactive)
-  (let* ((current-file (buffer-file-name))
-         (dir (file-name-directory current-file))
-         (image-extensions '("png" "jpg" "jpeg" "gif" "bmp" "svg" "webp" "tiff" "ico"))
-         (files (seq-filter
-                 (lambda (f)
-                   (and (not (file-directory-p f))
-                        (not (member (file-name-extension f) image-extensions))))
-                 (directory-files dir t "^[^.].*")))
-         (prev-file (or (car (last (seq-take-while (lambda (f) (not (equal f current-file))) files)))
-                        (car (last files)))))  ; Wrap around to last file
-    (if prev-file
-        (find-file prev-file)
-      (message "No previous non-image file."))))
-  (define-key evil-normal-state-map (kbd "F") 'next-neighbor-file)
-  (define-key evil-normal-state-map (kbd "B") 'previous-neighbor-file)
-
-
-  ;;; init.el ends here
+;;; init.el ends here
