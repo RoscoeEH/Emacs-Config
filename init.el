@@ -159,6 +159,18 @@
   :config
   (setq flycheck-check-syntax-automatically '(save mode-enabled)))  ;; Check on save or mode enable
 
+;; For not annoying me when setting up new rust files
+(defun flycheck-rust-ignore-unused-file (errors)
+  "Filter out 'this file is not included anywhere in the module tree' warnings."
+  (seq-remove (lambda (err)
+                (string-match-p "this file is not included anywhere in the module tree" 
+                                (flycheck-error-message err)))
+              errors))
+
+(with-eval-after-load 'flycheck
+  (add-hook 'flycheck-process-error-functions #'flycheck-rust-ignore-unused-file))
+
+
 ;; Ensure environment is set for PATH and OPAM
 (use-package exec-path-from-shell
   :ensure t
