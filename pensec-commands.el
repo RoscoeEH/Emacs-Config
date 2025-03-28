@@ -34,4 +34,25 @@ prompt the user for a new value with shortcuts, and replace the existing value."
 
 (global-set-key (kbd "M-g f") 'search-te-md-files-for-tag)
 
+
+(defun jump-to-assertion ()
+  "If the current file matches 'TExx.yy.zz.md', jump to 'ASxx.yy.md' in the same directory."
+  (interactive)
+  (when (buffer-file-name)
+    (let* ((filename (file-name-nondirectory (buffer-file-name)))
+           (dir (file-name-directory (buffer-file-name)))
+           (regex "^TE\\([0-9]+\\)\\.\\([0-9]+\\)\\.\\([0-9]+\\)\\.md$")
+           (match (string-match regex filename)))
+      (if match
+          (let ((new-file (concat dir "AS"
+                                  (match-string 1 filename) "."
+                                  (match-string 2 filename) ".md")))
+            (if (file-exists-p new-file)
+                (find-file new-file)
+              (message "File %s does not exist" new-file)))
+        (message "Current file name does not match expected pattern")))))
+
+(global-set-key (kbd "C-c j") 'jump-to-assertion)
+
+
 ;;; pensec-commands.el ends here
