@@ -391,6 +391,16 @@
     (define-key dired-mode-map [mouse-1] 'dired-single-buffer)
     (define-key dired-mode-map [mouse-2] 'dired-single-buffer))
 
+;; Define M-b as a prefix key
+(define-prefix-command 'bookmark-prefix-map)
+(global-set-key (kbd "M-b") 'bookmark-prefix-map)
+
+
+(global-set-key (kbd "M-b m") 'bookmark-set)
+(global-set-key (kbd "M-b j") 'bookmark-jump)
+(global-set-key (kbd "M-b l") 'bookmark-bmenu-list)
+(global-set-key (kbd "M-b d") 'bookmark-delete)
+
 
 
 ;;; custum-commands.el ends here
