@@ -14,5 +14,7 @@
 
 (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
 
+(add-hook 'rust-mode-hook 'eglot-ensure)
+
 
 ;;; rust-config.el ends here

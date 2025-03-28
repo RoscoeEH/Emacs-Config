@@ -73,11 +73,16 @@
 
 
 ;; grep command bindings
-(global-set-key (kbd "M-g r")
+(global-set-key (kbd "M-g g")
 (lambda ()
     (interactive)
     (grep (read-from-minibuffer "Run grep: " "rg "))))
 
+(global-set-key (kbd "M-g d")
+  (lambda ()
+    (interactive)
+    (let ((dir (read-directory-name "Search in directory: ")))
+      (grep (concat "rg " (read-from-minibuffer "Enter rg command: ") " " dir))))) 
 
 ;; Function to wrap selected text in parentheses
 (defun wrap-with-parens ()

@@ -53,5 +53,15 @@
             (define-key evil-insert-state-local-map (kbd "RET") 'markdown-list-dwim)
             (define-key evil-insert-state-local-map (kbd "<backtab>") 'markdown-outdent)))
 
+(add-hook 'markdown-mode-hook
+          (lambda ()
+            ;; Change the colors for Markdown headers
+            (set-face-foreground 'markdown-header-face-1 "DeepSkyBlue1")
+            (set-face-foreground 'markdown-header-face-2 "DarkOrange1")
+            (set-face-foreground 'markdown-header-face-3 "MediumOrchid1")
+            (set-face-foreground 'markdown-header-face-4 "YellowGreen")
+            (set-face-foreground 'markdown-header-face-5 "SpringGreen")
+            (set-face-foreground 'markdown-header-face-6 "SlateBlue1")))
+
 
 ;;; markdown-config.el ends here

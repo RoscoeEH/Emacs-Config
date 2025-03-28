@@ -80,12 +80,6 @@
         (lambda ()
             (setq indent-tabs-mode t)))
 
-;; Enable eglot for supported languages
-(add-hook 'python-mode-hook 'eglot-ensure)
-(add-hook 'rust-mode-hook 'eglot-ensure)
-(add-hook 'c-mode-hook 'eglot-ensure)
-(add-hook 'c++-mode-hook 'eglot-ensure)
-
 
 ;; Remove scroll bars
 (scroll-bar-mode -1)
@@ -99,5 +93,10 @@
 ;; Do not store temp files
 (setq make-backup-files nil)
 
+;; visual line wrap in all modes
+(add-hook 'after-change-major-mode-hook
+          (lambda ()
+            (visual-line-mode 1)
+            (setq word-wrap t)))
 
 ;;; setup.el ends here
