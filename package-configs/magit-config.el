@@ -15,7 +15,7 @@
 (global-set-key (kbd "C-x g c") 'magit-clone)
 
 
-(setq magit-git-executable "/usr/bin/git")
+(setq magit-git-executable "C:/Program Files/Git/bin/git.exe")
 (setq magit-credential 'osxkeychain)
 (setenv "SSH_AUTH_SOCK" (getenv "SSH_AUTH_SOCK"))
 
