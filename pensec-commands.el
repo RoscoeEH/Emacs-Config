@@ -1,5 +1,6 @@
 ;;; pensec-commands.el starts here
 
+
 ;; Copy paste for windows
 (global-set-key (kbd "C-c C-c") 'kill-ring-save)
 (global-set-key (kbd "C-c C-v") 'yank)
