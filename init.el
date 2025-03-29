@@ -23,9 +23,6 @@
 (load (concat CONFIG_PATH "latex-config.el"))
 (load (concat CONFIG_PATH "markdown-config.el"))
 
-;; Load PDF viewing tools
-(load (concat CONFIG_PATH "pdf-config.el"))
-
 ;; Load homescreen
 (load (concat CONFIG_PATH "homescreen.el"))
 
