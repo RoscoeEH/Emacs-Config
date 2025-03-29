@@ -5,35 +5,49 @@
   :ensure t)
 
 (defun markdown-list-dwim ()
-  "Continue a Markdown list item or checklist based on the current line."
+  "Continue a Markdown list item or checklist based on the current line,
+or erase the delimiter if the line is empty.
+Handles bullets ('- ' or '* '), numbered items (\"1) \" or \"1. \"),
+and checklists ('- [ ] ')."
   (interactive)
- (message "markdown-list-dwim called") 
-    (let* ((current-line (thing-at-point 'line t))
-           ;; Capture leading whitespace.
-           (indent (if (string-match "^[ \t]*" current-line)
-                       (match-string 0 current-line)
-                     ""))
-           new-prefix)
-      (cond
-       ;; Checklist: "- [ ]" or "- [x]"
-       ((string-match "^[ \t]*-\\s-*\\[\\([xX ]\\)\\]\\s-+" current-line)
-        (setq new-prefix (concat indent "- [ ] ")))
-       ;; Ordered list with parenthesi
-       ((string-match "^[ \t]*\\([0-9]+\\))\\s-+" current-line)
-        (let ((num (string-to-number (match-string 1 current-line))))
-          (setq new-prefix (concat indent (number-to-string (1+ num)) ") "))))
-       ;; Ordered list with period
-       ((string-match "^[ \t]*\\([0-9]+\\)\\.\\s-+" current-line)
-        (let ((num (string-to-number (match-string 1 current-line))))
-          (setq new-prefix (concat indent (number-to-string (1+ num)) ". "))))
-       ;; Bullet list
-       ((string-match "^[ \t]*\\([-*]\\)\\s-+" current-line)
-        (setq new-prefix (concat indent (match-string 1 current-line) " ")))
+  (message "markdown-list-dwim called")
+  (let* ((current-line (thing-at-point 'line t))
+         ;; Capture leading whitespace.
+         (indent (if (string-match "^[ \t]*" current-line)
+                     (match-string 0 current-line)
+                   ""))
+         new-prefix)
+    ;; If the current line is empty (only the list delimiter), delete it.
+    (if (or (string-match "^[ \t]*[-*]\\s-*$" current-line)
+            (string-match "^[ \t]*[0-9]+[)][ \t]*$" current-line)
+            (string-match "^[ \t]*[0-9]+[.][ \t]*$" current-line)
+            (string-match "^[ \t]*-\\s-*\\[[xX ]\\][ \t]*$" current-line))
+        (delete-region (line-beginning-position) (line-end-position))
+      (progn
+        (cond
+         ;; Checklist: "- [ ]" or "- [x]"
+         ((string-match "^[ \t]*-\\s-*\\[\\([xX ]\\)\\]\\s-+" current-line)
+          (setq new-prefix (concat indent "- [ ] ")))
+         ;; Ordered list with parentheses (e.g., "1)" or "2)")
+         ((string-match "^[ \t]*\\([0-9]+\\)[)][ \t]+"
+                         current-line)
+          (let ((num (string-to-number (match-string 1 current-line))))
+            (setq new-prefix (concat indent (number-to-string (1+ num)) ") "))))
+         ;; Ordered list with period (e.g., "1." or "2.")
+         ((string-match "^[ \t]*\\([0-9]+\\)\\.[ \t]+"
+                         current-line)
+          (let ((num (string-to-number (match-string 1 current-line))))
+            (setq new-prefix (concat indent (number-to-string (1+ num)) ". "))))
+         ;; Bullet list (using "-" or "*")
+         ((string-match "^[ \t]*\\([-*]\\)\\s-+"
+                         current-line)
+          (setq new-prefix (concat indent (match-string 1 current-line) " ")))
+         ;; Fallback: no prefix.
+         (t (setq new-prefix nil)))
+        (newline)
+        (when new-prefix
+          (insert new-prefix))))))
 
-       (t (setq new-prefix nil)))
-      (newline)
-      (when new-prefix
-        (insert new-prefix))))
 
 
 (defun markdown-outdent ()

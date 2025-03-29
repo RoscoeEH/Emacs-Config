@@ -13,6 +13,10 @@
 ;; Loads packages as a whole
 (load (concat CONFIG_PATH "package-list.el"))
 
+;; Load custom commands that are un-associated with packages
+(load (concat CONFIG_PATH "custom-commands.el"))
+
+
 ;; Load individual language modes
 (load (concat CONFIG_PATH "python-config.el"))
 (load (concat CONFIG_PATH "c-config.el"))
@@ -25,8 +29,6 @@
 ;; Load homescreen
 (load (concat CONFIG_PATH "homescreen.el"))
 
-;; Load custom commands that are un-associated with packages
-(load (concat CONFIG_PATH "custom-commands.el"))
 
 ;; Load pensec specific commands
 (load (concat CONFIG_PATH "pensec-commands.el"))
