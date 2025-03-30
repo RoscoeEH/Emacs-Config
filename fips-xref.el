@@ -11,7 +11,6 @@
 
 ;; jump to def
 (require 'xref)
-(require 'f) ;; Provides `f-expand` for file paths
 
 (defun markdown-find-definitions (identifier)
   "Find the Markdown report matching IDENTIFIER."
@@ -22,7 +21,7 @@
 
 (defun markdown-find-matching-file (root identifier)
   "Search for a Markdown file matching IDENTIFIER in reportvault."
-  (let ((search-path (f-expand "reportvault" root)))
+  (let ((search-path (expand-file-name "reportvault" root)))
     (car (directory-files-recursively search-path
                                       (concat "\\b" (regexp-quote identifier) "\\.md\\b")))))
 
@@ -30,7 +29,7 @@
 (defun markdown-find-references (identifier)
   "Find all Markdown files referencing IDENTIFIER."
   (let* ((root (locate-dominating-file default-directory "reportvault"))
-         (search-path (f-expand "reportvault" root))
+         (search-path (expand-file-name "reportvault" root))
          (grep-results (shell-command-to-string
                         (format "rg -l '%s' %s/**/*.md" identifier search-path))))
     (mapcar (lambda (file)
