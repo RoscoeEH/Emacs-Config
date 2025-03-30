@@ -1,10 +1,6 @@
 ;; flycheck-config.el starts here
 
 (use-package flycheck
-:ensure t)
-
-
-(use-package flycheck
   :ensure t
   :hook (merlin-mode . flycheck-mode)
   :config
@@ -14,16 +10,13 @@
 (defun flycheck-rust-ignore-unused-file (errors)
   "Filter out 'this file is not included anywhere in the module tree' warnings."
   (seq-remove (lambda (err)
-                (string-match-p "this file is not included anywhere in the module tree" 
-                                (flycheck-error-message err)))
+                (and (flycheck-error-message err)
+                     (string-match-p "this file is not included anywhere in the module tree"
+                                     (flycheck-error-message err))))
               errors))
 
 (with-eval-after-load 'flycheck
-  (add-hook 'flycheck-process-error-functions #'flycheck-rust-ignore-unused-file))
-
-
-;; Set Flycheck to only check syntax on save
-(setq flycheck-check-syntax-automatically '(save))
+  (add-hook 'flycheck-error-filter-functions #'flycheck-rust-ignore-unused-file))
 
 
 ;; Enable Flycheck in all programming modes
