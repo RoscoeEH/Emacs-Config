@@ -63,5 +63,90 @@ like AS12.34.md are returned as one word."
   (markdown-find-references identifier))
 
 
+;; jump command altered to use xref so you can go back
+(defun jump-to-assertion ()
+  "If the current file matches 'TExx.yy.zz.md' or 'VExx.yy.zz.md', jump to 'ASxx.yy.md' in the same directory using xref."
+  (interactive)
+  (when (buffer-file-name)
+    (let* ((filename (file-name-nondirectory (buffer-file-name)))
+           (dir (file-name-directory (buffer-file-name)))
+           (regex "^\\(TE\\|VE\\)\\([0-9]+\\)\\.\\([0-9]+\\)\\.\\([0-9]+\\)\\.md$")
+           (match (string-match regex filename)))
+      (if match
+          (let ((target-id (format "AS%s.%s" (match-string 2 filename) (match-string 3 filename))))
+            (xref-push-marker-stack)  ;; Save current position
+            (let ((defs (markdown-find-definitions target-id)))
+              (if defs
+                  (xref-pop-to-location (car defs))
+                (message "No definition found for %s" target-id))))
+        (message "Current file name does not match expected pattern")))))
+
+
+(global-set-key (kbd "C-c j a") 'jump-to-assertion)
+
+(defun jump-to-te ()
+  "If the current file is 'ASxx.yy.md' or 'VExx.yy.zz.md', jump to 'TExx.yy.01.md' in the same directory using xref."
+  (interactive)
+  (when (buffer-file-name)
+    (let* ((filename (file-name-nondirectory (buffer-file-name)))
+           (dir (file-name-directory (buffer-file-name)))
+           (regex-as "^AS\\([0-9]+\\)\\.\\([0-9]+\\)\\.md$")
+           (regex-ve "^VE\\([0-9]+\\)\\.\\([0-9]+\\)\\.\\([0-9]+\\)\\.md$"))
+      (cond
+       ;; If the current file is "ASxx.yy.md"
+       ((string-match regex-as filename)
+        (let ((target-id (format "TE%s.%s.01" (match-string 1 filename) (match-string 2 filename))))
+          (xref-push-marker-stack)
+          (let ((defs (markdown-find-definitions target-id)))
+            (if defs
+                (xref-pop-to-location (car defs))
+              (message "No definition found for %s" target-id)))))
+
+       ;; If the current file is "VExx.yy.zz.md"
+       ((string-match regex-ve filename)
+        (let ((target-id (format "TE%s.%s.01" (match-string 1 filename) (match-string 2 filename))))
+          (xref-push-marker-stack)
+          (let ((defs (markdown-find-definitions target-id)))
+            (if defs
+                (xref-pop-to-location (car defs))
+              (message "No definition found for %s" target-id)))))
+
+       ;; If the filename doesn't match either pattern
+       (t (message "Current file name does not match expected pattern"))))))
+
+(global-set-key (kbd "C-c j t") 'jump-to-te)
+
+(defun jump-to-ve ()
+  "If the current file is 'ASxx.yy.md' or 'TExx.yy.zz.md', jump to 'VExx.yy.01.md' in the same directory using xref."
+  (interactive)
+  (when (buffer-file-name)
+    (let* ((filename (file-name-nondirectory (buffer-file-name)))
+           (dir (file-name-directory (buffer-file-name)))
+           (regex-as "^AS\\([0-9]+\\)\\.\\([0-9]+\\)\\.md$")
+           (regex-te "^TE\\([0-9]+\\)\\.\\([0-9]+\\)\\.\\([0-9]+\\)\\.md$"))
+      (cond
+       ;; If the current file is "ASxx.yy.md"
+       ((string-match regex-as filename)
+        (let ((target-id (format "VE%s.%s.01" (match-string 1 filename) (match-string 2 filename))))
+          (xref-push-marker-stack)
+          (let ((defs (markdown-find-definitions target-id)))
+            (if defs
+                (xref-pop-to-location (car defs))
+              (message "No definition found for %s" target-id)))))
+
+       ;; If the current file is "TExx.yy.zz.md"
+       ((string-match regex-te filename)
+        (let ((target-id (format "VE%s.%s.01" (match-string 1 filename) (match-string 2 filename))))
+          (xref-push-marker-stack)
+          (let ((defs (markdown-find-definitions target-id)))
+            (if defs
+                (xref-pop-to-location (car defs))
+              (message "No definition found for %s" target-id)))))
+
+       ;; If the filename doesn't match either pattern
+       (t (message "Current file name does not match expected pattern"))))))
+
+(global-set-key (kbd "C-c j v") 'jump-to-ve)
+
 
 ;;; fips-xref.el ends here
