@@ -78,4 +78,17 @@ and checklists ('- [ ] ')."
             (set-face-foreground 'markdown-header-face-6 "SlateBlue1")))
 
 
+(defun toggle-markdown-check ()
+  "Toggle a Markdown checklist item between checked and unchecked,
+preserving cursor position."
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (when (looking-at "\\s-*\\(- \\[\\)\\([ x]?\\)\\(\\]\\)")
+      (replace-match (if (string= (match-string 2) "x") " " "x") t t nil 2))))
+
+
+(define-key evil-normal-state-map (kbd "z m") 'toggle-markdown-check)
+
+
 ;;; markdown-config.el ends here
