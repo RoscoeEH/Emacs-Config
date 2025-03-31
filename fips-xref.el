@@ -1,51 +1,66 @@
 ;;; fips-xref.el starts here
 
-;; register custom xref backend
-(defun markdown-xref-backend ()
-  "Custom Xref backend for Markdown files in reportvault."
-  (when (and buffer-file-name
-             (string-match "reportvault" buffer-file-name))
-    'markdown))
-
-(add-hook 'xref-backend-functions #'markdown-xref-backend)
-
-;; jump to def
 (require 'xref)
 
-(defun markdown-find-definitions (identifier)
-  "Find the Markdown report matching IDENTIFIER."
-  (let* ((root (locate-dominating-file default-directory "reportvault"))
-         (match-file (markdown-find-matching-file root identifier)))
-    (when match-file
-      (list (xref-make match-file (xref-make-file-location match-file 1 0))))))
+;;; Find the reportvault directory using .xref-path.md
+(defun find-reportvault-root ()
+  "Search upward until a directory containing '.xref-path.md' is found.
+Then, read '.xref-path.md' to extract the reportvault path. The file should contain:
+  reportvault : \"path/to/reportvault\"
+The returned path is expanded relative to the directory containing '.xref-path.md'."
+  (let ((base (locate-dominating-file default-directory ".xref-path.md")))
+    (if base
+        (let ((paths-file (expand-file-name ".xref-path.md" base)))
+          (if (file-exists-p paths-file)
+              (with-temp-buffer
+                (insert-file-contents paths-file)
+                (if (re-search-forward "^reportvault\\s-*:\\s-*\"\\([^\"]+\\)\"" nil t)
+                    (expand-file-name (match-string 1) base)
+                  (error "reportvault path not found in %s" paths-file)))
+            (error "Paths file not found: %s" paths-file)))
+      (error "Could not locate a directory containing '.xref-path.md'."))))
 
+;;; Markdown Xref functions
 (defun markdown-find-matching-file (root identifier)
-  "Search for a Markdown file matching IDENTIFIER in reportvault."
-  (let ((search-path (expand-file-name "reportvault" root)))
+  "Search for a Markdown file matching IDENTIFIER in the reportvault directory.
+ROOT should be the absolute path to the reportvault directory."
+  (let ((search-path root))
     (car (directory-files-recursively search-path
                                       (concat "\\b" (regexp-quote identifier) "\\.md\\b")))))
 
+(defun markdown-find-definitions (identifier)
+  "Find the Markdown report matching IDENTIFIER, searching within reportvault."
+  (let ((root (find-reportvault-root)))
+    (when root
+      (let ((match-file (markdown-find-matching-file root identifier)))
+        (when match-file
+          (list (xref-make match-file (xref-make-file-location match-file 1 0))))))))
 
 (defun markdown-find-references (identifier)
-  "Find all Markdown files referencing IDENTIFIER."
-  (let* ((root (locate-dominating-file default-directory "reportvault"))
-         (search-path (expand-file-name "reportvault" root))
-         (grep-results (shell-command-to-string
-                        (format "rg -l '%s' %s/**/*.md" identifier search-path))))
-    (mapcar (lambda (file)
-              (xref-make (format "Reference in %s" file)
-                         (xref-make-file-location file 1 0)))
-            (split-string grep-results "\n" t))))
+  "Find all Markdown files referencing IDENTIFIER in reportvault."
+  (let ((root (find-reportvault-root)))
+    (when root
+      (let* ((search-path root)
+             (grep-results (shell-command-to-string
+                            (format "rg -l '%s' %s/**/*.md" identifier search-path))))
+        (mapcar (lambda (file)
+                  (xref-make (format "Reference in %s" file)
+                             (xref-make-file-location file 1 0)))
+                (split-string grep-results "\n" t))))))
 
 (defun markdown-identifier-at-point ()
   "Return the Markdown identifier under point.
-Temporarily treat dots as word constituents so that identifiers
-like AS12.34.md are returned as one word."
+Temporarily treat dots as word constituents so that identifiers like AS12.34.md are returned as one word."
   (with-syntax-table (copy-syntax-table (syntax-table))
     (modify-syntax-entry ?. "w")
     (thing-at-point 'word t)))
 
-
+;;; Register custom xref backend for Markdown
+(defun markdown-xref-backend ()
+  "Custom Xref backend for Markdown files if a reportvault directory is found."
+  (when (and buffer-file-name (find-reportvault-root))
+    'markdown))
+(add-hook 'xref-backend-functions #'markdown-xref-backend)
 
 (cl-defmethod xref-backend-identifier-at-point ((_backend (eql markdown)))
   "Extract full Markdown identifier at point using `markdown-identifier-at-point`."
@@ -60,7 +75,6 @@ like AS12.34.md are returned as one word."
 
 (cl-defmethod xref-backend-references ((_backend (eql markdown)) identifier)
   (markdown-find-references identifier))
-
 
 ;; jump command altered to use xref so you can go back
 (defun jump-to-assertion ()
