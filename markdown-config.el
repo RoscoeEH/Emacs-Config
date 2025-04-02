@@ -88,7 +88,7 @@ preserving cursor position."
       (replace-match (if (string= (match-string 2) "x") " " "x") t t nil 2))))
 
 
-(define-key evil-normal-state-map (kbd "z x") 'toggle-markdown-check)
+(define-key evil-normal-state-map (kbd "z m") 'toggle-markdown-check)
 
 
 ;;; markdown-config.el ends here

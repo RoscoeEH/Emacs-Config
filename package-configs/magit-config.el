@@ -25,4 +25,10 @@
 (remove-hook 'magit-process-mode-hook #'direnv-update-environment))
 
 
+;; Display a merge graph in log
+(setq magit-log-arguments '("--graph" "--oneline" "--decorate" "--color"))
+(custom-set-faces
+ '(magit-hash ((t (:foreground "green")))))
+
+
 ;; magit-config.el ends here
