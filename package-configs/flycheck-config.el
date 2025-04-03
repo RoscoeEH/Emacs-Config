@@ -1,4 +1,4 @@
-;; flycheck-config.el starts here
+;;; flycheck-config.el starts here
 
 (use-package flycheck
   :ensure t
@@ -23,4 +23,5 @@
 (add-hook 'prog-mode-hook #'flycheck-mode)
 
 
-;; flycheck-config.el ends here
+;;; flycheck-config.el ends here
+

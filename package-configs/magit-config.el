@@ -19,6 +19,12 @@
 (setq magit-credential 'osxkeychain)
 (setenv "SSH_AUTH_SOCK" (getenv "SSH_AUTH_SOCK"))
 
+(with-eval-after-load 'magit
+  (define-key magit-mode-map (kbd "M-p") 'magit-section-backward-sibling)
+  (define-key magit-mode-map (kbd "M-n") 'magit-section-forward-sibling)
+  (define-key magit-mode-map (kbd "^")   'magit-section-up))
+
+
 ;; Prevent Magit from inheriting direnv environment
 (with-eval-after-load 'magit
 (remove-hook 'magit-status-mode-hook #'direnv-update-environment)
