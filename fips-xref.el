@@ -49,11 +49,21 @@ ROOT should be the absolute path to the reportvault directory."
                 (split-string grep-results "\n" t))))))
 
 (defun markdown-identifier-at-point ()
-  "Return the Markdown identifier under point.
-Temporarily treat dots as word constituents so that identifiers like AS12.34.md are returned as one word."
+  "Return the Markdown identifier under point."
   (with-syntax-table (copy-syntax-table (syntax-table))
     (modify-syntax-entry ?. "w")
-    (thing-at-point 'word t)))
+    (let ((word (thing-at-point 'word t)))
+      (when word
+        (cond
+         ;; If the word ends with ".md." remove the extra period.
+         ((string-match "\\(\\.md\\)\\.$" word)
+          (replace-regexp-in-string "\\(\\.md\\)\\.$" "\\1" word))
+         ;; If it ends with a period and doesn't end with .md, remove the trailing period.
+         ((and (string-suffix-p "." word)
+               (not (string-suffix-p ".md" word)))
+          (substring word 0 -1))
+         (t word))))))
+
 
 ;;; Register custom xref backend for Markdown
 (defun markdown-xref-backend ()
