@@ -21,14 +21,13 @@
   ;; Make sure the repository is loaded when Emacs starts
   (bm-repository-load)
 
-  ;; Bind C-c b to set a bookmark
-  (global-set-key (kbd "C-c b") 'bm-toggle)
+  (global-set-key (kbd "C-c b t") 'bm-toggle)
 
-  ;; Bind C-c m to go to the next bookmark
   (global-set-key (kbd "C-c .") 'bm-next)
 
-  ;; Bind C-c n to go to the previous bookmark
-  (global-set-key (kbd "C-c ,") 'bm-previous))
+  (global-set-key (kbd "C-c ,") 'bm-previous)
+  (global-set-key (kbd "C-c b r") 'bm-bookmark-regexp)
+  (global-set-key (kbd "C-c b d") 'bm-remove-all-current-buffer))
 
 
 

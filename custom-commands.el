@@ -327,15 +327,6 @@
 (global-set-key (kbd "M-<up>") 'scroll-down-line)
 (global-set-key (kbd "M-<down>") 'scroll-up-line)
 
-(defun open-init-file ()
-    "Open the Emacs init file."
-    (interactive)
-    (find-file (concat CONFIG_PATH "init.el")))
-
-
-(global-set-key (kbd "C-c I") 'open-init-file)
-
-
 ;; Tabbing sections in visual mode
 (define-key evil-visual-state-map (kbd "TAB") 'maintain/evil-shift-right-visual)
 (define-key evil-visual-state-map (kbd "<backtab>") 'maintain/evil-shift-left-visual)
