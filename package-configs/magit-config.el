@@ -25,6 +25,13 @@
 (remove-hook 'magit-process-mode-hook #'direnv-update-environment))
 
 
+(with-eval-after-load 'magit
+  (define-key magit-mode-map (kbd "M-p") 'magit-section-backward-sibling)
+  (define-key magit-mode-map (kbd "M-n") 'magit-section-forward-sibling)
+  (define-key magit-mode-map (kbd "^")   'magit-section-up))
+
+
+
 ;; Display a merge graph in log
 (setq magit-log-arguments '("--graph" "--oneline" "--decorate" "--color"))
 (custom-set-faces
