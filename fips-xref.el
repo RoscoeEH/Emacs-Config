@@ -1,5 +1,14 @@
 ;;; fips-xref.el starts here
 
+;; READ IF USING THIS!!!
+;; The will set up xref to bring you to the requirement under your cursor that is in the relevant reportvault.
+;; In order for it to distinguish the relevant reportvault you need to create a dot file in a directory
+;; where every file contained in this directory or its sub-directories should map to the same reportvault.
+;; This file should be called ".xref-path.md" and should contain the text "reportvault : <absolute/path/to/reportvault>".
+;; It works by searching up for this directory and then using the path to locate the file. Let me know if you find any issues.
+;; I have two other versions that search for the closest reportvault so that no setup is necessary, however they are much slower.
+;; If you would like them I can send them but I do warn they are MUCH slower and I believe the trade-off of setup is worth it in this case.
+
 (require 'xref)
 
 ;;; Find the reportvault directory using .xref-path.md
