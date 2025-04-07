@@ -29,6 +29,8 @@
  ;; If there is more than one, they won't work right.
  )
 
+;; Font
+(set-frame-font "Fira Code-10" nil t)
 
 
 (load-theme 'modus-vivendi)
