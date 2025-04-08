@@ -101,4 +101,17 @@
             (visual-line-mode 1)
             (setq word-wrap t)))
 
+
+;; compilation buffer printing
+(require 'ansi-color)
+
+(defun my-ansi-colorize-compilation-buffer ()
+  "Colorize ANSI sequences in compilation buffer."
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region compilation-filter-start (point))))
+
+(add-hook 'compilation-filter-hook #'my-ansi-colorize-compilation-buffer)
+(setq ansi-color-for-comint-mode t) ; Enables support for 256-color ANSI
+
+
 ;;; setup.el ends here

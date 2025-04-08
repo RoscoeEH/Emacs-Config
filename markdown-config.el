@@ -1,8 +1,9 @@
 ;;; markdown-config.el starts here
 
-;; markdown list quality changes
 (use-package markdown-mode
-  :ensure t)
+  :ensure t
+  :mode ("\\.md\\'" . markdown-mode))
+
 
 (defun markdown-list-dwim ()
   "Continue a Markdown list item or checklist based on the current line,
