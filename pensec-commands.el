@@ -13,10 +13,10 @@ prompt the user for a new value with shortcuts, and replace the existing value."
   (save-excursion
     (goto-char (point-min))
     (when (re-search-forward "^test-status: " nil t)
-      (let* ((status-options '(("p" . "passed")
-                               ("o" . "open")
-                               ("n" . "not applicable")
-                               ("w" . "waiting")))
+      (let* ((status-options '(("passed" . "passed")
+                               ("open" . "open")
+                               ("na" . "not applicable")
+                               ("waiting" . "waiting")))
              (input (completing-read "Enter new test status (p=passed, o=open, n=not applicable, w=waiting): "
                                      (mapcar #'car status-options) nil nil))
              (new-status (or (cdr (assoc input status-options)) input)))
@@ -28,9 +28,11 @@ prompt the user for a new value with shortcuts, and replace the existing value."
 
 ;; grep buffer for test status
 (defun search-te-md-files-for-tag (directory tag)
-  "Searches for a specific TAG in markdown files that start with 'TE' in DIRECTORY using ripgrep."
+  "Search for TAG in markdown files beginning with 'TE' under DIRECTORY, with results sorted by filename."
   (interactive "DDirectory: \nsTag to search for: ")
-  (let ((command (format "rg -i -e 'test-status:\\s*%s' --glob 'TE*.md' \"%s\"" tag directory)))
+  (let ((command
+         (format "rg --sort-files -i -e \"test-status:\\s*%s\" --glob \"TE*.md\" \"%s\""
+                 tag directory)))
     (grep command)))
 
 (global-set-key (kbd "M-g f") 'search-te-md-files-for-tag)
