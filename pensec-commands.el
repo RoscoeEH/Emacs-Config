@@ -30,7 +30,7 @@ prompt the user for a new value with shortcuts, and replace the existing value."
 (defun search-te-md-files-for-tag (directory tag)
   "Searches for a specific TAG in markdown files that start with 'TE' in DIRECTORY using ripgrep."
   (interactive "DDirectory: \nsTag to search for: ")
-  (let ((command (format "rg -i -e 'test-status:\\s*%s' --glob 'TE*.md' %s" tag directory)))
+  (let ((command (format "rg -i -e 'test-status:\\s*%s' --glob 'TE*.md' \"%s\"" tag directory)))
     (grep command)))
 
 (global-set-key (kbd "M-g f") 'search-te-md-files-for-tag)
