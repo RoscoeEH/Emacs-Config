@@ -5,6 +5,7 @@
 (defconst ELPA_PATH (concat EMACS_PATH "elpa") "Path to the elpa directory.")
 (defconst CONFIG_PATH "~/.config/emacs/" "Path to config directory.")
 (defconst PACKAGES_PATH (concat CONFIG_PATH "package-configs/"))
+(defconst FILE_TYPE_PATH (concat CONFIG_PATH "file-type-configs/"))
 
 
 ;; Load system setup
