@@ -1,4 +1,7 @@
+
 ;;; custom-commands.el starts here
+
+(key-chord-define-global "sd" 'save-buffer)
 
 ;; neighboring files
 (defun next-neighbor-file ()

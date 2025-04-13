@@ -8,7 +8,6 @@
 
 (load (concat PACKAGES_PATH "magit-config.el"))
 
-;; clean up evil functions
 (load (concat PACKAGES_PATH "evil-config.el"))
 
 (load (concat PACKAGES_PATH "ace-window-config.el"))
