@@ -60,7 +60,7 @@ ROOT should be the absolute path to the reportvault directory."
           (goto-char (point-min))
           (if (and following
                    (re-search-forward
-                    (concat "^##+\\s-+" (regexp-quote following) "\\(\\s-.*\\)?$")
+                    (concat "^#+\\s-+" (regexp-quote following) "\\(\\s-.*\\)?$")
                     nil t))
               (setq xref-loc
                     (list (xref-make (format "%s %s" key following)
