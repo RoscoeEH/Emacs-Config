@@ -9,10 +9,7 @@
 ;; I have two other versions that search for the closest reportvault so that no setup is necessary, however they are much slower.
 ;; If you would like them I can send them but I do warn they are MUCH slower and I believe the trade-off of setup is worth it in this case.
 
-
-;; Replace this path with the path to your IG.md file
-(defconst IG_MD_FILE "c:/Users/Roscoe/Documents/FIPS markdown standards/fips-ig.md")
-;; Be sure your file has all the headers marked correctly, I have an updated version with this in my public folder
+(load (concat CONFIG_PATH "xref-standard-paths.el"))
 
 (require 'xref)
 
@@ -43,34 +40,40 @@ ROOT should be the absolute path to the reportvault directory."
                                       (concat "\\b" (regexp-quote identifier) "\\.md\\b")))))
 
 (defun markdown-find-definitions (identifier)
-  "Find the Markdown report matching IDENTIFIER, or handle IG case."
-  (if (eq identifier 'xref-ig-special)
-      ;; --- IG handling ---
-      (let* ((raw "IG")
-             (pattern (concat "\\_<" (regexp-quote raw) "\\_>[ \t]+\\([A-Za-z0-9.]+\\)"))
-             (following nil))
+  "Find the Markdown report matching IDENTIFIER, or handle special cases."
+  (if (and (consp identifier)
+           (eq (car identifier) 'xref-special))
+      ;; --- Special handling ---
+      (let* ((key (cdr identifier))
+             (file (alist-get key md-standard-location-map nil nil #'string-equal))
+             (pattern (concat "\\_<" (regexp-quote key) "\\_>[ \t]+\\([A-Za-z0-9.]+\\)"))
+             following xref-loc)
+        ;; grab the token after the key
         (save-excursion
           (beginning-of-line)
           (when (re-search-forward pattern (line-end-position) t)
             (setq following (match-string 1))))
-        (if following
-            (let* ((target-file IG_MD_FILE)
-                   (xref-loc nil))
-              (if (file-exists-p target-file)
-                  (with-temp-buffer
-                    (insert-file-contents target-file)
-                    (goto-char (point-min))
-                    (if (re-search-forward (concat "^###[ \t]+" (regexp-quote following)) nil t)
-                        (let ((line (line-number-at-pos)))
-                          (setq xref-loc
-                                (list (xref-make (format "Section IG %s" following)
-                                                 (xref-make-file-location target-file line 0)))))
-                      (message "Section ### %s not found" following)))
-                (message "File not found: %s" target-file))
-              xref-loc)
-          (message "No token found after IG")
-          nil))
-    ;; --- Regular case ---
+        (when (not (file-exists-p file))
+          (user-error "Special file for %s not found: %s" key file))
+        (with-temp-buffer
+          (insert-file-contents file)
+          (goto-char (point-min))
+          (if (and following
+                   (re-search-forward
+                    (concat "^##+\\s-+" (regexp-quote following) "\\(\\s-.*\\)?$")
+                    nil t))
+              (setq xref-loc
+                    (list (xref-make (format "%s %s" key following)
+                                     (xref-make-file-location file
+                                                              (line-number-at-pos)
+                                                              0))))
+            ;; fallback to top of file
+            (setq xref-loc
+                  (list (xref-make (format "%s top" key)
+                                   (xref-make-file-location file 1 0))))))
+        xref-loc)
+
+    ;; --- Regular lookup path ---
     (let ((root (find-reportvault-root)))
       (when root
         (let ((match-file (markdown-find-matching-file root identifier)))
@@ -94,27 +97,22 @@ ROOT should be the absolute path to the reportvault directory."
 
 (defun markdown-identifier-at-point ()
   "Return the Markdown identifier under point.
-Treat dots as word constituents so that identifiers like AS12.34.md are returned as one word.
-Handle case for IG."
+If it’s one of the special keys, return a cons `(xref-special . KEY)`."
   (with-syntax-table (copy-syntax-table (syntax-table))
-    ;; Make `.` part of words
     (modify-syntax-entry ?. "w")
     (let ((bounds (bounds-of-thing-at-point 'word)))
       (when bounds
         (let ((word (buffer-substring-no-properties (car bounds) (cdr bounds))))
           (cond
-           ;; Case for "IG"
-           ((string-equal word "IG") 'xref-ig-special)
-
-           ;; If the word ends with ".md." remove the extra period.
+           ;; Special keywords
+           ((assoc word md-standard-location-map)
+            `(xref-special . ,word))
+           ;; strip trailing .md. or trailing dot (as before)...
            ((string-match "\\(\\.md\\)\\.$" word)
             (replace-regexp-in-string "\\(\\.md\\)\\.$" "\\1" word))
-
-           ;; If it ends with a period and doesn't end with .md, remove the trailing period.
            ((and (string-suffix-p "." word)
                  (not (string-suffix-p ".md" word)))
             (substring word 0 -1))
-
            (t word)))))))
 
 
@@ -126,7 +124,7 @@ Handle case for IG."
 (add-hook 'xref-backend-functions #'markdown-xref-backend)
 
 (cl-defmethod xref-backend-identifier-at-point ((_backend (eql markdown)))
-  "Extract full Markdown identifier at point using `markdown-identifier-at-point`."
+  "Extract full Markdown identifier at point using markdown-identifier-at-point."
   (markdown-identifier-at-point))
 
 (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql markdown)))
@@ -137,7 +135,7 @@ Handle case for IG."
   (markdown-find-definitions identifier))
 
 (cl-defmethod xref-backend-references ((_backend (eql markdown)) identifier)
-  (markdown-find-references identifier))
+  (markdown-find-references identifier)) 
 
 ;; jump command altered to use xref so you can go back
 (defun jump-to-assertion ()
