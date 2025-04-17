@@ -37,6 +37,25 @@ prompt the user for a new value with shortcuts, and replace the existing value."
 
 (global-set-key (kbd "M-g f") 'search-te-md-files-for-tag)
 
+;; Open a new notes file
+(defun create-note-file (name)
+  "Prompt for a note NAME (defaults to 'notes' if empty), create a markdown file with NAME, date, and time in the path C:/Users/Roscoe/Documents/Notes."
+  (interactive
+   (list (let ((input (read-string "Note name (default: 'notes'): ")))
+           (if (string-empty-p input) "notes" input))))
+  (let* ((base-dir "C:/Users/Roscoe/Documents/Notes/")
+         (timestamp (format-time-string "%Y-%m-%d_%H-%M-%S"))
+         (filename (format "%s-%s.md" name timestamp))
+         (full-path (expand-file-name filename base-dir)))
+    ;; Ensure directory exists
+    (unless (file-directory-p base-dir)
+      (make-directory base-dir t))
+    ;; Create and open the file
+    (find-file full-path)
+    ;; Insert a title in Markdown format
+    (insert (format "# %s (%s)\n\n" name (format-time-string "%Y-%m-%d %H:%M")))))
+
+(global-set-key (kbd "C-c n") 'create-note-file)
 
 
 
