@@ -46,27 +46,23 @@ ROOT should be the absolute path to the reportvault directory."
       ;; --- Special handling ---
       (let* ((key (cdr identifier))
              (file (alist-get key md-standard-location-map nil nil #'string-equal))
-             (pattern (concat "\\_<" (regexp-quote key) "\\_>[ \t]+\\([A-Za-z0-9.]+\\)"))
+             ;; match "KEY <optional Section> <token>"
+             (pattern (concat "\\_<" (regexp-quote key) "\\_>[ \t]+"
+                              "\\(?:[Ss]ection[ \t]+\\)?"
+                              "\\([A-Za-z0-9.]+\\)"))
              following xref-loc)
         ;; grab the token after the key
         (save-excursion
           (beginning-of-line)
           (when (re-search-forward pattern (line-end-position) t)
-            ;; grab the token after the key, skipping "Section" if present
-            (save-excursion
-              (beginning-of-line)
-              (when (re-search-forward
-                     (concat "\\_<" (regexp-quote key) "\\_>[ \t]+"
-                             "\\(?:[Ss]ection[ \t]+\\)?"
-                             "\\([A-Za-z0-9.]+\\)") ;; capture the next meaningful word
-                     (line-end-position) t)
-                (setq following (replace-regexp-in-string "[[:punct:]]\\'" "" (match-string 1)))
-                (message "Trimmed and captured heading after key: %s" following)))
-
-            (message "Trimmed and captured following heading: %s" following)
-          ))
-        (when (not (file-exists-p file))
-          (user-error "Special file for %s not found: %s" key file))
+            (setq following
+                  (replace-regexp-in-string "[[:punct:]]+\\'" "" ; trim trailing punctuation
+                                            (match-string 1)))
+            (message "Captured section: %s" following)))
+        ;; ensure file exists
+        (unless (file-exists-p file)
+          (user-error "No reference file for %s: %s" key file))
+        ;; search inside the file
         (with-temp-buffer
           (insert-file-contents file)
           (goto-char (point-min))
@@ -79,7 +75,7 @@ ROOT should be the absolute path to the reportvault directory."
                                      (xref-make-file-location file
                                                               (line-number-at-pos)
                                                               0))))
-            ;; fallback to top of file
+            ;; fallback to top
             (setq xref-loc
                   (list (xref-make (format "%s top" key)
                                    (xref-make-file-location file 1 0))))))
@@ -107,28 +103,78 @@ ROOT should be the absolute path to the reportvault directory."
                              (xref-make-file-location file 1 0)))
                 (split-string grep-results "\n" t))))))
 
+(defun markdown--trim-trailing-punct (s)
+  "Remove any trailing punctuation from string S."
+  (when s
+    (replace-regexp-in-string "[[:punct:]]+$" "" s)))
+
 (defun markdown-identifier-at-point ()
   "Return the Markdown identifier under point.
-If it’s one of the special keys, return a cons `(xref-special . KEY)`."
+If it’s a special key or composite key (like \"FIPS 205\"), return
+`(xref-special . KEY)`.  Otherwise return the raw or cleaned word."
   (with-syntax-table (copy-syntax-table (syntax-table))
-    ;; Make `:`, `/`, and `-` part of words by modifying their syntax
-    (modify-syntax-entry ?: "w")  ;; Treat colon as part of words
-    (modify-syntax-entry ?/ "w")  ;; Treat slash as part of words
-    (modify-syntax-entry ?- "w")  ;; Treat hyphen as part of words
-    (let ((bounds (bounds-of-thing-at-point 'word)))
-      (when bounds
-        (let ((word (buffer-substring-no-properties (car bounds) (cdr bounds))))
+    ;; Make . : / - part of words
+    (modify-syntax-entry ?\. "w")
+    (modify-syntax-entry ?: "w")
+    (modify-syntax-entry ?/ "w")
+    (modify-syntax-entry ?- "w")
+    (let* ((bounds (bounds-of-thing-at-point 'word))
+           (raw-word (and bounds
+                          (buffer-substring-no-properties
+                           (car bounds) (cdr bounds))))
+           (word (markdown--trim-trailing-punct raw-word))
+           (result nil)
+           composite)
+      (when word
+        ;; Case A: digits under point → look backward for letters
+        (when (string-match-p "^[0-9]+$" word)
+          (save-excursion
+            (goto-char (car bounds))
+            (skip-chars-backward " \t")
+            (let ((pb (bounds-of-thing-at-point 'word)))
+              (when pb
+                (setq composite
+                      (markdown--trim-trailing-punct
+                       (concat
+                        (buffer-substring-no-properties (car pb) (cdr pb))
+                        " " word)))))))
+        (when (and composite (assoc composite md-standard-location-map))
+          (setq result `(xref-special . ,composite)))
+
+        ;; Case B: letters under point → look forward for digits
+        (unless result
+          (when (string-match-p "^[A-Za-z]+$" word)
+            (save-excursion
+              (goto-char (cdr bounds))
+              (skip-chars-forward " \t")
+              (let ((nb (bounds-of-thing-at-point 'word)))
+                (when nb
+                  (setq composite
+                        (markdown--trim-trailing-punct
+                         (concat word " "
+                                 (buffer-substring-no-properties
+                                  (car nb) (cdr nb)))))))))
+          (when (and composite (assoc composite md-standard-location-map))
+            (setq result `(xref-special . ,composite))))
+
+        ;; Case C: single‐word key
+        (unless result
+          (setq word (markdown--trim-trailing-punct word))
+          (when (assoc word md-standard-location-map)
+            (setq result `(xref-special . ,word))))
+
+        ;; Case D: strip .md. or trailing dot if still no result
+        (unless result
           (cond
-           ;; Special keywords
-           ((assoc word md-standard-location-map)
-            `(xref-special . ,word))
-           ;; Strip trailing .md or trailing dot (as before)...
            ((string-match "\\(\\.md\\)\\.$" word)
-            (replace-regexp-in-string "\\(\\.md\\)\\.$" "\\1" word))
+            (setq result (replace-regexp-in-string "\\(\\.md\\)\\.$" "\\1" word)))
            ((and (string-suffix-p "." word)
                  (not (string-suffix-p ".md" word)))
-            (substring word 0 -1))
-           (t word)))))))
+            (setq result (substring word 0 -1)))
+           (t
+            (setq result word)))))
+
+      result)))
 
 
 ;;; Register custom xref backend for Markdown
