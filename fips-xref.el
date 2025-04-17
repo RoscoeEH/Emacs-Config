@@ -52,7 +52,17 @@ ROOT should be the absolute path to the reportvault directory."
         (save-excursion
           (beginning-of-line)
           (when (re-search-forward pattern (line-end-position) t)
-            (setq following (replace-regexp-in-string "[[:punct:]]\\'" "" (match-string 1)))
+            ;; grab the token after the key, skipping "Section" if present
+            (save-excursion
+              (beginning-of-line)
+              (when (re-search-forward
+                     (concat "\\_<" (regexp-quote key) "\\_>[ \t]+"
+                             "\\(?:[Ss]ection[ \t]+\\)?"
+                             "\\([A-Za-z0-9.]+\\)") ;; capture the next meaningful word
+                     (line-end-position) t)
+                (setq following (replace-regexp-in-string "[[:punct:]]\\'" "" (match-string 1)))
+                (message "Trimmed and captured heading after key: %s" following)))
+
             (message "Trimmed and captured following heading: %s" following)
           ))
         (when (not (file-exists-p file))
