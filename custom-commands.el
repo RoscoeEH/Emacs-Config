@@ -1,4 +1,3 @@
-
 ;;; custom-commands.el starts here
 
 (key-chord-define-global "sd" 'save-buffer)
@@ -351,22 +350,18 @@
     "Set `compile-command` dynamically based on the major mode."
     (interactive)
     (let* ((file-path (buffer-file-name))
-            (mina-path "~/Documents/Projects/mina/")
-            (in-mina-project (and file-path
-                                    (string-prefix-p (expand-file-name mina-path)
-                                                    (expand-file-name file-path))))
-            (cmd (cond
-                    (in-mina-project
-                    "dune build src/app/cli/src/mina.exe")
-                    ((and (eq major-mode 'python-mode) file-path)
-                    (format "python3 %s" (file-name-nondirectory file-path)))
-                    ((eq major-mode 'rust-mode)
-                    "cargo build")
-                    ((eq major-mode 'tuareg-mode)
-                    "dune build")
-                    (t "make"))))
+           (cmd (cond
+                ((and (eq major-mode 'python-mode) file-path)
+                 (format "python3 %s" (file-name-nondirectory file-path)))
+                ((eq major-mode 'rust-mode)
+                 "cargo build")
+                ((eq major-mode 'tuareg-mode)
+                 "dune build")
+                ((or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
+                 "make")
+                (t "make"))))
         (when cmd
-        (setq-local compile-command cmd))))
+          (setq-local compile-command cmd))))
 
 
 (add-hook 'python-mode-hook #'improved-compile-command)
@@ -392,13 +387,13 @@
 (define-prefix-command 'compile-prefix-map)
 (global-set-key (kbd "M-c") 'compile-prefix-map)
 
+
 ;; new commands for compile and recompile
 (global-set-key (kbd "M-c c") 'compile)
 (global-set-key (kbd "M-c m") 'recompile)
 
-
-(global-set-key (kbd "M-c n") 'next-error)
-(global-set-key (kbd "M-c b") 'previous-error)
+(global-set-key (kbd "M-c ;") 'next-error-no-select)
+(global-set-key (kbd "M-c .") 'previous-error-no-select)
 
 ;; xref find def
 (define-key evil-normal-state-map (kbd "M-.") 'xref-find-definitions)
