@@ -52,7 +52,9 @@ ROOT should be the absolute path to the reportvault directory."
         (save-excursion
           (beginning-of-line)
           (when (re-search-forward pattern (line-end-position) t)
-            (setq following (match-string 1))))
+            (setq following (replace-regexp-in-string "[[:punct:]]\\'" "" (match-string 1)))
+            (message "Trimmed and captured following heading: %s" following)
+          ))
         (when (not (file-exists-p file))
           (user-error "Special file for %s not found: %s" key file))
         (with-temp-buffer
@@ -99,7 +101,10 @@ ROOT should be the absolute path to the reportvault directory."
   "Return the Markdown identifier under point.
 If it’s one of the special keys, return a cons `(xref-special . KEY)`."
   (with-syntax-table (copy-syntax-table (syntax-table))
-    (modify-syntax-entry ?. "w")
+    ;; Make `:`, `/`, and `-` part of words by modifying their syntax
+    (modify-syntax-entry ?: "w")  ;; Treat colon as part of words
+    (modify-syntax-entry ?/ "w")  ;; Treat slash as part of words
+    (modify-syntax-entry ?- "w")  ;; Treat hyphen as part of words
     (let ((bounds (bounds-of-thing-at-point 'word)))
       (when bounds
         (let ((word (buffer-substring-no-properties (car bounds) (cdr bounds))))
@@ -107,7 +112,7 @@ If it’s one of the special keys, return a cons `(xref-special . KEY)`."
            ;; Special keywords
            ((assoc word md-standard-location-map)
             `(xref-special . ,word))
-           ;; strip trailing .md. or trailing dot (as before)...
+           ;; Strip trailing .md or trailing dot (as before)...
            ((string-match "\\(\\.md\\)\\.$" word)
             (replace-regexp-in-string "\\(\\.md\\)\\.$" "\\1" word))
            ((and (string-suffix-p "." word)
