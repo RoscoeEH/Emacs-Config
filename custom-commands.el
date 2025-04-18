@@ -354,7 +354,9 @@
                 ((and (eq major-mode 'python-mode) file-path)
                  (format "python3 %s" (file-name-nondirectory file-path)))
                 ((eq major-mode 'rust-mode)
-                 "cargo build")
+                 ;; For Rust, cd to project root first
+                 (format "cd %s && cargo build"
+                         (locate-dominating-file default-directory "Cargo.toml")))
                 ((eq major-mode 'tuareg-mode)
                  "dune build")
                 ((or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
