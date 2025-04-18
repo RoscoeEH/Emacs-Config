@@ -76,13 +76,13 @@
 (global-set-key (kbd "M-g g")
   (lambda ()
     (interactive)
-    (grep (concat (read-from-minibuffer "Run rg: " "rg ") " \"" default-directory "\""))))
+    (grep (concat (read-from-minibuffer "Run rg: " "rg -nH") " \"" default-directory "\""))))
 
 (global-set-key (kbd "M-g d")
   (lambda ()
     (interactive)
     (let ((dir (read-directory-name "Search in directory: ")))
-      (grep (concat "rg " (read-from-minibuffer "Enter rg command: ") " \"" dir "\"")))))
+      (grep (concat "rg -nH " (read-from-minibuffer "Enter rg command: ") " \"" dir "\"")))))
 
 ;; Function to wrap selected text in parentheses
 (defun wrap-with-parens ()
