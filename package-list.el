@@ -32,4 +32,6 @@
 
 (load (concat PACKAGES_PATH "consult-config.el"))
 
+(load (concat PACKAGES_PATH "org-config.el"))
+
 ;;; package-list.el ends here
