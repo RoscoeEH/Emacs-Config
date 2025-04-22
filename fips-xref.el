@@ -39,56 +39,6 @@ ROOT should be the absolute path to the reportvault directory."
     (car (directory-files-recursively search-path
                                       (concat "\\b" (regexp-quote identifier) "\\.md\\b")))))
 
-(defun markdown-find-definitions (identifier)
-  "Find the Markdown report matching IDENTIFIER, or handle special cases."
-  (if (and (consp identifier)
-           (eq (car identifier) 'xref-special))
-      ;; --- Special handling ---
-      (let* ((key (cdr identifier))
-             (file (alist-get key md-standard-location-map nil nil #'string-equal))
-             ;; match "KEY <optional Section> <token>"
-             (pattern (concat "\\_<" (regexp-quote key) "\\_>[ \t]+"
-                              "\\(?:[Ss]ection[ \t]+\\)?"
-                              "\\([A-Za-z0-9.]+\\)"))
-             following xref-loc)
-        ;; grab the token after the key
-        (save-excursion
-          (beginning-of-line)
-          (when (re-search-forward pattern (line-end-position) t)
-            (setq following
-                  (replace-regexp-in-string "[[:punct:]]+\\'" "" ; trim trailing punctuation
-                                            (match-string 1)))
-            (message "Captured section: %s" following)))
-        ;; ensure file exists
-        (unless (file-exists-p file)
-          (user-error "No reference file for %s: %s" key file))
-        ;; search inside the file
-        (with-temp-buffer
-          (insert-file-contents file)
-          (goto-char (point-min))
-          (if (and following
-                   (re-search-forward
-                    (concat "^#+\\s-+" (regexp-quote following) "\\(\\s-.*\\)?$")
-                    nil t))
-              (setq xref-loc
-                    (list (xref-make (format "%s %s" key following)
-                                     (xref-make-file-location file
-                                                              (line-number-at-pos)
-                                                              0))))
-            ;; fallback to top
-            (setq xref-loc
-                  (list (xref-make (format "%s top" key)
-                                   (xref-make-file-location file 1 0))))))
-        xref-loc)
-
-    ;; --- Regular lookup path ---
-    (let ((root (find-reportvault-root)))
-      (when root
-        (let ((match-file (markdown-find-matching-file root identifier)))
-          (when match-file
-            (list (xref-make match-file
-                             (xref-make-file-location match-file 1 0)))))))))
-
 
 
 (defun markdown-find-references (identifier)
@@ -108,74 +58,162 @@ ROOT should be the absolute path to the reportvault directory."
   (when s
     (replace-regexp-in-string "[[:punct:]]+$" "" s)))
 
+(defun markdown--word-at-point ()
+  "Return the cleaned word at point, or nil if not on a word."
+  (let ((bounds (bounds-of-thing-at-point 'word)))
+    (when bounds
+      (markdown--trim-trailing-punct
+       (buffer-substring-no-properties (car bounds) (cdr bounds))))))
+
+(defun markdown--composite-backward (word bounds)
+  "Check for composite like 'FIPS 205' by looking backward before WORD."
+  (save-excursion
+    (goto-char (car bounds))
+    (skip-chars-backward " \t")
+    (let ((pb (bounds-of-thing-at-point 'word)))
+      (when pb
+        (markdown--trim-trailing-punct
+         (concat (buffer-substring-no-properties (car pb) (cdr pb))
+                 " " word))))))
+
+(defun markdown--composite-forward (word bounds)
+  "Check for composite like 'FIPS 205' by looking forward after WORD."
+  (save-excursion
+    (goto-char (cdr bounds))
+    (skip-chars-forward " \t")
+    (let ((nb (bounds-of-thing-at-point 'word)))
+      (when nb
+        (markdown--trim-trailing-punct
+         (concat word " "
+                 (buffer-substring-no-properties (car nb) (cdr nb))))))))
+
+(defun markdown--xref-special-maybe (composite)
+  "Return `(xref-special . composite)` if composite is in standard location map."
+  (when (and composite (assoc composite md-standard-location-map))
+    `(xref-special . ,composite)))
+
+(defun markdown--xref-heading-maybe (word)
+  "Return `(xref-heading . word)` if word matches a heading in buffer."
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward
+           (concat "^#+[ \t]+" (regexp-quote word)
+                   "\\([[:punct:]]\\|\\s-\\|$\\)")
+           nil t)
+      `(xref-heading . ,word))))
+
 (defun markdown-identifier-at-point ()
-  "Return the Markdown identifier under point.
-If it’s a special key or composite key (like \"FIPS 205\"), return
-`(xref-special . KEY)`.  Otherwise return the raw or cleaned word."
+  "Return the Markdown identifier under point."
   (with-syntax-table (copy-syntax-table (syntax-table))
-    ;; Make . : / - part of words
     (modify-syntax-entry ?\. "w")
     (modify-syntax-entry ?: "w")
     (modify-syntax-entry ?/ "w")
     (modify-syntax-entry ?- "w")
     (let* ((bounds (bounds-of-thing-at-point 'word))
-           (raw-word (and bounds
-                          (buffer-substring-no-properties
-                           (car bounds) (cdr bounds))))
-           (word (markdown--trim-trailing-punct raw-word))
-           (result nil)
-           composite)
+           (word (markdown--word-at-point))
+           result composite)
       (when word
-        ;; Case A: digits under point → look backward for letters
-        (when (string-match-p "^[0-9]+$" word)
-          (save-excursion
-            (goto-char (car bounds))
-            (skip-chars-backward " \t")
-            (let ((pb (bounds-of-thing-at-point 'word)))
-              (when pb
-                (setq composite
-                      (markdown--trim-trailing-punct
-                       (concat
-                        (buffer-substring-no-properties (car pb) (cdr pb))
-                        " " word)))))))
-        (when (and composite (assoc composite md-standard-location-map))
-          (setq result `(xref-special . ,composite)))
+        ;; A) Digits → look backward for letters
+        (when (and (string-match-p "^[0-9]+$" word) bounds)
+          (setq composite (markdown--composite-backward word bounds))
+          (setq result (markdown--xref-special-maybe composite)))
 
-        ;; Case B: letters under point → look forward for digits
+        ;; B) Letters → look forward for digits
+        (when (and (not result)
+                   (string-match-p "^[A-Za-z]+$" word)
+                   bounds)
+          (setq composite (markdown--composite-forward word bounds))
+          (setq result (markdown--xref-special-maybe composite)))
+
+        ;; C) Single-word key
+        (when (and (not result)
+                   (assoc word md-standard-location-map))
+          (setq result `(xref-special . ,word)))
+
+        ;; D) Heading
+        (when (not result)
+          (setq result (markdown--xref-heading-maybe word)))
+
+        ;; E) Fallback
         (unless result
-          (when (string-match-p "^[A-Za-z]+$" word)
-            (save-excursion
-              (goto-char (cdr bounds))
-              (skip-chars-forward " \t")
-              (let ((nb (bounds-of-thing-at-point 'word)))
-                (when nb
-                  (setq composite
-                        (markdown--trim-trailing-punct
-                         (concat word " "
-                                 (buffer-substring-no-properties
-                                  (car nb) (cdr nb)))))))))
-          (when (and composite (assoc composite md-standard-location-map))
-            (setq result `(xref-special . ,composite))))
-
-        ;; Case C: single‐word key
-        (unless result
-          (setq word (markdown--trim-trailing-punct word))
-          (when (assoc word md-standard-location-map)
-            (setq result `(xref-special . ,word))))
-
-        ;; Case D: strip .md. or trailing dot if still no result
-        (unless result
-          (cond
-           ((string-match "\\(\\.md\\)\\.$" word)
-            (setq result (replace-regexp-in-string "\\(\\.md\\)\\.$" "\\1" word)))
-           ((and (string-suffix-p "." word)
-                 (not (string-suffix-p ".md" word)))
-            (setq result (substring word 0 -1)))
-           (t
-            (setq result word)))))
-
+          (setq result word)))
       result)))
 
+
+
+(defun markdown--xref-special-definition (key)
+  "Return an xref location for a special external file match using KEY."
+  (let* ((file    (alist-get key md-standard-location-map nil nil #'string-equal))
+         (pattern (concat "\\_<" (regexp-quote key) "\\_>[ \t]+"
+                          "\\(?:[Ss]ection[ \t]+\\)?"
+                          "\\([A-Za-z0-9.]+\\)"))
+         following xref-loc)
+    (unless (file-exists-p file)
+      (user-error "No reference file for %s: %s" key file))
+
+    ;; Try to extract a section name from the current line
+    (save-excursion
+      (beginning-of-line)
+      (when (re-search-forward pattern (line-end-position) t)
+        (setq following
+              (replace-regexp-in-string "[[:punct:]]+$" "" (match-string 1)))
+        (message "Captured section: %s" following)))
+
+    ;; Open the file and locate the heading if possible
+    (with-temp-buffer
+      (insert-file-contents file)
+      (goto-char (point-min))
+      (if (and following
+               (re-search-forward
+                (concat "^#+[ \t]+"
+                        (regexp-quote following)
+                        "\\(\\s-.*\\)?$")
+                nil t))
+          (setq xref-loc
+                (list (xref-make (format "%s %s" key following)
+                                 (xref-make-file-location file (line-number-at-pos) 0))))
+        (setq xref-loc
+              (list (xref-make (format "%s top" key)
+                               (xref-make-file-location file 1 0))))))
+    xref-loc))
+
+(defun markdown--xref-heading-definition (heading)
+  "Return an xref location for HEADING in the current buffer."
+  (save-excursion
+    (goto-char (point-min))
+    (if (re-search-forward
+         (concat "^#+[ \t]+"
+                 (regexp-quote heading)
+                 "\\(\\s-.*\\)?$")
+         nil t)
+        (let ((line (line-number-at-pos))
+              (file (or (buffer-file-name) (buffer-name))))
+          (list (xref-make heading
+                           (xref-make-file-location file line 0))))
+      (user-error "No heading found: %s" heading))))
+
+(defun markdown--xref-vault-definition (identifier)
+  "Return an xref location by searching the reportvault for IDENTIFIER."
+  (let ((root (find-reportvault-root)))
+    (when root
+      (let ((match-file (markdown-find-matching-file root identifier)))
+        (when match-file
+          (list (xref-make identifier
+                           (xref-make-file-location match-file 1 0))))))))
+
+(defun markdown-find-definitions (identifier)
+  "Find the Markdown report matching IDENTIFIER, or handle special cases."
+  (cond
+   ((and (consp identifier)
+         (eq (car identifier) 'xref-special))
+    (markdown--xref-special-definition (cdr identifier)))
+
+   ((and (consp identifier)
+         (eq (car identifier) 'xref-heading))
+    (markdown--xref-heading-definition (cdr identifier)))
+
+   ((stringp identifier)
+    (markdown--xref-vault-definition identifier))))
 
 ;;; Register custom xref backend for Markdown
 (defun markdown-xref-backend ()

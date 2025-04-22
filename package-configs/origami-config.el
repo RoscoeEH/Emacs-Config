@@ -13,8 +13,8 @@
         (emacs-lisp-mode . origami-lisp-parser)))
 
 (evil-define-key 'normal origami-mode-map
-    (kbd "z a") 'origami-toggle-node
-    (kbd "z A") 'origami-recursively-toggle-node
+    (kbd "z f") 'origami-toggle-node
+    (kbd "z F") 'origami-recursively-toggle-node
     (kbd "z o") 'origami-open-all-nodes
     (kbd "z c") 'origami-close-all-nodes))
 

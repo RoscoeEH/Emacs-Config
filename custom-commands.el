@@ -254,11 +254,11 @@
   (other-window 1))
 
 
-(global-set-key (kbd "C-c s") 'split-window-horizontal-dwim)
-(global-set-key (kbd "C-c d") 'split-window-vertical-dwim) 
-(global-set-key (kbd "C-c f") 'delete-window)
-(global-set-key (kbd "C-c a") 'delete-other-windows)
-(global-set-key (kbd "C-c o") 'balance-windows)
+(global-set-key (kbd "C-x s") 'split-window-horizontal-dwim)
+(global-set-key (kbd "C-x d") 'split-window-vertical-dwim) 
+(global-set-key (kbd "C-x f") 'delete-window)
+(global-set-key (kbd "C-x a") 'delete-other-windows)
+(global-set-key (kbd "C-x o") 'balance-windows)
 (global-set-key (kbd "M-o") 'other-window)
 
 ;; Case change commands
@@ -409,7 +409,6 @@
 (global-set-key (kbd "M-b j") 'bookmark-jump)
 (global-set-key (kbd "M-b l") 'bookmark-bmenu-list)
 (global-set-key (kbd "M-b d") 'bookmark-delete)
-
 
 
 ;;; custum-commands.el ends here
