@@ -31,7 +31,7 @@ prompt the user for a new value with shortcuts, and replace the existing value."
   "Search for TAG in markdown files beginning with 'TE' under DIRECTORY, with results sorted by filename."
   (interactive "DDirectory: \nsTag to search for: ")
   (let ((command
-         (format "rg --sort-files -i -e \"test-status:\\s*%s\" --glob \"TE*.md\" \"%s\""
+         (format "rg -nH --sort-files -i -e \"test-status:\\s*%s\" --glob \"TE*.md\" \"%s\""
                  tag directory)))
     (grep command)))
 

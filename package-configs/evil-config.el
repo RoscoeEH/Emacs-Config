@@ -16,20 +16,26 @@
   :config
   (evil-collection-init))  ;; Initialize evil-collection after evil is loaded
 
+(defun insert-line-below ()
+  "Insert a new line below the current line without moving the cursor."
+  (interactive)
+  (save-excursion
+    (end-of-line)
+    (newline)))
+
+(defun insert-line-above ()
+  "Insert a new line above the current line, with proper indentation, and keep cursor in place."
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (open-line 1)
+    (indent-according-to-mode)))
 
 ;; Evil special keys
 (with-eval-after-load 'evil
   ;; bind normal mode n to add new line
-  (define-key evil-normal-state-map (kbd "n") (lambda ()
-                                               (interactive)
-                                               (end-of-line)
-                                               (newline-and-indent)))
-  (define-key evil-normal-state-map (kbd "N") (lambda ()
-                                               (interactive)
-                                               (beginning-of-line)
-                                               (open-line 1)
-                                               (indent-according-to-mode)
-                                               (next-line)))
+  (define-key evil-normal-state-map (kbd "n") 'insert-line-below)
+  (define-key evil-normal-state-map (kbd "N") 'insert-line-above)
   ;; Add half-page-up/down to arrow keys in normal/visual mode
   (define-key evil-normal-state-map (kbd "<up>") 'evil-scroll-up)
   (define-key evil-normal-state-map (kbd "<down>") 'evil-scroll-down)
