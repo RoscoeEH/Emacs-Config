@@ -268,11 +268,12 @@
 
 
 
-(global-set-key (kbd "C-c s") 'split-window-horizontal-dwim)
-(global-set-key (kbd "C-c d") 'split-window-vertical-dwim) 
-(global-set-key (kbd "C-c f") 'delete-window-dwim)
-(global-set-key (kbd "C-c a") 'delete-other-windows)
-(global-set-key (kbd "C-c o") 'balance-windows)
+
+(global-set-key (kbd "C-x s") 'split-window-horizontal-dwim)
+(global-set-key (kbd "C-x d") 'split-window-vertical-dwim) 
+(global-set-key (kbd "C-x f") 'delete-window-dwim)
+(global-set-key (kbd "C-x a") 'delete-other-windows)
+(global-set-key (kbd "C-x o") 'balance-windows)
 (global-set-key (kbd "M-o") 'other-window)
 
 
