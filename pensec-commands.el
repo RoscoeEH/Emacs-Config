@@ -57,7 +57,17 @@ prompt the user for a new value with shortcuts, and replace the existing value."
 
 (global-set-key (kbd "C-c n") 'create-note-file)
 
+(defun replace-literal-n-with-newline (start end)
+  "Replace all literal '\\n' strings with actual newlines in the selected region, or entire buffer if no region is active."
+  (interactive "r")
+  (save-excursion
+    (let ((search-start (if (use-region-p) start (point-min)))
+          (search-end   (if (use-region-p) end   (point-max))))
+      (goto-char search-start)
+      (while (re-search-forward "\\\\n" search-end t)
+        (replace-match "\n" nil t)))))
 
+(global-set-key (kbd "C-*") 'replace-literal-n-with-newline)
 
 ;;; pensec-commands.el ends here
 
