@@ -275,6 +275,7 @@
 (global-set-key (kbd "C-x a") 'delete-other-windows)
 (global-set-key (kbd "C-x o") 'balance-windows)
 (global-set-key (kbd "M-o") 'other-window)
+(global-set-key (kbd "M-N") 'make-frame)
 
 
 ;; Case change commands
