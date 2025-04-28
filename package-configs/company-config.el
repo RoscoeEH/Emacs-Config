@@ -11,6 +11,11 @@
   (define-key company-active-map (kbd "TAB") 'company-complete-common)
   (define-key company-active-map [tab] 'company-complete-common)
   
+  ;; Make RET just insert a newline, not complete
+  (define-key company-active-map (kbd "RET") nil)
+  (define-key company-active-map (kbd "<return>") nil)
+
+  
   ;; Don't automatically apply completions
   (setq company-require-match nil)
   
