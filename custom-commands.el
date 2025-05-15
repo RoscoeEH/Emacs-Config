@@ -425,6 +425,8 @@
 (global-set-key (kbd "M-b l") 'bookmark-bmenu-list)
 (global-set-key (kbd "M-b d") 'bookmark-delete)
 
-(define-key dired-mode-map (kbd "M-M") #'make-directory)
+(eval-after-load "dired"
+  '(define-key dired-mode-map (kbd "M-M") #'dired-create-directory))
+
 
 ;;; custum-commands.el ends here
