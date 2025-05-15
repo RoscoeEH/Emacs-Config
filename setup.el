@@ -114,4 +114,11 @@
 (setq ansi-color-for-comint-mode t) ; Enables support for 256-color ANSI
 
 
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
+
+
+
 ;;; setup.el ends here

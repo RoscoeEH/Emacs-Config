@@ -205,44 +205,44 @@
 
 
 
-;; paste preserves the spacing of the initial line
-(defun evil-paste-after-dwim (count &optional register yank-handler)
-(interactive "p")
-(let* ((start (point))
-        (initial-whitespace (save-excursion
-                                (goto-char (line-beginning-position))
-                                (when (looking-at "^[[:space:]]*")
-                                (match-string 0)))))
-    ;; Paste the text
-    (evil-paste-after count register yank-handler)
-    ;; Align pasted text by adding initial whitespace to each subsequent line
-    (when initial-whitespace
-    (save-excursion
-        (goto-char start)
-        (while (re-search-forward "\n\\([^\n]\\)" nil t)
-        (replace-match (concat "\n" initial-whitespace "\\1")))))))
+;; ;; paste preserves the spacing of the initial line
+;; (defun evil-paste-after-dwim (count &optional register yank-handler)
+;; (interactive "p")
+;; (let* ((start (point))
+;;         (initial-whitespace (save-excursion
+;;                                 (goto-char (line-beginning-position))
+;;                                 (when (looking-at "^[[:space:]]*")
+;;                                 (match-string 0)))))
+;;     ;; Paste the text
+;;     (evil-paste-after count register yank-handler)
+;;     ;; Align pasted text by adding initial whitespace to each subsequent line
+;;     (when initial-whitespace
+;;     (save-excursion
+;;         (goto-char start)
+;;         (while (re-search-forward "\n\\([^\n]\\)" nil t)
+;;         (replace-match (concat "\n" initial-whitespace "\\1")))))))
 
 
-(defun evil-paste-before-dwim (count &optional register yank-handler)
-(interactive "p")
-(let* ((start (point))
-        (initial-whitespace (save-excursion
-                                (goto-char (line-beginning-position))
-                                (when (looking-at "^[[:space:]]*")
-                                (match-string 0)))))
-    ;; Paste before the cursor
-    (evil-paste-before count register yank-handler)
-    ;; Align pasted text by adding initial whitespace to each subsequent line
-    (when initial-whitespace
-    (save-excursion
-        (goto-char start)
-        (while (re-search-forward "\n\\([^\n]\\)" nil t)
-        (replace-match (concat "\n" initial-whitespace "\\1")))))))
+;; (defun evil-paste-before-dwim (count &optional register yank-handler)
+;; (interactive "p")
+;; (let* ((start (point))
+;;         (initial-whitespace (save-excursion
+;;                                 (goto-char (line-beginning-position))
+;;                                 (when (looking-at "^[[:space:]]*")
+;;                                 (match-string 0)))))
+;;     ;; Paste before the cursor
+;;     (evil-paste-before count register yank-handler)
+;;     ;; Align pasted text by adding initial whitespace to each subsequent line
+;;     (when initial-whitespace
+;;     (save-excursion
+;;         (goto-char start)
+;;         (while (re-search-forward "\n\\([^\n]\\)" nil t)
+;;         (replace-match (concat "\n" initial-whitespace "\\1")))))))
 
 
 
-(define-key evil-normal-state-map (kbd "p") 'evil-paste-after-dwim)
-(define-key evil-normal-state-map (kbd "P") 'evil-paste-before-dwim)
+;; (define-key evil-normal-state-map (kbd "p") 'evil-paste-after-dwim)
+;; (define-key evil-normal-state-map (kbd "P") 'evil-paste-before-dwim)
 
 
 ;; Window management bindings with auto-balencing and window switching
@@ -425,6 +425,6 @@
 (global-set-key (kbd "M-b l") 'bookmark-bmenu-list)
 (global-set-key (kbd "M-b d") 'bookmark-delete)
 
-
+(define-key dired-mode-map (kbd "M-M") #'make-directory)
 
 ;;; custum-commands.el ends here
