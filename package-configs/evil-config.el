@@ -17,19 +17,36 @@
   (evil-collection-init))  ;; Initialize evil-collection after evil is loaded
 
 
+(defun insert-line-below ()
+  "Insert a new line below the current line without moving the cursor."
+  (interactive)
+  (save-excursion
+    (end-of-line)
+    (newline)))
+
+(defun insert-line-above (universal)
+  "Insert an empty line above the current line.
+The behaviour change if you pass the default UNIVERSAL argument.  Without it, a new line 
+above the current one will be created, but the point will not change its location.  With 
+the default UNIVERSAL argument, the point will change to the beginning of the new line created."
+  (interactive "P")
+  (if (equal universal '(4))
+      (progn
+        (end-of-line 0)
+        (open-line 1)
+        (forward-line))
+    (save-excursion
+      (end-of-line 0)
+      (open-line 1))))
+
+
+
+
 ;; Evil special keys
 (with-eval-after-load 'evil
   ;; bind normal mode n to add new line
-  (define-key evil-normal-state-map (kbd "n") (lambda ()
-                                               (interactive)
-                                               (end-of-line)
-                                               (newline-and-indent)))
-  (define-key evil-normal-state-map (kbd "N") (lambda ()
-                                               (interactive)
-                                               (beginning-of-line)
-                                               (open-line 1)
-                                               (indent-according-to-mode)
-                                               (next-line)))
+  (define-key evil-normal-state-map (kbd "N") 'insert-line-below)
+  (define-key evil-normal-state-map (kbd "n") 'insert-line-above)
   ;; Add half-page-up/down to arrow keys in normal/visual mode
   (define-key evil-normal-state-map (kbd "<up>") 'evil-scroll-up)
   (define-key evil-normal-state-map (kbd "<down>") 'evil-scroll-down)
