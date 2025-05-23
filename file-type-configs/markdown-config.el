@@ -92,4 +92,36 @@ preserving cursor position."
 (define-key evil-normal-state-map (kbd "z m") 'toggle-markdown-check)
 
 
+(use-package pandoc-mode
+  :ensure t
+  :hook (markdown-mode . pandoc-mode))
+
+
+(defun export-markdown (format &optional extra-args)
+  "Export current Markdown buffer using Pandoc to the specified FORMAT.
+Optionally pass EXTRA-ARGS as a list of additional arguments."
+  (interactive "sExport format (e.g., html, pdf): ")
+  (let* ((output (concat (file-name-sans-extension buffer-file-name) "." format))
+         (args (append (list "-f" "markdown"
+                             "-t" format
+                             "-o" output)
+                       extra-args)))
+    (apply #'call-process "pandoc" nil "*Pandoc Output*" t
+           (buffer-file-name) args)
+    (message "Exported to %s" output)))
+
+(defun export-markdown-to-html ()
+  "Export current Markdown buffer to HTML using Pandoc."
+  (interactive)
+  (export-markdown "html"))
+
+(defun export-markdown-to-pdf ()
+  "Export current Markdown buffer to PDF using Pandoc."
+  (interactive)
+  (export-markdown "pdf" '("--pdf-engine=xelatex")))
+
+
+(global-set-key (kbd "M-c e h") 'export-markdown-to-html)
+(global-set-key (kbd "M-c e p") 'export-markdown-to-pdf)
+
 ;;; markdown-config.el ends here
