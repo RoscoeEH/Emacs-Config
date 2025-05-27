@@ -69,6 +69,16 @@ prompt the user for a new value with shortcuts, and replace the existing value."
 
 (global-set-key (kbd "C-*") 'replace-literal-n-with-newline)
 
+
+(defun jump-to-te-md-references ()
+  "Jump to the end of the first line that contains 'references:'."
+  (interactive)
+  (goto-char (point-min))
+  (when (search-forward "references:" nil t)
+    (end-of-line)))
+
+(global-set-key (kbd "C-'") 'jump-to-te-md-references)
+
 ;;; pensec-commands.el ends here
 
 
