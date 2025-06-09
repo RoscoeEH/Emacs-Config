@@ -1,5 +1,14 @@
 ;;; ocaml-config.el starts here
 
+;; Ensure environment is set for PATH and OPAM
+(use-package exec-path-from-shell
+  :ensure t
+  :init
+  (setq exec-path-from-shell-shell-name "zsh")
+  :config
+  (exec-path-from-shell-initialize))
+
+
 ;; Disable Merlin completions
 (with-eval-after-load 'merlin
   (remove-hook 'merlin-mode-hook #'company-mode)
@@ -33,18 +42,13 @@
                          (add-hook 'before-save-hook 'ocamlformat-before-save nil t))))
 
 ;; Load OPAM environment
-(when (executable-find "opam")
-  (let ((opam-env (shell-command-to-string "opam env --shell=sh")))
-    (dolist (env (split-string opam-env "\n"))
-      (when (string-match "\\([^=]+\\)=\\(.*\\)" env)
-        (setenv (match-string 1 env) (match-string 2 env))))))
+;; (when (executable-find "opam")
+;;   (let ((opam-env (shell-command-to-string "opam env --shell=sh")))
+;;     (dolist (env (split-string opam-env "\n"))
+;;       (when (string-match "\\([^=]+\\)=\\(.*\\)" env)
+;;         (setenv (match-string 1 env) (match-string 2 env))))))
 
 
-;; Ensure environment is set for PATH and OPAM
-(use-package exec-path-from-shell
-  :ensure t
-  :config
-  (exec-path-from-shell-initialize))
 
 (when (memq window-system '(mac ns x))
   (exec-path-from-shell-copy-env "PATH")
