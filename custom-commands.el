@@ -277,6 +277,7 @@
 (global-set-key (kbd "M-o") 'other-window)
 (global-set-key (kbd "M-N") 'make-frame)
 (global-set-key (kbd "M-F") 'other-frame)
+(global-set-key (kbd "M-D") 'delete-frame)
 
 
 ;; Case change commands
