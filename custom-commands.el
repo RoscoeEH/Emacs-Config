@@ -374,4 +374,8 @@
 (eval-after-load "dired"
   '(define-key dired-mode-map (kbd "M-M") #'dired-create-directory))
 
+
+(global-set-key (kbd "M-D") 'delete-frame)
+
+
 ;;; custum-commands.el ends here

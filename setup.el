@@ -101,4 +101,28 @@
             (visual-line-mode 1)
             (setq word-wrap t)))
 
+;; ssh optimizations
+(setq tramp-default-method "ssh")
+(setq remote-file-name-inhibit-cache nil)
+(setq tramp-verbose 1)
+
+(setq tramp-completion-reread-directory-timeout nil)
+(setq tramp-use-ssh-controlmaster-options nil)
+
+(setq tramp-completion-function-alist nil)
+
+(setq tramp-default-method "ssh")
+(setq tramp-auto-save-directory (concat EMACS_PATH "tramp-autosave"))
+(setq tramp-completion-reread-directory-timeout nil)
+(setq tramp-verbose 1)  ;; for mild logging, increase to 10 for full trace
+
+;; Avoid TRAMP completion freeze with Vertico
+(defun my/disable-tramp-completion ()
+  "Disable `completion-at-point-functions' when entering a TRAMP path manually."
+  (when (and (minibufferp)
+             (string-match-p "\\`/ssh:" (minibuffer-contents)))
+    (setq-local completion-at-point-functions nil)))
+
+(add-hook 'minibuffer-setup-hook #'my/disable-tramp-completion)
+
 ;;; setup.el ends here
