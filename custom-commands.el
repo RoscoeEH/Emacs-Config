@@ -164,6 +164,20 @@
 ;; Bind it to SPC ' in visual mode
 (define-key evil-visual-state-map (kbd "SPC '") 'wrap-with-single-quotes)
 
+;; Function to wrap selected text in single quotes
+(defun wrap-with-angle-brackets ()
+"Wrap selected text with single quotes."
+(interactive)
+(let ((start (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert "<")
+    (goto-char start)
+    (insert ">")
+    (evil-normal-state)))
+
+(define-key evil-visual-state-map (kbd "SPC <") ' wrap-with-angle-brackets)
+
 (defun remove-wrapping-delimiters ()
   (interactive)
   (when (evil-visual-state-p)
@@ -365,7 +379,8 @@
                  (format "cd %s && cargo build"
                          (locate-dominating-file default-directory "Cargo.toml")))
                 ((eq major-mode 'tuareg-mode)
-                 "dune build")
+                 (format "cd %s && make"
+                         (locate-dominating-file default-directory "Makefile")))
                 ((or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
                  "make")
                 (t "make"))))
@@ -429,5 +444,12 @@
 (eval-after-load "dired"
   '(define-key dired-mode-map (kbd "M-M") #'dired-create-directory))
 
+(with-eval-after-load 'dired
+  (evil-define-key 'normal dired-mode-map
+    "i" 'dired-maybe-insert-subdir))
+
+(with-eval-after-load 'dired
+  (evil-define-key 'normal dired-mode-map
+    "^" 'dired-kill-subdir))
 
 ;;; custum-commands.el ends here
