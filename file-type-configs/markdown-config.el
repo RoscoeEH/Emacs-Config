@@ -11,7 +11,6 @@ or erase the delimiter if the line is empty.
 Handles bullets ('- ' or '* '), numbered items (\"1) \" or \"1. \"),
 and checklists ('- [ ] ')."
   (interactive)
-  (message "markdown-list-dwim called")
   (let* ((current-line (thing-at-point 'line t))
          ;; Capture leading whitespace.
          (indent (if (string-match "^[ \t]*" current-line)
