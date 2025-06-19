@@ -84,6 +84,8 @@
     (let ((dir (read-directory-name "Search in directory: ")))
       (grep (concat "rg -nH " (read-from-minibuffer "Enter rg command: ") " \"" dir "\"")))))
 
+(global-set-key (kbd "M-g n") 'consult-find)
+
 ;; Function to wrap selected text in parentheses
 (defun wrap-with-parens ()
 "Wrap selected text with parentheses."

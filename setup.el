@@ -125,4 +125,6 @@
 
 (add-hook 'minibuffer-setup-hook #'my/disable-tramp-completion)
 
+(global-unset-key (kbd "<f18>"))
+
 ;;; setup.el ends here
