@@ -69,18 +69,18 @@
 
 ; manage tab spacing
 (defun convert-tabs-to-spaces ()
-    "Convert all tabs to spaces."
-    (untabify (point-min) (point-max)))
+  "Convert all tabs to spaces, except in Makefile modes."
+  (unless (or (derived-mode-p 'makefile-mode)
+              (derived-mode-p 'makefile-bsdmake-mode))
+    (untabify (point-min) (point-max))))
+
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
 
 (add-hook 'before-save-hook 'convert-tabs-to-spaces)
 
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 2)  ;; Set the number of spaces for a tab, change 4 to your preference
-
-
-(add-hook 'makefile-mode-hook
-        (lambda ()
-            (setq indent-tabs-mode t)))
+(dolist (hook '(makefile-mode-hook makefile-bsdmake-mode-hook))
+  (add-hook hook (lambda () (setq indent-tabs-mode t))))
 
 
 ;; Remove scroll bars
@@ -119,6 +119,9 @@
   :config
   (exec-path-from-shell-initialize))
 
+
+;; SSH setup
+(setq tramp-verbose 10)
 
 
 ;;; setup.el ends here
