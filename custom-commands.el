@@ -88,6 +88,7 @@
       (grep (concat "rg -nH " (read-from-minibuffer "Enter rg command: ") " " dir
                     " | sed 's/\\(.*\\):\\([0-9]*\\)/\\1:\\2/'")))))
 
+(global-set-key (kbd "M-g f") 'consult-find)
 
 ;; Function to wrap selected text in parentheses
 (defun wrap-with-parens ()
