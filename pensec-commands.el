@@ -37,6 +37,16 @@ prompt the user for a new value with shortcuts, and replace the existing value."
 
 (global-set-key (kbd "M-g s") 'search-te-md-files-for-tag)
 
+(defun search-te-md-files-for-qa (directory tag)
+  "Search for TAG in markdown files beginning with 'TE' under DIRECTORY, with results sorted by filename, this one finds QA status."
+  (interactive "DDirectory: \nsTag to search for: ")
+  (let ((command
+         (format "rg -nH --sort-files -i -e \"QA:\\s*%s\" --glob \"TE*.md\" \"%s\""
+                 tag directory)))
+    (grep command)))
+
+(global-set-key (kbd "M-g q") 'search-te-md-files-for-qa)
+
 ;; Open a new notes file
 (defun create-note-file (name)
   "Prompt for a note NAME (defaults to 'notes' if empty), create a markdown file with NAME, date, and time in the path C:/Users/Roscoe/Documents/Notes."
