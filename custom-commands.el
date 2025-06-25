@@ -84,7 +84,7 @@
     (let ((dir (read-directory-name "Search in directory: ")))
       (grep (concat "rg -nH " (read-from-minibuffer "Enter rg command: ") " \"" dir "\"")))))
 
-(global-set-key (kbd "M-g n") 'consult-find)
+(global-set-key (kbd "M-g f") 'consult-find)
 
 ;; Function to wrap selected text in parentheses
 (defun wrap-with-parens ()
@@ -379,5 +379,10 @@
 
 (global-set-key (kbd "M-D") 'delete-frame)
 
+;; Replace commands
+(define-key evil-normal-state-map (kbd "SPC r q s") 'query-replace)
+(define-key evil-normal-state-map (kbd "SPC r q r") 'query-replace-regexp)
+(define-key evil-normal-state-map (kbd "SPC r r") 'replace-regexp)
+(define-key evil-normal-state-map (kbd "SPC r s") 'replace-string)
 
 ;;; custum-commands.el ends here

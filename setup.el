@@ -127,4 +127,6 @@
 
 (global-unset-key (kbd "<f18>"))
 
+;;(setenv "PYTHONPATH" "C:/Users/Roscoe/AppData/Roaming/Python/Python313/site-packages")
+
 ;;; setup.el ends here

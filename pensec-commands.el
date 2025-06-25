@@ -35,7 +35,7 @@ prompt the user for a new value with shortcuts, and replace the existing value."
                  tag directory)))
     (grep command)))
 
-(global-set-key (kbd "M-g f") 'search-te-md-files-for-tag)
+(global-set-key (kbd "M-g s") 'search-te-md-files-for-tag)
 
 ;; Open a new notes file
 (defun create-note-file (name)
