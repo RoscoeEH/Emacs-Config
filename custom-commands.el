@@ -172,12 +172,13 @@
 (let ((start (region-beginning))
         (end (region-end)))
     (goto-char end)
-    (insert "<")
-    (goto-char start)
     (insert ">")
+    (goto-char start)
+    (insert "<")
     (evil-normal-state)))
 
 (define-key evil-visual-state-map (kbd "SPC <") ' wrap-with-angle-brackets)
+
 
 (defun remove-wrapping-delimiters ()
   (interactive)
