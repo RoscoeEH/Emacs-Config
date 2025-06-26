@@ -82,16 +82,6 @@ the default UNIVERSAL argument, the point will change to the beginning of the ne
 (setq evil-insert-state-cursor '("green" bar))
 (setq evil-visual-state-cursor '("red" box))
 
-;; Replacement keybinds
-(define-key evil-normal-state-map (kbd "SPC r q s") 'query-replace)
-(define-key evil-normal-state-map (kbd "SPC r q r") 'query-replace-regexp)
-(define-key evil-normal-state-map (kbd "SPC r s") 'relpace-string)
-(define-key evil-normal-state-map (kbd "SPC r r") 'replace-regexp)
-
-(define-key evil-visual-state-map (kbd "SPC r q s") 'query-replace)
-(define-key evil-visual-state-map (kbd "SPC r q r") 'query-replace-regexp)
-(define-key evil-visual-state-map (kbd "SPC r s") 'replace-string)
-(define-key evil-visual-state-map (kbd "SPC r r") 'replace-regexp)
 
 
 ;;; evil-config.el ends here

@@ -454,4 +454,16 @@
   (evil-define-key 'normal dired-mode-map
     "^" 'dired-kill-subdir))
 
+;; Replacement keybinds
+(define-key evil-normal-state-map (kbd "C-x r q s") 'query-replace)
+(define-key evil-normal-state-map (kbd "C-x r q r") 'query-replace-regexp)
+(define-key evil-normal-state-map (kbd "C-x r s") 'relpace-string)
+(define-key evil-normal-state-map (kbd "C-x r r") 'replace-regexp)
+
+(define-key evil-visual-state-map (kbd "C-x r q s") 'query-replace)
+(define-key evil-visual-state-map (kbd "C-x r q r") 'query-replace-regexp)
+(define-key evil-visual-state-map (kbd "C-x r s") 'replace-string)
+(define-key evil-visual-state-map (kbd "C-x r r") 'replace-regexp)
+
+(global-set-key (kbd "C-x r p") 'project-query-replace-regexp)
 ;;; custum-commands.el ends here

@@ -9,10 +9,11 @@
 ;; Bind Magit status to a key (e.g., C-x g s)
 (global-set-key (kbd "C-x g s") 'magit-status)
 
-
-
 ;; Added command for cloning a repo with magit
 (global-set-key (kbd "C-x g c") 'magit-clone)
+
+;; Command for magit-init
+(global-set-key (kbd "C-x g i") 'magit-init)
 
 
 (setq magit-git-executable "/usr/bin/git")
