@@ -466,4 +466,11 @@
 (global-set-key (kbd "C-x r r") 'replace-regexp)
 
 (global-set-key (kbd "C-x r p") 'project-query-replace-regexp)
+
+
+(global-set-key (kbd "C-c h h") 'highlight-regexp)
+(global-set-key (kbd "C-c h u") 'unhighlight-regexp)
+
+
+(global-set-key (kbd "M-c e") 'eval-buffer)
 ;;; custum-commands.el ends here
