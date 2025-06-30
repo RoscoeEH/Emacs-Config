@@ -48,10 +48,15 @@ the default UNIVERSAL argument, the point will change to the beginning of the ne
   (define-key evil-normal-state-map (kbd "N") 'insert-line-below)
   (define-key evil-normal-state-map (kbd "n") 'insert-line-above)
   ;; Add half-page-up/down to arrow keys in normal/visual mode
-  (define-key evil-normal-state-map (kbd "<up>") 'evil-scroll-up)
-  (define-key evil-normal-state-map (kbd "<down>") 'evil-scroll-down)
-  (define-key evil-visual-state-map (kbd "<up>") 'evil-scroll-up)
-  (define-key evil-visual-state-map (kbd "<down>") 'evil-scroll-down)
+  (define-key evil-normal-state-map (kbd "M-<up>") 'evil-scroll-up)
+  (define-key evil-normal-state-map (kbd "M-<down>") 'evil-scroll-down)
+  (define-key evil-visual-state-map (kbd "M-<up>") 'evil-scroll-up)
+  (define-key evil-visual-state-map (kbd "M-<down>") 'evil-scroll-down)
+
+  (define-key evil-normal-state-map (kbd "<up>") 'evil-scroll-line-up)
+  (define-key evil-normal-state-map (kbd "<down>") 'evil-scroll-line-down)
+  (define-key evil-visual-state-map (kbd "<up>") 'evil-scroll-line-up)
+  (define-key evil-visual-state-map (kbd "<down>") 'evil-scroll-line-down)
   ;; Bind occur to Space-f in normal and visual states
   (define-key evil-normal-state-map (kbd "SPC f") 'occur)
   (define-key evil-visual-state-map (kbd "SPC f") 'occur))

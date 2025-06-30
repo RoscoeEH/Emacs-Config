@@ -349,8 +349,6 @@
 (define-key evil-visual-state-map (kbd "$") 'evil-end-of-line-non-whitespace)
 
 
-(global-set-key (kbd "M-<up>") 'scroll-down-line)
-(global-set-key (kbd "M-<down>") 'scroll-up-line)
 
 ;; Tabbing sections in visual mode
 (define-key evil-visual-state-map (kbd "TAB") 'maintain/evil-shift-right-visual)
@@ -471,6 +469,4 @@
 (global-set-key (kbd "C-c h h") 'highlight-regexp)
 (global-set-key (kbd "C-c h u") 'unhighlight-regexp)
 
-
-(global-set-key (kbd "M-c e") 'eval-buffer)
 ;;; custum-commands.el ends here
