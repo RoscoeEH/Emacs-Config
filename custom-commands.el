@@ -380,12 +380,44 @@
 (global-set-key (kbd "M-D") 'delete-frame)
 
 ;; Replace commands
-(define-key evil-normal-state-map (kbd "SPC r q s") 'query-replace)
-(define-key evil-normal-state-map (kbd "SPC r q r") 'query-replace-regexp)
-(define-key evil-normal-state-map (kbd "SPC r r") 'replace-regexp)
-(define-key evil-normal-state-map (kbd "SPC r s") 'replace-string)
-(define-key evil-visual-state-map (kbd "SPC r q s") 'query-replace)
-(define-key evil-visual-state-map (kbd "SPC r q r") 'query-replace-regexp)
-(define-key evil-visual-state-map (kbd "SPC r r") 'replace-regexp)
-(define-key evil-visual-state-map (kbd "SPC r s") 'replace-string)
+(define-key evil-normal-state-map (kbd "C-x r q s") 'query-replace)
+(define-key evil-normal-state-map (kbd "C-x r q r") 'query-replace-regexp)
+(define-key evil-normal-state-map (kbd "C-x r r") 'replace-regexp)
+(define-key evil-normal-state-map (kbd "C-x r s") 'replace-string)
+(define-key evil-visual-state-map (kbd "C-x r q s") 'query-replace)
+(define-key evil-visual-state-map (kbd "C-x r q r") 'query-replace-regexp)
+(define-key evil-visual-state-map (kbd "C-x r r") 'replace-regexp)
+(define-key evil-visual-state-map (kbd "C-x r s") 'replace-string)
+
+(global-set-key (kbd "C-x r p") 'project-query-replace-regexp)
+
+(defun take-section-down (&optional arg)
+  "Select a section of text in visual mode. By default selects the current line, optional argument to select n lines down."
+  (interactive "P")
+  (evil-beginning-of-line)
+  (if arg
+      (progn
+        (evil-visual-line)
+        (dotimes (_ (prefix-numeric-value arg))
+          (evil-next-line)))
+    (evil-visual-line))
+  (evil-end-of-line-non-whitespace))
+
+(defun take-section-up (&optional arg)
+  "Select a section of text in visual mode. By default selects the current line, optional argument to select n lines up."
+  (interactive "P")
+  (evil-beginning-of-line)
+  (if arg
+      (progn
+        (evil-visual-line)
+        (dotimes (_ (prefix-numeric-value arg))
+          (evil-previous-line)))
+    (evil-visual-line))
+  (evil-end-of-line-non-whitespace))
+
+
+(define-key evil-normal-state-map (kbd "t") 'take-section-down)
+(define-key evil-normal-state-map (kbd "T") 'take-section-up)
+
+
 ;;; custum-commands.el ends here
