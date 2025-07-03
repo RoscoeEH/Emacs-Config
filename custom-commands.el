@@ -469,4 +469,32 @@
 (global-set-key (kbd "C-c h h") 'highlight-regexp)
 (global-set-key (kbd "C-c h u") 'unhighlight-regexp)
 
+(defun evil-take-section-down (&optional arg)
+  "Select a section of text in visual mode. By default selects the current line, optional argument to select n lines down."
+  (interactive "P")
+  (evil-beginning-of-line)
+  (if arg
+      (progn
+        (evil-visual-line)
+        (dotimes (_ (prefix-numeric-value arg))
+          (evil-next-line)))
+    (evil-visual-line))
+  (evil-end-of-line-non-whitespace))
+
+(defun evil-take-section-up (&optional arg)
+  "Select a section of text in visual mode. By default selects the current line, optional argument to select n lines up."
+  (interactive "P")
+  (evil-beginning-of-line)
+  (if arg
+      (progn
+        (evil-visual-line)
+        (dotimes (_ (prefix-numeric-value arg))
+          (evil-previous-line)))
+    (evil-visual-line))
+  (evil-end-of-line-non-whitespace))
+
+
+(define-key evil-normal-state-map (kbd "t") 'evil-take-section-down)
+(define-key evil-normal-state-map (kbd "T") 'evil-take-section-up)
+
 ;;; custum-commands.el ends here
