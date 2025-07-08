@@ -406,18 +406,20 @@
 (defun take-section-up (&optional arg)
   "Select a section of text in visual mode. By default selects the current line, optional argument to select n lines up."
   (interactive "P")
-  (evil-beginning-of-line)
+  (evil-end-of-line-non-whitespace)
   (if arg
       (progn
         (evil-visual-line)
         (dotimes (_ (prefix-numeric-value arg))
           (evil-previous-line)))
     (evil-visual-line))
-  (evil-end-of-line-non-whitespace))
+  (evil-beginning-of-line))
 
 
 (define-key evil-normal-state-map (kbd "t") 'take-section-down)
 (define-key evil-normal-state-map (kbd "T") 'take-section-up)
 
+(global-set-key (kbd "C-c h h") 'highlight-regexp)
+(global-set-key (kbd "C-c h u") 'unhighlight-regexp)
 
 ;;; custum-commands.el ends here
