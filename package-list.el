@@ -34,4 +34,6 @@
 
 (load (concat PACKAGES_PATH "org-config.el"))
 
+(load (concat PACKAGES_PATH "buffer-move-config.el"))
+
 ;;; package-list.el ends here
