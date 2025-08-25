@@ -125,8 +125,13 @@
 
 (add-hook 'minibuffer-setup-hook #'my/disable-tramp-completion)
 
-(global-unset-key (kbd "<f18>"))
+(setenv "PATH"
+  (concat
+    "C:\\Program Files\\Git\\cmd;"  ;; Git
+    "C:\\Windows\\System32\\OpenSSH;" ;; OpenSSH
+    (getenv "PATH")))
 
 ;;(setenv "PYTHONPATH" "C:/Users/Roscoe/AppData/Roaming/Python/Python313/site-packages")
 
+(autoload 'powershell "powershell.exe" "Run powershell as a shell within emacs." t)
 ;;; setup.el ends here

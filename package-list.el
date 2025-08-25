@@ -26,4 +26,6 @@
 
 (load (concat PACKAGES_PATH "consult-config.el"))
 
+(load (concat PACKAGES_PATH "buffer-move-config.el"))
+
 ;;; package-list.el ends here

@@ -422,4 +422,10 @@
 (global-set-key (kbd "C-c h h") 'highlight-regexp)
 (global-set-key (kbd "C-c h u") 'unhighlight-regexp)
 
+(define-key evil-visual-state-map (kbd "C-x U") 'capitalize-region)
+
+(with-eval-after-load 'dired
+  (define-key dired-mode-map (kbd "C-x r m") 'dired-do-query-replace-regexp))
+
+
 ;;; custum-commands.el ends here

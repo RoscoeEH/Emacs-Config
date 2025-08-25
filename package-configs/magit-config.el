@@ -18,6 +18,8 @@
 (setq magit-git-executable "C:/Program Files/Git/bin/git.exe")
 (setq magit-credential 'osxkeychain)
 (setenv "SSH_AUTH_SOCK" (getenv "SSH_AUTH_SOCK"))
+(setenv "GIT_SSH_COMMAND" "\"C:/Windows/System32/OpenSSH/ssh.exe\"")
+
 
 ;; Prevent Magit from inheriting direnv environment
 (with-eval-after-load 'magit

@@ -84,12 +84,26 @@ prompt the user for a new value with shortcuts, and replace the existing value."
   "Jump to the end of the first line that contains 'references:'."
   (interactive)
   (goto-char (point-min))
-  (when (search-forward "references:" nil t)
-    (end-of-line)))
+  (when (re-search-forward "^references:" nil t 2)
+    (end-of-line)
+    (markdown-forward-paragraph)))
 
 (global-set-key (kbd "C-'") 'jump-to-te-md-references)
 
+(defun alg-testing ()
+  "Run the algorithm testing tool"
+  (interactive)
+  (let ((default-directory "C:/Users/Roscoe/Documents/Tools and Scripts/ACV_Client/"))
+    (compile "python3 ProgramFiles/acv_gui_tk.py")))
+
+(use-package openwith
+  :ensure t
+  :config
+  (setq openwith-associations
+        '(("\\.pdf\\'" "start" ("\"\"" file))
+          ("\\.docx?\\'" "start" ("\"\"" file))
+          ("\\.xlsx?\\'" "start" ("\"\"" file))
+          ("\\.pptx?\\'" "start" ("\"\"" file))))
+  (openwith-mode 1))
+
 ;;; pensec-commands.el ends here
-
-
-

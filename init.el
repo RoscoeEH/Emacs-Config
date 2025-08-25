@@ -30,5 +30,6 @@
 ;; Load pensec specific commands
 (load (concat CONFIG_PATH "pensec-commands.el"))
 (load (concat CONFIG_PATH "fips-xref.el"))
+(load (concat CONFIG_PATH "copy-refs.el"))
 
 ;;; init.el ends here
