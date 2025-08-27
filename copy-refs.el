@@ -48,8 +48,8 @@
                 (goto-char (point-min))
                 (when (re-search-forward "^references:" nil t)
                 (end-of-line)
-                (when (search-backward "[]" (line-beginning-position) t)
-                    (delete-region (point) (+ (point) 2))))
+                (when (re-search-backward "\\[[^]]*\\]" (line-beginning-position) t)
+                    (delete-region (match-beginning 0) (match-end 0))))
                 ))))))))
 
 (defun sync-te-refs-on-save ()
