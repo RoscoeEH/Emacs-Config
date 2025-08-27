@@ -5,11 +5,15 @@
   (save-excursion
     (goto-char (point-min))
     (if (not (re-search-forward "^## Assessment" nil t))
-        (message "No Assessment section found block found")
-      ;; advance to second occurrence
-      (if (not (re-search-forward "^References:" nil t))
-          (message "No References found. Nothing to sync.")
-        (let ((bottom-lines '()))
+    (message "No Assessment section found")
+    ;; find limit = next "##" or end of buffer
+    (let ((limit (or (save-excursion
+                     (when (re-search-forward "^##" nil t)
+                       (line-beginning-position)))
+                   (point-max))))
+    (if (not (re-search-forward "^References:" limit t))
+        (message "No References found. Nothing to sync."))
+      (let ((bottom-lines '()))
           (forward-line 1)
           ;; collect lines
           (while (and (not (eobp))
@@ -39,7 +43,14 @@
                 (goto-char insert-pos)
                 (dolist (line bottom-lines)
                   (insert "   - " line "\n"))
-                (message "Top 'references:' synchronized from second 'References:'. Completed.")))))))))
+                (message "Top 'references:' synchronized from second 'References:'. Completed.")
+                ;; Remove '[]' if it is there
+                (goto-char (point-min))
+                (when (re-search-forward "^references:" nil t)
+                (end-of-line)
+                (when (search-backward "[]" (line-beginning-position) t)
+                    (delete-region (point) (+ (point) 2))))
+                ))))))))
 
 (defun sync-te-refs-on-save ()
   "If current buffer is a TE*.md file, sync top references from bottom."
@@ -58,5 +69,14 @@
   (with-current-buffer buf
     (when (derived-mode-p 'markdown-mode)
       (sync-te-refs-hook))))
+
+(defun dired-do-sync-te-refs ()
+  "Run `sync-te-refs` on all marked files in dired."
+  (interactive)
+  (let ((files (dired-get-marked-files)))
+    (dolist (file files)
+      (with-current-buffer (find-file-noselect file)
+        (sync-te-refs)
+        (save-buffer)))))
 
 ;;; copy-refs.el ends here

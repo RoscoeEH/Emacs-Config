@@ -79,14 +79,34 @@ prompt the user for a new value with shortcuts, and replace the existing value."
 
 (global-set-key (kbd "C-*") 'replace-literal-n-with-newline)
 
-
 (defun jump-to-te-md-references ()
-  "Jump to the end of the first line that contains 'references:'."
+  "Jump to or create 'References:'"
   (interactive)
   (goto-char (point-min))
-  (when (re-search-forward "^references:" nil t 2)
-    (end-of-line)
-    (markdown-forward-paragraph)))
+  (if (not (re-search-forward "^## Assessment" nil t))
+      (message "No Assessment section found")
+    (let* ((limit (or (save-excursion
+                        (when (re-search-forward "^## " nil t)
+                          (line-beginning-position)))
+                      (point-max))))
+      (if (re-search-forward "^References:" limit t)
+          (markdown-forward-paragraph)
+        (goto-char limit)
+        (unless (bolp) (newline)) 
+        (insert "References:\n\n")
+        (forward-line -1)
+        (insert "-- ")
+        (evil-append 1 1 nil)
+        ))))
+
+;; (defun jump-to-te-md-references ()
+;;   "Jump to the end of the first line that contains 'references:'."
+;;   (interactive)
+;;   (goto-char (point-min))
+;;   (when (re-search-forward "^## Assessment" nil t)
+;;       (re-search-forward "^references:" nil t)
+;;     (end-of-line)
+;;     (markdown-forward-paragraph)))
 
 (global-set-key (kbd "C-'") 'jump-to-te-md-references)
 

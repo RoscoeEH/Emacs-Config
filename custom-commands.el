@@ -424,8 +424,21 @@
 
 (define-key evil-visual-state-map (kbd "C-x U") 'capitalize-region)
 
+(defun dired-insert-marked-subdirs ()
+  "Run `dired-maybe-insert-subdir` on all marked directories in Dired."
+  (interactive)
+  (let ((dirs (dired-get-marked-files nil nil nil t))) ;; t => directories only
+    (dolist (dir dirs)
+      (when (file-directory-p dir)
+        (dired-maybe-insert-subdir dir)))))
+
 (with-eval-after-load 'dired
-  (define-key dired-mode-map (kbd "C-x r m") 'dired-do-query-replace-regexp))
+  (define-key dired-mode-map (kbd "C-x r m") 'dired-do-query-replace-regexp)
+  (evil-define-key 'normal dired-mode-map "i" 'dired-maybe-insert-subdir)
+  (evil-define-key 'normal dired-mode-map "^" 'dired-kill-subdir)
+  (evil-define-key 'normal dired-mode-map "&" 'dired-insert-marked-subdirs))
+
+
 
 
 ;;; custum-commands.el ends here
