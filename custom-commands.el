@@ -328,15 +328,6 @@
                                             (delete-char 1)
                                             (evil-insert-state)))
 
-(defun toggle-fullscreen ()
-    "Toggle fullscreen mode on macOS."
-    (interactive)
-    (set-frame-parameter nil 'fullscreen
-                            (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
-
-;; Bind Command-Control-f to toggle fullscreen
-(global-set-key (kbd "s-C-f") 'toggle-fullscreen)
-
 
 ;; Skip eol chars on evil-end-of-line
 (defun evil-end-of-line-non-whitespace ()
@@ -496,5 +487,17 @@
 
 (define-key evil-normal-state-map (kbd "t") 'evil-take-section-down)
 (define-key evil-normal-state-map (kbd "T") 'evil-take-section-up)
+
+
+;; Copy paste commands
+(defun universal-paste ()
+  "Paste using `term-paste` in `vterm-mode`, otherwise `yank`."
+  (interactive)
+  (if (derived-mode-p 'vterm-mode)
+      (term-paste)
+    (yank)))
+
+(global-set-key (kbd "C-c v") 'universal-paste)
+(global-set-key (kbd "C-c c") 'kill-ring-save)
 
 ;;; custum-commands.el ends here

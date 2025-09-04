@@ -5,10 +5,9 @@
 
 (add-hook 'rust-mode-hook #'flycheck-mode)
 
-(require 'rust-mode)
-(add-hook 'rust-mode-hook
-        (lambda ()
-            (rust-enable-format-on-save)))  ; Optional: enable formatting on save
+(use-package rust-mode
+  :ensure t
+  :hook (rust-mode . rust-enable-format-on-save))
 
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 

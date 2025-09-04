@@ -119,6 +119,8 @@
   :config
   (exec-path-from-shell-initialize))
 
+;; Disable super key
+(setq x-super-keysym nil)
 
 ;; SSH setup
 (setq tramp-verbose 10)
