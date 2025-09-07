@@ -17,7 +17,6 @@
 
 
 (setq magit-git-executable "/usr/bin/git")
-(setq magit-credential 'osxkeychain)
 (setenv "SSH_AUTH_SOCK" (getenv "SSH_AUTH_SOCK"))
 
 (with-eval-after-load 'magit

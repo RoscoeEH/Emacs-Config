@@ -63,4 +63,6 @@
 (add-to-list 'auto-mode-alist '("\\.mli\\'" . tuareg-mode))
 
 
+(use-package opam-switch-mode
+  :ensure t)
 ;;; ocaml-config.el ends here
