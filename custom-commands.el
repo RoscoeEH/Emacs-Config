@@ -509,7 +509,9 @@
       (set-input-method nil)
     (set-input-method "greek")))
 
-(global-set-key (kbd "C-l") 'toggle-greek-english)
+(global-set-key (kbd "C-\\") 'toggle-greek-english)
 
 (global-set-key (kbd "M-s") 'save-buffer)
+
+
 ;;; custum-commands.el ends here
