@@ -500,4 +500,15 @@
 (global-set-key (kbd "C-c v") 'universal-paste)
 (global-set-key (kbd "C-c c") 'kill-ring-save)
 
+
+;; Allow to type greek easily
+(defun toggle-greek-english ()
+  "Toggle the input method between Greek and English."
+  (interactive)
+  (if (string= current-input-method "greek")
+      (set-input-method nil)
+    (set-input-method "greek")))
+
+(global-set-key (kbd "C-l") 'toggle-greek-english)
+
 ;;; custum-commands.el ends here
