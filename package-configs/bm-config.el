@@ -21,7 +21,7 @@
   ;; Make sure the repository is loaded when Emacs starts
   (bm-repository-load)
 
-  (key-chord-define-global "cb" 'bm-toggle)
+  (global-set-key (kbd "C-c b t") 'bm-toggle)
 
   (global-set-key (kbd "C-c .") 'bm-next)
 

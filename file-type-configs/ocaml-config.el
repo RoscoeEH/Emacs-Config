@@ -31,7 +31,7 @@
   :hook ((tuareg-mode . merlin-mode)
          (caml-mode . merlin-mode))
   :config
-  (setq merlin-command "ocamlmerlin"))
+  (setq merlin-command (concat (getenv "OPAM_SWITCH_PREFIX") "/bin/ocamlmerlin")))
 
 ;; OCamlFormat integration
 (use-package ocamlformat
